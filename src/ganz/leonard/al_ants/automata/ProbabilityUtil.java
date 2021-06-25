@@ -18,13 +18,9 @@ public class ProbabilityUtil {
     if (rawProbabilities.isEmpty()) {
       return Map.of();
     }
-    rawProbabilities.values().stream()
-        .filter(d -> d < 0)
-        .findAny()
-        .ifPresent(
-            __ -> {
-              throw new IllegalArgumentException("All Probabilities must be >= 0");
-            });
+    if (rawProbabilities.values().stream().anyMatch(d -> d < 0)) {
+      throw new IllegalArgumentException("All Probabilities must be >= 0");
+    }
     double sum = rawProbabilities.values().stream().mapToDouble(Double::doubleValue).sum();
     if (sum == 0) {
       // ensures no division by 0 occurs
@@ -53,6 +49,6 @@ public class ProbabilityUtil {
       }
     }
     throw new IllegalArgumentException(
-        "All probabilities 0 or invalid probabilities (e.g. sum != !)");
+        "All probabilities 0 or invalid probabilities (e.g. sum != 1)");
   }
 }

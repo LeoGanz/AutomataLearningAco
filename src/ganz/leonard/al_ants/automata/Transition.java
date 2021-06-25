@@ -15,7 +15,7 @@ public class Transition<T> {
     this.pheromones = rules;
   }
 
-  double getRawProbabilityFor(T letter) {
+  public double getRawProbabilityFor(T letter) {
     // calculate Prob
     return 0.5;
   }

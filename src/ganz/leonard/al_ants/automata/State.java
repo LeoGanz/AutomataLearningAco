@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * State of an automaton. Can be an accepting state or not.
+ *
+ * @param <T> type used as alphabet
+ */
 public class State<T> {
   private final boolean isAccepting;
   private final Map<Transition<T>, State<T>> outgoingTransitions;
