@@ -10,13 +10,13 @@ public class LanguageTest {
   public static final int NR_SAMPLES = 500;
 
   public static void main(String[] args) {
-    Language<Character> testLang =
-        new Language<>(new Leaf<>('a').rep().seq(new Leaf<>('b'))); // a*b
+    Language<String> testLang =
+        new Language<>(new Leaf<>("Fst").rep().seq(new Leaf<>("Snd"))); // a*b
     System.out.println("Language: " + testLang);
 
     SortedMap<List<?>, Integer> frequencies = new TreeMap<>(Comparator.comparingInt(List::size));
     for (int i = 0; i < NR_SAMPLES; i++) {
-      List<Character> sample = testLang.generateSample();
+      List<String> sample = testLang.generateSample();
       int count = frequencies.getOrDefault(sample, 0);
       frequencies.put(sample, count + 1);
     }
