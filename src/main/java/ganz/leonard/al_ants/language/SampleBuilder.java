@@ -1,6 +1,5 @@
 package ganz.leonard.al_ants.language;
 
-import ganz.leonard.al_ants.automata.ProbabilityUtil;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,8 +49,8 @@ public class SampleBuilder<T> implements ExpressionVisitor<T> {
   public List<T> visit(Repetition<T> rep) {
     int repetitions;
     switch (mode) {
-      case LINEAR -> repetitions = ProbabilityUtil.sampleLinearDist(minRepetitions, maxRepetitions + 1);
-      case EXPONENTIAL -> repetitions = ProbabilityUtil.sampleExpDist();
+      case LINEAR -> repetitions = RNGUtil.sampleLinearDist(minRepetitions, maxRepetitions + 1);
+      case EXPONENTIAL -> repetitions = RNGUtil.sampleExpDist();
       default -> throw new IllegalStateException("Unknown mode to calculate repetitions");
     }
 
