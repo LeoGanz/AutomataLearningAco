@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id "checkstyle"
+    id 'application'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'ganz.leonard.al_ants.Main'
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+}
+
+System.setProperty( "org.checkstyle.google.suppressionfilter.config", "$rootProject.projectDir/config/checkstyle/checkstyle-suppressions.xml")
+checkstyle {
+    toolVersion '8.43'
+    maxWarnings = 0
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
