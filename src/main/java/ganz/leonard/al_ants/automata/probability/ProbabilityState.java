@@ -19,7 +19,6 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
     outgoingTransitions = new HashMap<>();
   }
 
-  @Override
   public void initTransitionsTo(Collection<ProbabilityState<T>> states) {
     states.stream()
         .filter(state -> state != this)
