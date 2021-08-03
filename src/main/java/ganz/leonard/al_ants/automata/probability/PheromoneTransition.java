@@ -25,7 +25,11 @@ public class PheromoneTransition<T> {
     return 0.5;
   }
 
-  public void positivePheromoneFeedback() {
+  public void positivePheromoneFeedback(T letter) {
     // update pheromones according to some formula
+  }
+
+  public void decay() {
+    // negative feedback / pheromone decay for all transitions
   }
 }

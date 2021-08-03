@@ -43,4 +43,8 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
   public PheromoneTransition<T> getTransitionTo(ProbabilityState<T> state) {
     return outgoingTransitions.get(state);
   }
+
+  public Map<ProbabilityState<T>, PheromoneTransition<T>> getAllOutgoingTransitions() {
+    return outgoingTransitions;
+  }
 }

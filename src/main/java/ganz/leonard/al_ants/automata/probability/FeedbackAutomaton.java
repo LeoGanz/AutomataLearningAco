@@ -4,6 +4,7 @@ import ganz.leonard.al_ants.automata.general.Automaton;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import javafx.util.Pair;
 
 /**
  * An automaton that tracks its path of used {@link PheromoneTransition}s and provides means of
@@ -15,7 +16,8 @@ import java.util.List;
  */
 public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
 
-  private final List<PheromoneTransition<T>> currentPath;
+  // cannot use maps as duplicates are possible
+  private final List<Pair<PheromoneTransition<T>, T>> currentPath;
 
   public FeedbackAutomaton(Collection<ProbabilityState<T>> allStates, ProbabilityState<T> start) {
     super(allStates, start);
@@ -28,7 +30,7 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
     super.takeLetter(letter);
     ProbabilityState<T> to = getCurrentState();
 
-    currentPath.add(from.getTransitionTo(to));
+    currentPath.add(new Pair<>(from.getTransitionTo(to), letter));
   }
 
   @Override
@@ -38,6 +40,13 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
   }
 
   public void positiveFeedback() {
-    currentPath.forEach(PheromoneTransition::positivePheromoneFeedback);
+    currentPath.forEach(pair -> pair.getKey().positivePheromoneFeedback(pair.getValue()));
+  }
+
+  public void decay() {
+    // negative feedback / pheromone decay for all transitions
+    getAllStates().stream()
+        .flatMap(state -> state.getAllOutgoingTransitions().values().stream())
+        .forEach(PheromoneTransition::decay);
   }
 }
