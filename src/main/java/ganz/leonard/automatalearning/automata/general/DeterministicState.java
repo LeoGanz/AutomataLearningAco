@@ -2,7 +2,6 @@ package ganz.leonard.automatalearning.automata.general;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 public class DeterministicState<T> extends BasicState<DeterministicState<T>, T> {
 
@@ -19,9 +18,6 @@ public class DeterministicState<T> extends BasicState<DeterministicState<T>, T> 
 
   @Override
   public DeterministicState<T> transit(T letter) {
-    if (!outgoingTransitions.containsKey(letter)) {
-      throw new NoSuchElementException("No Transition known for this letter");
-    }
     return outgoingTransitions.get(letter);
   }
 }

@@ -22,8 +22,13 @@ public class Automaton<S extends State<S, T>, T> {
     this.current = start;
   }
 
-  public void takeLetter(T letter) {
-    current = current.transit(letter);
+  public boolean takeLetter(T letter) {
+    S next = current.transit(letter);
+    if (next != null) {
+      current = next;
+      return true;
+    }
+    return false;
   }
 
   public void goToStart() {

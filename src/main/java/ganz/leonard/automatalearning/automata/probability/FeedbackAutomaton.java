@@ -25,12 +25,15 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
   }
 
   @Override
-  public void takeLetter(T letter) {
+  public boolean takeLetter(T letter) {
     ProbabilityState<T> from = getCurrentState();
-    super.takeLetter(letter);
+    if (!super.takeLetter(letter)) {
+      return false;
+    }
     ProbabilityState<T> to = getCurrentState();
 
     currentPath.add(new Pair<>(from.getTransitionTo(to), letter));
+    return true;
   }
 
   @Override

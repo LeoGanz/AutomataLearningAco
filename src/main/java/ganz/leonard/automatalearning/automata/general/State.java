@@ -15,7 +15,7 @@ public interface State<S extends State<S, T>, T> {
    * Calculates the state to visit next.
    *
    * @param letter some letter of the alphabet that defines which transition will be taken
-   * @return the successor state
+   * @return the successor state or null if transition not possible
    */
   S transit(T letter);
 }
