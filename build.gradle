@@ -15,8 +15,12 @@ application {
     mainClass = 'ganz.leonard.al_ants.Main'
 }
 
+tasks.withType(Test) {
+    jvmArgs += ['--add-opens', 'javafx.base/javafx.util=ALL-UNNAMED']
+}
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+    testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.7'
 }
 
 System.setProperty( "org.checkstyle.google.suppressionfilter.config", "$rootProject.projectDir/config/checkstyle/checkstyle-suppressions.xml")

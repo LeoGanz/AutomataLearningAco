@@ -14,14 +14,14 @@ import java.util.stream.Collectors;
 public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
   private final Map<ProbabilityState<T>, PheromoneTransition<T>> outgoingTransitions;
 
-  public ProbabilityState(boolean isAccepting) {
-    super(isAccepting);
+  public ProbabilityState(int id, boolean isAccepting) {
+    super(id, isAccepting);
     outgoingTransitions = new HashMap<>();
   }
 
   public void initTransitionsTo(Collection<ProbabilityState<T>> states) {
     states.stream()
-        .filter(state -> state != this)
+        .filter(state -> state != this) // allow?
         .filter(state -> !outgoingTransitions.containsKey(state))
         .forEach(state -> outgoingTransitions.put(state, new PheromoneTransition<>()));
   }
@@ -43,7 +43,7 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
     return outgoingTransitions.get(state);
   }
 
-  public Map<ProbabilityState<T>, PheromoneTransition<T>> getAllOutgoingTransitions() {
+  public Map<ProbabilityState<T>, PheromoneTransition<T>> getOutgoingTransitions() {
     return outgoingTransitions;
   }
 }

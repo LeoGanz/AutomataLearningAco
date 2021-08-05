@@ -7,8 +7,8 @@ public class DeterministicState<T> extends BasicState<DeterministicState<T>, T> 
 
   private final Map<T, DeterministicState<T>> outgoingTransitions;
 
-  public DeterministicState(boolean isAccepting) {
-    super(isAccepting);
+  public DeterministicState(int id, boolean isAccepting) {
+    super(id, isAccepting);
     outgoingTransitions = new HashMap<>();
   }
 
@@ -19,5 +19,9 @@ public class DeterministicState<T> extends BasicState<DeterministicState<T>, T> 
   @Override
   public DeterministicState<T> transit(T letter) {
     return outgoingTransitions.get(letter);
+  }
+
+  public Map<T, DeterministicState<T>> getOutgoingTransitions() {
+    return outgoingTransitions;
   }
 }

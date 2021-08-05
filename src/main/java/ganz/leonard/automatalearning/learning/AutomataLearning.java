@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -33,9 +34,12 @@ public class AutomataLearning<T> {
 
   private FeedbackAutomaton<T> constructAutomaton(int noAccepting, int noNotAccepting) {
     Collection<ProbabilityState<T>> states = new ArrayList<>(noAccepting + noNotAccepting);
-    IntStream.range(0, noAccepting).forEach(__ -> states.add(new ProbabilityState<>(true)));
-    IntStream.range(0, noNotAccepting).forEach(__ -> states.add(new ProbabilityState<>(false)));
-    ProbabilityState<T> start = new ProbabilityState<>(false);
+    AtomicInteger id = new AtomicInteger();
+    ProbabilityState<T> start = new ProbabilityState<>(id.getAndIncrement(), false);
+    IntStream.range(0, noAccepting)
+        .forEach(__ -> states.add(new ProbabilityState<>(id.getAndIncrement(), true)));
+    IntStream.range(0, noNotAccepting)
+        .forEach(__ -> states.add(new ProbabilityState<>(id.getAndIncrement(), false)));
     Stream.concat(Stream.of(start), states.stream())
         .forEach(state -> state.initTransitionsTo(states));
 

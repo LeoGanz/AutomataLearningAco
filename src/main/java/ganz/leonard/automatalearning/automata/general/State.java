@@ -18,4 +18,11 @@ public interface State<S extends State<S, T>, T> {
    * @return the successor state or null if transition not possible
    */
   S transit(T letter);
+
+  /**
+   * Provide an ID that is unique within an automaton.
+   *
+   * @return a positive number
+   */
+  int getId();
 }

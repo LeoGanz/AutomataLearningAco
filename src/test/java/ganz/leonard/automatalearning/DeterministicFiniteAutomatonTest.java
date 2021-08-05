@@ -5,20 +5,27 @@ import ganz.leonard.automatalearning.automata.general.DeterministicState;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class DeterministicFiniteAutomatonTest {
 
-  @Test
-  void testBasicDfa() {
+  private DeterministicState<Character> fst;
+  private DeterministicState<Character> snd;
+  private DeterministicFiniteAutomaton<Character> dfa;
+
+  @BeforeEach
+  void setup() {
     // model a*b
 
-    DeterministicState<Character> fst = new DeterministicState<>(false);
-    DeterministicState<Character> snd = new DeterministicState<>(true);
+    fst = new DeterministicState<>(1, false);
+    snd = new DeterministicState<>(2, true);
     fst.initTransitions(Map.of('a', fst, 'b', snd));
-    DeterministicFiniteAutomaton<Character> dfa =
-        new DeterministicFiniteAutomaton<>(Set.of(fst, snd), fst);
+    dfa = new DeterministicFiniteAutomaton<>(Set.of(fst, snd), fst);
+  }
 
+  @Test
+  void basicDfaBehavior() {
     Assertions.assertEquals(fst, dfa.getCurrentState());
     Assertions.assertFalse(dfa.canHold());
     Assertions.assertTrue(dfa.takeLetter('a'));
