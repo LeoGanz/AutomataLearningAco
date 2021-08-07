@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public class AutomataLearning<T> {
   private final FeedbackAutomaton<T> automaton;
   private final Map<List<T>, Boolean> inputWords;
-  private final Iterator<Map.Entry<List<T>, Boolean>> it;
+  private Iterator<Map.Entry<List<T>, Boolean>> it;
 
   /**
    * Initialize a new automata learning setup. A graph of accepting and not accepting states will be
@@ -49,7 +49,6 @@ public class AutomataLearning<T> {
   }
 
   private void applyWord(List<T> word, boolean inLanguage) {
-    System.out.println("applying word " + word);
     automaton.goToStart();
     word.forEach(automaton::takeLetter);
     if (automaton.canHold() == inLanguage) {
@@ -75,5 +74,18 @@ public class AutomataLearning<T> {
     while (hasNextWord()) {
       runNextWord();
     }
+  }
+
+  public void runWords(int amount) {
+    for (int i = 0; i < amount; i++) {
+      if (!hasNextWord()) {
+        it = inputWords.entrySet().iterator();
+      }
+      runNextWord();
+    }
+  }
+
+  public FeedbackAutomaton<T> getAutomaton() {
+    return automaton;
   }
 }

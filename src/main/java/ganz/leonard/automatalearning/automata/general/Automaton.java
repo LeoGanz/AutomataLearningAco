@@ -3,6 +3,7 @@ package ganz.leonard.automatalearning.automata.general;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -20,7 +21,7 @@ public class Automaton<S extends State<S, T>, T> {
   private S current;
 
   public Automaton(Collection<S> allStates, S start) {
-    this(allStates.stream().collect(Collectors.toMap(State::getId, state -> state)), start);
+    this(allStates.stream().collect(Collectors.toMap(State::getId, Function.identity())), start);
   }
 
   public Automaton(Map<Integer, S> allStatesWithId, S start) {

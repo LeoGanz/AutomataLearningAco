@@ -5,10 +5,12 @@ import ganz.leonard.automatalearning.automata.general.DeterministicState;
 import java.util.AbstractMap;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ProbToDetConverter<T> {
+  private static final double MIN_PROBABILITY = 0.8;
   private final FeedbackAutomaton<T> automaton;
   private DeterministicFiniteAutomaton<T> dfa;
 
@@ -27,16 +29,20 @@ public class ProbToDetConverter<T> {
   }
 
   private void constructSingleTransition(ProbabilityState<T> probState, T letter) {
-    ProbabilityState<T> successor =
-        probState.getOutgoingTransitions().entrySet().stream()
-            .max(Comparator.comparingDouble(entry -> entry.getValue().getRawProbabilityFor(letter)))
-            .orElseGet(() -> new AbstractMap.SimpleEntry<>(null, null)) // else should not occur
-            .getKey();
-    // what about low probabilities and ~ zero prob? would no transition be better?
-    if (successor != null) {
-      DeterministicState<T> successorDfa = dfa.getAllStates().get(successor.getId());
-      dfa.getAllStates().get(probState.getId()).initTransitions(Map.of(letter, successorDfa));
+    Map<ProbabilityState<T>, Double> probabilities =
+        probState.getNormalizedTransitionProbabilities(letter);
+    Optional<Map.Entry<ProbabilityState<T>, Double>> successor =
+        probabilities.entrySet().stream()
+            .max(Comparator.comparingDouble(Map.Entry::getValue));
+    if (successor.isPresent()) {
+      System.out.println(successor.get().getValue());
+      if (successor.get().getValue() > MIN_PROBABILITY) {
+        DeterministicState<T> successorDfa =
+            dfa.getAllStates().get(successor.get().getKey().getId());
+        dfa.getAllStates().get(probState.getId()).initTransitions(Map.of(letter, successorDfa));
+      }
     }
+    // what about low probabilities and ~ zero prob? is no transition be better?
   }
 
   /**

@@ -45,4 +45,9 @@ public abstract class BasicState<S extends State<S, T>, T> implements State<S, T
     result = 31 * result + (isAccepting ? 1 : 0);
     return result;
   }
+
+  @Override
+  public String toString() {
+    return "State_" + id + "(" + (isAccepting ? "+" : "-") + ")";
+  }
 }

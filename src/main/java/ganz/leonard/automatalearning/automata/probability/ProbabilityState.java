@@ -28,15 +28,16 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
 
   @Override
   public ProbabilityState<T> transit(T letter) {
-    Map<ProbabilityState<T>, Double> probabilities =
-        ProbabilityUtil.normalizeProbabilities(
-            outgoingTransitions.entrySet().stream()
-                .collect(
-                    Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> entry.getValue().getRawProbabilityFor(letter))));
-
+    Map<ProbabilityState<T>, Double> probabilities = getNormalizedTransitionProbabilities(letter);
     return ProbabilityUtil.sample(probabilities);
+  }
+
+  public Map<ProbabilityState<T>, Double> getNormalizedTransitionProbabilities(T letter) {
+    return ProbabilityUtil.normalizeProbabilities(
+        outgoingTransitions.entrySet().stream()
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey, entry -> entry.getValue().getRawProbabilityFor(letter))));
   }
 
   public PheromoneTransition<T> getTransitionTo(ProbabilityState<T> state) {

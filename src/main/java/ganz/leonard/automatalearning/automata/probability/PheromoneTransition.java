@@ -40,7 +40,7 @@ public class PheromoneTransition<T> {
     Objects.requireNonNull(letter);
     ensureInit(letter);
     // update pheromones according to some formula
-    pheromones.put(letter, pheromones.get(letter) * 2);
+    pheromones.put(letter, pheromones.get(letter) * 1.2);
   }
 
   public void decay() {
