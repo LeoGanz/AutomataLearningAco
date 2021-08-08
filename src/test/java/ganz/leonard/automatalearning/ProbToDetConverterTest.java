@@ -33,8 +33,8 @@ public class ProbToDetConverterTest {
     DeterministicState<Character> sndDet = new DeterministicState<>(1, false);
     DeterministicState<Character> thirdDet = new DeterministicState<>(2, true);
 
-    fstDet.initTransitions(Map.of('a', sndDet, 'b', thirdDet));
-    sndDet.initTransitions(Map.of('a', fstDet, 'b', thirdDet));
+    fstDet.addTransitions(Map.of('a', sndDet, 'b', thirdDet));
+    sndDet.addTransitions(Map.of('a', fstDet, 'b', thirdDet));
 
     DeterministicFiniteAutomaton<Character> dfa =
         new DeterministicFiniteAutomaton<>(Set.of(fstDet, sndDet, thirdDet), fstDet);

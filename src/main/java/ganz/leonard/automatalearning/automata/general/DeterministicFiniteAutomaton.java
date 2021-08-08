@@ -3,6 +3,8 @@ package ganz.leonard.automatalearning.automata.general;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class DeterministicFiniteAutomaton<T> extends Automaton<DeterministicState<T>, T> {
   public DeterministicFiniteAutomaton(
@@ -49,5 +51,14 @@ public class DeterministicFiniteAutomaton<T> extends Automaton<DeterministicStat
       }
     }
     return result;
+  }
+
+  @Override
+  public String toString() {
+    Map<DeterministicState<T>, Map<T, DeterministicState<T>>> trans =
+        getAllStates().values().stream()
+            .collect(
+                Collectors.toMap(Function.identity(), DeterministicState::getOutgoingTransitions));
+    return "DFA(states: " + getAllStates().values() + ", transitions: " + trans + ")";
   }
 }

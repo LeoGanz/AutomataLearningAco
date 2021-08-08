@@ -20,7 +20,7 @@ public class DeterministicFiniteAutomatonTest {
 
     fst = new DeterministicState<>(1, false);
     snd = new DeterministicState<>(2, true);
-    fst.initTransitions(Map.of('a', fst, 'b', snd));
+    fst.addTransitions(Map.of('a', fst, 'b', snd));
     dfa = new DeterministicFiniteAutomaton<>(Set.of(fst, snd), fst);
   }
 

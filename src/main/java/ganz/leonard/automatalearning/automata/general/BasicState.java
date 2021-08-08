@@ -48,6 +48,6 @@ public abstract class BasicState<S extends State<S, T>, T> implements State<S, T
 
   @Override
   public String toString() {
-    return "State_" + id + "(" + (isAccepting ? "+" : "-") + ")";
+    return "St" + id + "(" + (isAccepting ? "+" : "-") + ")";
   }
 }

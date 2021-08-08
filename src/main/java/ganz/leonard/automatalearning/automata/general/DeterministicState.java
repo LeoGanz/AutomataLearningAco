@@ -12,7 +12,7 @@ public class DeterministicState<T> extends BasicState<DeterministicState<T>, T> 
     outgoingTransitions = new HashMap<>();
   }
 
-  public void initTransitions(Map<T, DeterministicState<T>> outgoingTransitions) {
+  public void addTransitions(Map<T, DeterministicState<T>> outgoingTransitions) {
     this.outgoingTransitions.putAll(outgoingTransitions);
   }
 

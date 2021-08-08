@@ -2,7 +2,6 @@ package ganz.leonard.automatalearning.automata.probability;
 
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicState;
-import java.util.AbstractMap;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
@@ -10,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ProbToDetConverter<T> {
-  private static final double MIN_PROBABILITY = 0.8;
+  private static final double MIN_PROBABILITY = 0.5;
   private final FeedbackAutomaton<T> automaton;
   private DeterministicFiniteAutomaton<T> dfa;
 
@@ -39,7 +38,7 @@ public class ProbToDetConverter<T> {
       if (successor.get().getValue() > MIN_PROBABILITY) {
         DeterministicState<T> successorDfa =
             dfa.getAllStates().get(successor.get().getKey().getId());
-        dfa.getAllStates().get(probState.getId()).initTransitions(Map.of(letter, successorDfa));
+        dfa.getAllStates().get(probState.getId()).addTransitions(Map.of(letter, successorDfa));
       }
     }
     // what about low probabilities and ~ zero prob? is no transition be better?
