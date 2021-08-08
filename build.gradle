@@ -1,29 +1,30 @@
+import ru.vyarus.gradle.plugin.python.PythonExtension
+
 plugins {
     id 'java'
-    id "checkstyle"
+    id 'checkstyle'
     id 'application'
+    id 'ru.vyarus.use-python' version '2.3.0'
 }
-
-group 'org.example'
-version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
 application {
-    mainClass = 'ganz.leonard.al_ants.Main'
+    mainClass = 'ganz.leonard.automatalearning.Main'
 }
 
 tasks.withType(Test) {
     jvmArgs += ['--add-opens', 'javafx.base/javafx.util=ALL-UNNAMED']
 }
+
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
     testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.7'
 }
 
-System.setProperty( "org.checkstyle.google.suppressionfilter.config", "$rootProject.projectDir/config/checkstyle/checkstyle-suppressions.xml")
+System.setProperty("org.checkstyle.google.suppressionfilter.config", "$rootProject.projectDir/config/checkstyle/checkstyle-suppressions.xml")
 checkstyle {
     toolVersion '8.43'
     maxWarnings = 0
@@ -34,4 +35,16 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
+}
+
+task copyPythonCode(type: Copy) {
+    from 'src/main/python'
+    into sourceSets.getByName("main").output.resourcesDir
+}
+classes.dependsOn copyPythonCode
+
+pipUpdates.all = true
+python {
+    pip 'greenery:3.3.2'
+    scope = PythonExtension.Scope.VIRTUALENV
 }
