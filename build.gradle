@@ -20,6 +20,7 @@ tasks.withType(Test) {
 }
 
 dependencies {
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
     testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.7'
 }

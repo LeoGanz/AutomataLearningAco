@@ -34,7 +34,6 @@ public class ProbToDetConverter<T> {
         probabilities.entrySet().stream()
             .max(Comparator.comparingDouble(Map.Entry::getValue));
     if (successor.isPresent()) {
-      System.out.println(successor.get().getValue());
       if (successor.get().getValue() > MIN_PROBABILITY) {
         DeterministicState<T> successorDfa =
             dfa.getAllStates().get(successor.get().getKey().getId());

@@ -2,6 +2,7 @@ package ganz.leonard.automatalearning;
 
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicState;
+import ganz.leonard.automatalearning.automata.tools.DfaToRegexConverter;
 import ganz.leonard.automatalearning.automata.tools.Minimizer;
 import java.io.IOException;
 import java.util.Map;
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class MinimizerTest {
+public class AutomataToolsTest {
 
   private static DeterministicFiniteAutomaton<Character> dfa;
   private static DeterministicFiniteAutomaton<Character> minimalDfa;
@@ -41,9 +42,14 @@ public class MinimizerTest {
 
   @Test
   void testPythonMinimizer() throws IOException, InterruptedException {
-    DeterministicFiniteAutomaton<Character> miniGenerated =
-        new Minimizer<Character>().minimize(dfa);
+    DeterministicFiniteAutomaton<Character> miniGenerated = Minimizer.minimize(dfa);
     System.out.println(miniGenerated);
     Assertions.assertEquals(minimalDfa, miniGenerated);
+  }
+
+  @Test
+  void testDfaToRegexConverter() throws IOException, InterruptedException {
+    String regex = DfaToRegexConverter.convert(dfa);
+    Assertions.assertEquals("a*b", regex);
   }
 }

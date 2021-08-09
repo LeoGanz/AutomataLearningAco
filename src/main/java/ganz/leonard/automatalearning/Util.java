@@ -16,4 +16,8 @@ public class Util {
   public static boolean doubleApproxEquals(double d1, double d2) {
     return Math.abs(d1 - d2) < PRECISION;
   }
+
+  public static int calcSubstringStart(String key, String line) {
+    return line.indexOf(key) + key.length();
+  }
 }
