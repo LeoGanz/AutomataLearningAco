@@ -2,6 +2,8 @@ package ganz.leonard.automatalearning.learning;
 
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -15,6 +17,7 @@ import java.util.stream.Stream;
 public class AutomataLearning<T> {
   private final FeedbackAutomaton<T> automaton;
   private final Map<List<T>, Boolean> inputWords;
+  private final PropertyChangeSupport pcs;
   private Iterator<Map.Entry<List<T>, Boolean>> it;
 
   /**
@@ -30,6 +33,7 @@ public class AutomataLearning<T> {
     automaton = constructAutomaton(noAccepting, noNotAccepting);
     this.inputWords = inputWords;
     it = inputWords.entrySet().iterator();
+    pcs = new PropertyChangeSupport(this);
   }
 
   private FeedbackAutomaton<T> constructAutomaton(int noAccepting, int noNotAccepting) {
@@ -87,5 +91,9 @@ public class AutomataLearning<T> {
 
   public FeedbackAutomaton<T> getAutomaton() {
     return automaton;
+  }
+
+  public void addPropertyChangeListener(PropertyChangeListener changeListener) {
+    pcs.addPropertyChangeListener(changeListener);
   }
 }
