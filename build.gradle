@@ -2,8 +2,8 @@ import ru.vyarus.gradle.plugin.python.PythonExtension
 
 plugins {
     id 'java'
-    id 'checkstyle'
     id 'application'
+    id 'checkstyle'
     id 'ru.vyarus.use-python' version '2.3.0'
 }
 
@@ -21,6 +21,10 @@ tasks.withType(Test) {
 
 dependencies {
     implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'guru.nidi:graphviz-java:0.18.1'
+    implementation 'com.eclipsesource.j2v8:j2v8_win32_x86_64:4.6.0'
+    implementation 'com.eclipsesource.j2v8:j2v8_linux_x86_64:4.8.0'
+    implementation 'ch.qos.logback:logback-classic:1.2.5'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
     testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.7'
 }
