@@ -1,5 +1,6 @@
 package ganz.leonard.automatalearning.gui;
 
+import ganz.leonard.automatalearning.gui.util.GuiUtil;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 

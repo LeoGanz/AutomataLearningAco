@@ -9,16 +9,17 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class AutomataLearning<T> {
   private final FeedbackAutomaton<T> automaton;
-  private final Map<List<T>, Boolean> inputWords;
   private final PropertyChangeSupport pcs;
+  private final Map<List<T>, Boolean> inputWords;
   private Iterator<Map.Entry<List<T>, Boolean>> it;
+  private boolean firstRoundOfWords = true;
+  private int nrAppliedWords = 0;
 
   /**
    * Initialize a new automata learning setup. A graph of accepting and not accepting states will be
@@ -59,22 +60,29 @@ public class AutomataLearning<T> {
       automaton.positiveFeedback();
     }
     automaton.decay();
+    nrAppliedWords++;
+    notifyListeners();
   }
 
   public boolean hasNextWord() {
-    return it.hasNext();
+    return firstRoundOfWords && it.hasNext();
+  }
+
+  private void ensureIteratorHasNext() {
+    if (!it.hasNext()) {
+      it = inputWords.entrySet().iterator();
+      firstRoundOfWords = false;
+    }
   }
 
   public void runNextWord() {
-    if (!hasNextWord()) {
-      throw new NoSuchElementException("No next input word available");
-    }
-
+    ensureIteratorHasNext();
     Map.Entry<List<T>, Boolean> pair = it.next();
     applyWord(pair.getKey(), pair.getValue());
   }
 
   public void runRemainingWords() {
+    // only run words of first round
     while (hasNextWord()) {
       runNextWord();
     }
@@ -82,9 +90,6 @@ public class AutomataLearning<T> {
 
   public void runWords(int amount) {
     for (int i = 0; i < amount; i++) {
-      if (!hasNextWord()) {
-        it = inputWords.entrySet().iterator();
-      }
       runNextWord();
     }
   }
@@ -93,7 +98,19 @@ public class AutomataLearning<T> {
     return automaton;
   }
 
+  public int getNrAppliedWords() {
+    return nrAppliedWords;
+  }
+
+  public int getNrInputWords() {
+    return inputWords.size();
+  }
+
   public void addPropertyChangeListener(PropertyChangeListener changeListener) {
     pcs.addPropertyChangeListener(changeListener);
+  }
+
+  private void notifyListeners() {
+    pcs.firePropertyChange("AutomataLearning", null, this);
   }
 }

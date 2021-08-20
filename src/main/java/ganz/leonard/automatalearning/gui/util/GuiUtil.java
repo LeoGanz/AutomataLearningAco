@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning.gui;
+package ganz.leonard.automatalearning.gui.util;
 
 import java.awt.Insets;
 import javax.swing.AbstractButton;
@@ -53,7 +53,6 @@ public class GuiUtil {
         if (onDone != null) {
           onDone.run();
         }
-        ;
       }
     }.execute();
   }

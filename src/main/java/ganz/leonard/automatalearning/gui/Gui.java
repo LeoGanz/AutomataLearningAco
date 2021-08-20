@@ -1,12 +1,13 @@
 package ganz.leonard.automatalearning.gui;
 
+import ganz.leonard.automatalearning.gui.alscreen.AutomataLearningScreen;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import java.awt.Dimension;
 import javax.swing.JFrame;
 
 public class Gui extends JFrame {
-  private static final int MINIMUM_FRAME_WIDTH = 500;
-  private static final int MINIMUM_FRAME_HEIGHT = 500;
+  private static final int MINIMUM_FRAME_WIDTH = 700;
+  private static final int MINIMUM_FRAME_HEIGHT = 700;
 
   private final GuiController controller;
 
@@ -14,7 +15,7 @@ public class Gui extends JFrame {
     this.controller = controller;
     setMinimumSize(new Dimension(MINIMUM_FRAME_WIDTH, MINIMUM_FRAME_HEIGHT));
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
+    setLocationRelativeTo(null);
     showOptionsScreen();
   }
 

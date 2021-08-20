@@ -1,5 +1,6 @@
 package ganz.leonard.automatalearning.gui;
 
+import ganz.leonard.automatalearning.gui.util.GuiUtil;
 import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.language.Leaf;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
@@ -41,5 +42,17 @@ public class GuiController {
     input.put(List.of('a', 'a', 'a', 'a'), false);
     input.put(List.of('b', 'b'), false);
     return input;
+  }
+
+  public void nextWord() {
+    GuiUtil.executeOnSwingWorker(() -> model.runNextWord());
+  }
+
+  public void nextWords(int amount) {
+    GuiUtil.executeOnSwingWorker(() -> model.runWords(amount));
+  }
+
+  public void remainingWords() {
+    GuiUtil.executeOnSwingWorker(() -> model.runRemainingWords());
   }
 }

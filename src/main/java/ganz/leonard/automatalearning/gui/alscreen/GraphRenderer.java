@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning.gui;
+package ganz.leonard.automatalearning.gui.alscreen;
 
 import static guru.nidi.graphviz.model.Factory.graph;
 import static guru.nidi.graphviz.model.Factory.node;
@@ -24,10 +24,9 @@ public class GraphRenderer {
 
   // paint with graphviz
 
-  public static <T> BufferedImage automatonToImg(DeterministicFiniteAutomaton<T> automaton) {
-
+  public static <T> BufferedImage automatonToImg(
+      DeterministicFiniteAutomaton<T> automaton, int height) {
     Map<Integer, Node> nodes = constructNodes(automaton);
-
     automaton
         .getAllStates()
         .values()
@@ -36,13 +35,11 @@ public class GraphRenderer {
                 state
                     .getOutgoingTransitions()
                     .forEach((letter, target) -> buildLink(nodes, state, target, letter)));
-
-    return constructGraph(nodes, "dfa");
+    return constructGraph(nodes, "dfa", height);
   }
 
-  public static <T> BufferedImage automatonToImg(FeedbackAutomaton<T> automaton) {
+  public static <T> BufferedImage automatonToImg(FeedbackAutomaton<T> automaton, int height) {
     Map<Integer, Node> nodes = constructNodes(automaton);
-
     automaton
         .getAllStates()
         .values()
@@ -55,7 +52,7 @@ public class GraphRenderer {
                             transition
                                 .getKnownLetters()
                                 .forEach(letter -> buildLink(nodes, state, target, letter))));
-    return constructGraph(nodes, "feedback");
+    return constructGraph(nodes, "feedback", height);
   }
 
   private static <S extends State<S, T>, T> Map<Integer, Node> constructNodes(
@@ -82,9 +79,9 @@ public class GraphRenderer {
             .link(to(nodes.get(target.getId())).with(Label.of(String.valueOf(letter)))));
   }
 
-  private static BufferedImage constructGraph(Map<Integer, Node> nodes, String name) {
+  private static BufferedImage constructGraph(Map<Integer, Node> nodes, String name, int height) {
     Graph graph = graph(name).directed().with(nodes.values().stream().toList());
     Graphviz.useEngine(new GraphvizV8Engine());
-    return Graphviz.fromGraph(graph).height(400).render(Format.PNG).toImage();
+    return Graphviz.fromGraph(graph).height(height).render(Format.PNG).toImage();
   }
 }
