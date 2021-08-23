@@ -1,29 +1,36 @@
 package ganz.leonard.automatalearning.gui.alscreen;
 
-import ganz.leonard.automatalearning.gui.GuiController;
+import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.LinkedList;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 class GraphComponent<T> extends JPanel implements PropertyChangeListener {
 
   private static final int IMAGE_HEIGHT = 500;
+  private static final int FRAMES_TO_KEEP = 3;
   private final AutomataLearning<T> model;
+  private final LinkedList<CompletableFuture<BufferedImage>> renderingQueue;
   private BufferedImage img;
 
   public GraphComponent(AutomataLearning<T> model) {
     this.model = model;
     model.addPropertyChangeListener(this);
+    renderingQueue = new LinkedList<>();
   }
 
   @Override
   protected void paintComponent(Graphics g) {
+    System.out.println("painting :)");
     super.paintComponent(g);
     if (img != null) {
       g.drawImage(img, 0, 0, this);
@@ -57,8 +64,53 @@ class GraphComponent<T> extends JPanel implements PropertyChangeListener {
   }
 
   private void update() {
-    img = GraphRenderer.automatonToImg(model.getAutomaton(), IMAGE_HEIGHT);
-    invalidate();
+    FeedbackAutomaton<T> automaton = model.getAutomaton();
+
+    CompletableFuture<BufferedImage> nextFrame =
+        CompletableFuture.supplyAsync(() -> GraphRenderer.automatonToImg(automaton, IMAGE_HEIGHT));
+    nextFrame.thenAccept(
+        img -> {
+          synchronized (renderingQueue) {
+            while (renderingQueue.peek() != nextFrame) {
+              try {
+                renderingQueue.wait();
+              } catch (InterruptedException e) {
+                e.printStackTrace();
+              }
+            }
+            renderingQueue.poll();
+            SwingUtilities.invokeLater(() -> updateWithImg(img));
+            renderingQueue.notifyAll();
+          }
+        });
+    renderingQueue.add(nextFrame);
+
+    cleanRenderingQueue();
+  }
+
+  private void cleanRenderingQueue() {
+    // keep rendering queue small
+    synchronized (renderingQueue) {
+      int size = renderingQueue.size();
+      if (size > FRAMES_TO_KEEP) {
+        IntStream.range(0, size)
+            .filter(
+                i ->
+                    (i == renderingQueue.size() - 1)
+                        || (i > 0 && i % Math.round(size / (double) FRAMES_TO_KEEP) == 0))
+            .forEach(i -> renderingQueue.get(i).cancel(true));
+
+        renderingQueue.removeAll(
+            renderingQueue.stream()
+                .filter(CompletableFuture::isCancelled)
+                .collect(Collectors.toSet()));
+      }
+    }
+  }
+
+  private synchronized void updateWithImg(BufferedImage img) {
+    this.img = img;
+    revalidate();
     repaint();
   }
 }
