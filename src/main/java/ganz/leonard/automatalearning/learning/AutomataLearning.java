@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.SerializationUtils;
 
 public class AutomataLearning<T> {
   private final FeedbackAutomaton<T> automaton;
@@ -46,7 +47,7 @@ public class AutomataLearning<T> {
     IntStream.range(0, noNotAccepting)
         .forEach(__ -> states.add(new ProbabilityState<>(id.getAndIncrement(), false)));
     Stream.concat(Stream.of(start), states.stream())
-        .forEach(state -> state.initTransitionsTo(states));
+        .forEach(state -> state.addTransitionsTo(states));
 
     states.add(start); // add after init, as start should not be returned to
 
@@ -96,6 +97,17 @@ public class AutomataLearning<T> {
 
   public FeedbackAutomaton<T> getAutomaton() {
     return automaton;
+  }
+
+  /**
+   * Get the current automaton but in an unlinked state so internal changes in automata learning
+   * won't be reflected in this automaton. Basically a deep copy.
+   *
+   * @return an unlinked automaton with the properties described above
+   */
+  public FeedbackAutomaton<T> getUnlinkedAutomaton() {
+    System.out.println("creating deep copy of current automaton");
+    return FeedbackAutomaton.copyFeedbackAutomaton(automaton);
   }
 
   public int getNrAppliedWords() {

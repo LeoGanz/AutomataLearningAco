@@ -30,7 +30,6 @@ class GraphComponent<T> extends JPanel implements PropertyChangeListener {
 
   @Override
   protected void paintComponent(Graphics g) {
-    System.out.println("painting :)");
     super.paintComponent(g);
     if (img != null) {
       g.drawImage(img, 0, 0, this);
@@ -60,11 +59,11 @@ class GraphComponent<T> extends JPanel implements PropertyChangeListener {
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    SwingUtilities.invokeLater(this::update);
+    update(); // switching to EDT is handled by update()
   }
 
   private void update() {
-    FeedbackAutomaton<T> automaton = model.getAutomaton();
+    FeedbackAutomaton<T> automaton = model.getUnlinkedAutomaton();
 
     CompletableFuture<BufferedImage> nextFrame =
         CompletableFuture.supplyAsync(() -> GraphRenderer.automatonToImg(automaton, IMAGE_HEIGHT));
@@ -85,7 +84,7 @@ class GraphComponent<T> extends JPanel implements PropertyChangeListener {
         });
     renderingQueue.add(nextFrame);
 
-    cleanRenderingQueue();
+    //    cleanRenderingQueue();
   }
 
   private void cleanRenderingQueue() {
@@ -109,6 +108,8 @@ class GraphComponent<T> extends JPanel implements PropertyChangeListener {
   }
 
   private synchronized void updateWithImg(BufferedImage img) {
+    // Number of calls to this method not necessarily equals the number of repaints as swing might
+    // drop repaints if they are to close together
     this.img = img;
     revalidate();
     repaint();

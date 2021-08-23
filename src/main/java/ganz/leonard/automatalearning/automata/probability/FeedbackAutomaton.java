@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javafx.util.Pair;
 
 /**
@@ -26,6 +29,27 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
     super(allStates, start);
     currentPath = new LinkedList<>();
     converter = new ProbToDetConverter<>(this);
+  }
+
+  public static <T> FeedbackAutomaton<T> copyFeedbackAutomaton(FeedbackAutomaton<T> original) {
+    Set<ProbabilityState<T>> newStates =
+        original.getAllStates().values().stream()
+            .map(old -> new ProbabilityState<T>(old.getId(), old.isAccepting()))
+            .collect(Collectors.toSet());
+    Optional<ProbabilityState<T>> newStart =
+        newStates.stream()
+            .filter(state -> state.getId() == original.getStartState().getId())
+            .findFirst();
+    if (newStart.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Could not find start state with proper id in provided automaton");
+    }
+    FeedbackAutomaton<T> newAutomaton = new FeedbackAutomaton<>(newStates, newStart.get());
+    newStates.forEach(
+        state ->
+            state.initTransitionsLikeIn(
+                original.getAllStates().get(state.getId()), newAutomaton.getAllStates()));
+    return newAutomaton;
   }
 
   @Override

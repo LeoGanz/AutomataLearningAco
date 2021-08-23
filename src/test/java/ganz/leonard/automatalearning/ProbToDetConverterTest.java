@@ -19,8 +19,8 @@ public class ProbToDetConverterTest {
     ProbabilityState<Character> third = new ProbabilityState<>(2, true);
     Collection<ProbabilityState<Character>> states = Set.of(fst, snd, third);
 
-    fst.initTransitionsTo(states);
-    snd.initTransitionsTo(states);
+    fst.addTransitionsTo(states);
+    snd.addTransitionsTo(states);
 
     fst.getTransitionTo(snd).positivePheromoneFeedback('a');
     fst.getTransitionTo(third).positivePheromoneFeedback('b');

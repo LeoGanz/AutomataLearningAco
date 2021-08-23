@@ -23,6 +23,10 @@ public class PheromoneTransition<T> {
     pheromones.put(null, INIT_PHEROMONE);
   }
 
+  public PheromoneTransition(PheromoneTransition<T> original) {
+    pheromones = new HashMap<>(original.pheromones);
+  }
+
   public double getRawProbabilityFor(T letter) {
     Objects.requireNonNull(letter);
     ensureInit(letter);

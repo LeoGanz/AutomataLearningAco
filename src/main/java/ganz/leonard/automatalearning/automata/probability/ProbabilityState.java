@@ -19,11 +19,20 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
     outgoingTransitions = new HashMap<>();
   }
 
-  public void initTransitionsTo(Collection<ProbabilityState<T>> states) {
+  public void addTransitionsTo(Collection<ProbabilityState<T>> states) {
     states.stream()
         .filter(state -> state != this) // allow?
         .filter(state -> !outgoingTransitions.containsKey(state))
         .forEach(state -> outgoingTransitions.put(state, new PheromoneTransition<>()));
+  }
+
+  public void initTransitionsLikeIn(
+      ProbabilityState<T> original, Map<Integer, ProbabilityState<T>> withTheseStates) {
+    outgoingTransitions.clear();
+    original.outgoingTransitions.forEach(
+        (origTarget, origTrans) ->
+            outgoingTransitions.put(
+                withTheseStates.get(origTarget.getId()), new PheromoneTransition<>(origTrans)));
   }
 
   @Override
