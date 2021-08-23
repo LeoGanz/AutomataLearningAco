@@ -10,8 +10,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class GuiController {
+  private static final int FRAMES_TO_KEEP = 3;
+
   private Gui gui;
   private AutomataLearning<Character> model;
+  private RenderManager<Character> renderManager;
 
   public void initAndShowGui() {
     gui = new Gui(this);
@@ -25,7 +28,11 @@ public class GuiController {
           Map<List<Character>, Boolean> input = constructDefaultInput();
           model = new AutomataLearning<>(2, 2, input);
         },
-        () -> gui.showAutomataLearningScreen(model));
+        () -> {
+          renderManager = new RenderManager<>(model);
+          gui.showAutomataLearningScreen(model, renderManager);
+          renderManager.constructNewFrame();
+        });
   }
 
   private Map<List<Character>, Boolean> constructDefaultInput() {
@@ -49,7 +56,11 @@ public class GuiController {
   }
 
   public void nextWords(int amount) {
-    GuiUtil.executeOnSwingWorker(() -> model.runWords(amount));
+    GuiUtil.executeOnSwingWorker(
+        () -> {
+          model.runWords(amount);
+          renderManager.thinOutRenderingQueue(FRAMES_TO_KEEP);
+        });
   }
 
   public void remainingWords() {

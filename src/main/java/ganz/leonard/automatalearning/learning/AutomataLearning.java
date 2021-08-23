@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.SerializationUtils;
 
 public class AutomataLearning<T> {
   private final FeedbackAutomaton<T> automaton;

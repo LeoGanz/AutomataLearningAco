@@ -33,9 +33,10 @@ public class Gui extends JFrame {
     setVisible(true);
   }
 
-  public <T> void showAutomataLearningScreen(AutomataLearning<T> model) {
+  public <T> void showAutomataLearningScreen(
+      AutomataLearning<T> model, RenderManager<T> renderManager) {
     clearAllContent();
-    add(new AutomataLearningScreen(controller, model));
+    add(new AutomataLearningScreen(controller, model, renderManager));
     pack();
   }
 }

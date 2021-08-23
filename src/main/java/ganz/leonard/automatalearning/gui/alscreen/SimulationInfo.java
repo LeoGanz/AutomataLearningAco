@@ -1,7 +1,7 @@
 package ganz.leonard.automatalearning.gui.alscreen;
 
+import ganz.leonard.automatalearning.gui.RenderManager;
 import ganz.leonard.automatalearning.gui.util.GuiUtil;
-import ganz.leonard.automatalearning.learning.AutomataLearning;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -12,13 +12,11 @@ import javax.swing.SwingUtilities;
 
 public class SimulationInfo<T> extends JPanel implements PropertyChangeListener {
 
-  private final AutomataLearning<T> model;
   private final JLabel appliedWordsNr;
   private final JLabel inputWordsNr;
 
-  public SimulationInfo(AutomataLearning<T> model) {
-    this.model = model;
-    model.addPropertyChangeListener(this);
+  public SimulationInfo(RenderManager<T> renderManager) {
+    renderManager.addPropertyChangeListener(this);
     GuiUtil.pad(this);
     setLayout(new GridLayout(2, 2));
 
@@ -32,16 +30,25 @@ public class SimulationInfo<T> extends JPanel implements PropertyChangeListener 
     add(inputWordsInfo);
     inputWordsNr = new JLabel();
     add(inputWordsNr);
-    update();
   }
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    SwingUtilities.invokeLater(this::update);
+    switch (evt.getPropertyName()) {
+      case RenderManager.APPLIED_WORDS_UPDATE_KEY -> SwingUtilities.invokeLater(() ->
+          updateNrApplied((int) evt.getNewValue()));
+
+      case RenderManager.INPUT_WORDS_UPDATE_KEY -> SwingUtilities.invokeLater(() ->
+          updateNrInput((int) evt.getNewValue()));
+      default -> { /* Event not intended for this panel */ }
+    }
   }
 
-  private void update() {
-    appliedWordsNr.setText(String.valueOf(model.getNrAppliedWords()));
-    inputWordsNr.setText(String.valueOf(model.getNrInputWords()));
+  private void updateNrApplied(int nrApplied) {
+    appliedWordsNr.setText(String.valueOf(nrApplied));
+  }
+
+  private void updateNrInput(int nrInput) {
+    inputWordsNr.setText(String.valueOf(nrInput));
   }
 }
