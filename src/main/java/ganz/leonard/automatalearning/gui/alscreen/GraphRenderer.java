@@ -4,10 +4,12 @@ import static guru.nidi.graphviz.model.Factory.graph;
 import static guru.nidi.graphviz.model.Factory.node;
 import static guru.nidi.graphviz.model.Factory.to;
 
+import ganz.leonard.automatalearning.Util;
 import ganz.leonard.automatalearning.automata.general.Automaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.general.State;
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
+import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
@@ -18,11 +20,16 @@ import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 import java.awt.image.BufferedImage;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class GraphRenderer {
 
   // paint with graphviz
+
+  static {
+    Graphviz.useEngine(new GraphvizV8Engine());
+  }
 
   public static <T> BufferedImage automatonToImg(
       DeterministicFiniteAutomaton<T> automaton, int height) {
@@ -40,19 +47,35 @@ public class GraphRenderer {
 
   public static <T> BufferedImage automatonToImg(FeedbackAutomaton<T> automaton, int height) {
     Map<Integer, Node> nodes = constructNodes(automaton);
+    double minProbToRender = getMinProbToRender(automaton);
     automaton
         .getAllStates()
         .values()
         .forEach(
-            state ->
-                state
-                    .getOutgoingTransitions()
-                    .forEach(
-                        (target, transition) ->
-                            transition
-                                .getKnownLetters()
-                                .forEach(letter -> buildLink(nodes, state, target, letter))));
+            state -> {
+              Map<T, Map<ProbabilityState<T>, Double>> probabilities =
+                  state.getUsedLetters().stream()
+                      .collect(
+                          Collectors.toMap(
+                              Function.identity(), state::getNormalizedTransitionProbabilities));
+              state
+                  .getOutgoingTransitions()
+                  .forEach(
+                      (target, transition) ->
+                          transition.getKnownLetters().stream()
+                              .filter(
+                                  letter ->
+                                      probabilities.get(letter).get(target)
+                                          > (minProbToRender - Util.DOUBLE_COMPARISON_PRECISION))
+                              .forEach(letter -> buildLink(nodes, state, target, letter)));
+            });
     return constructGraph(nodes, "feedback", height);
+  }
+
+  public static <T> double getMinProbToRender(FeedbackAutomaton<T> automaton) {
+    // normal nodes cannot return to start and by design not to themselves
+    // so the number of possible transitions is n-2
+    return 1.0 / (automaton.getAllStates().size() - 2);
   }
 
   private static <S extends State<S, T>, T> Map<Integer, Node> constructNodes(
@@ -81,7 +104,6 @@ public class GraphRenderer {
 
   private static BufferedImage constructGraph(Map<Integer, Node> nodes, String name, int height) {
     Graph graph = graph(name).directed().with(nodes.values().stream().toList());
-    Graphviz.useEngine(new GraphvizV8Engine());
     return Graphviz.fromGraph(graph).height(height).render(Format.PNG).toImage();
   }
 }

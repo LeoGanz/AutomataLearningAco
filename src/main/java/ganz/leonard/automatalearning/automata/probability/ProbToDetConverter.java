@@ -5,7 +5,6 @@ import ganz.leonard.automatalearning.automata.general.DeterministicState;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ProbToDetConverter<T> {
@@ -18,21 +17,14 @@ public class ProbToDetConverter<T> {
   }
 
   private void constructTransitionsFor(ProbabilityState<T> probState) {
-    Set<T> usedLetters =
-        probState.getOutgoingTransitions().values().stream()
-            .flatMap(transition -> transition.getKnownLetters().stream())
-            // .distinct() already distinct in set
-            .collect(Collectors.toSet());
-
-    usedLetters.forEach(letter -> constructSingleTransition(probState, letter));
+    probState.getUsedLetters().forEach(letter -> constructSingleTransition(probState, letter));
   }
 
   private void constructSingleTransition(ProbabilityState<T> probState, T letter) {
     Map<ProbabilityState<T>, Double> probabilities =
         probState.getNormalizedTransitionProbabilities(letter);
     Optional<Map.Entry<ProbabilityState<T>, Double>> successor =
-        probabilities.entrySet().stream()
-            .max(Comparator.comparingDouble(Map.Entry::getValue));
+        probabilities.entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue));
     if (successor.isPresent()) {
       if (successor.get().getValue() > MIN_PROBABILITY) {
         DeterministicState<T> successorDfa =

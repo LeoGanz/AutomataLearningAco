@@ -4,6 +4,7 @@ import ganz.leonard.automatalearning.automata.general.BasicState;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +48,13 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
             .collect(
                 Collectors.toMap(
                     Map.Entry::getKey, entry -> entry.getValue().getRawProbabilityFor(letter))));
+  }
+
+  public Set<T> getUsedLetters() {
+    return outgoingTransitions.values().stream()
+        .flatMap(transition -> transition.getKnownLetters().stream())
+        // .distinct() already distinct through set
+        .collect(Collectors.toSet());
   }
 
   public PheromoneTransition<T> getTransitionTo(ProbabilityState<T> state) {
