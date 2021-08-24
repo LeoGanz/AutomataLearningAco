@@ -10,6 +10,7 @@ import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomat
 import ganz.leonard.automatalearning.automata.general.State;
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
+import guru.nidi.graphviz.attribute.Color;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
@@ -24,6 +25,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class GraphRenderer {
+  private static final int MAX_LINE_WIDTH = 5;
+  private static final String HEX_BLACK = "000000";
+  private static final int RGBA_MAX_VAL = 255;
+  private static final double MIN_PORTION_OF_RANDOM_CHOICE_PROB = 1.0 / 3;
 
   // paint with graphviz
 
@@ -41,7 +46,7 @@ public class GraphRenderer {
             state ->
                 state
                     .getOutgoingTransitions()
-                    .forEach((letter, target) -> buildLink(nodes, state, target, letter)));
+                    .forEach((letter, target) -> buildLink(nodes, state, target, letter, 1)));
     return constructGraph(nodes, "dfa", height);
   }
 
@@ -67,15 +72,25 @@ public class GraphRenderer {
                                   letter ->
                                       probabilities.get(letter).get(target)
                                           > (minProbToRender - Util.DOUBLE_COMPARISON_PRECISION))
-                              .forEach(letter -> buildLink(nodes, state, target, letter)));
+                              .forEach(
+                                  letter ->
+                                      buildLink(
+                                          nodes,
+                                          state,
+                                          target,
+                                          letter,
+                                          probabilities.get(letter).get(target))));
             });
     return constructGraph(nodes, "feedback", height);
   }
 
   public static <T> double getMinProbToRender(FeedbackAutomaton<T> automaton) {
     // normal nodes cannot return to start and by design not to themselves
-    // so the number of possible transitions is n-2
-    return 1.0 / (automaton.getAllStates().size() - 2);
+    int possibleTransitions = automaton.getAllStates().size() - 2;
+    double prob = 1.0 / possibleTransitions;
+    // if prob drops below 1/k of the prob for choosing randomly don't render (to keep graph clean)
+    prob *= MIN_PORTION_OF_RANDOM_CHOICE_PROB;
+    return prob;
   }
 
   private static <S extends State<S, T>, T> Map<Integer, Node> constructNodes(
@@ -94,12 +109,22 @@ public class GraphRenderer {
   }
 
   private static <S extends State<S, T>, T> void buildLink(
-      Map<Integer, Node> nodes, State<S, T> source, State<S, T> target, T letter) {
+      Map<Integer, Node> nodes,
+      State<S, T> source,
+      State<S, T> target,
+      T letter,
+      double probability) {
     nodes.put(
         source.getId(),
         nodes
             .get(source.getId())
-            .link(to(nodes.get(target.getId())).with(Label.of(String.valueOf(letter)))));
+            .link(
+                to(nodes.get(target.getId()))
+                    .with(
+                        Label.of(String.valueOf(letter)),
+                        Style.lineWidth(probability * MAX_LINE_WIDTH),
+                        Color.rgba(// problems with rgba method with 4 values
+                            HEX_BLACK + Integer.toHexString((int) (RGBA_MAX_VAL * probability))))));
   }
 
   private static BufferedImage constructGraph(Map<Integer, Node> nodes, String name, int height) {
