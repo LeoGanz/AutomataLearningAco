@@ -17,6 +17,12 @@ public class DeterministicFiniteAutomaton<T> extends Automaton<DeterministicStat
     super(allStatesWithId, start);
   }
 
+  public boolean hasTransition(int fromId, int toId, T letter) {
+    DeterministicState<T> from = getAllStates().get(fromId);
+    DeterministicState<T> to = getAllStates().get(toId);
+    return from != null && to != null && from.transit(letter) == to;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

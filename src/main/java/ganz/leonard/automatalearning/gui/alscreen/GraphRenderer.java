@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class GraphRenderer {
   private static final int MAX_LINE_WIDTH = 5;
   private static final String HEX_BLACK = "000000";
+  private static final String HEX_RED = "FF0000";
   private static final int RGBA_MAX_VAL = 255;
   private static final double MIN_PORTION_OF_RANDOM_CHOICE_PROB = 1.0 / 3;
 
@@ -46,11 +47,14 @@ public class GraphRenderer {
             state ->
                 state
                     .getOutgoingTransitions()
-                    .forEach((letter, target) -> buildLink(nodes, state, target, letter, 1)));
+                    .forEach(
+                        (letter, target) -> buildLink(nodes, state, target, letter, 1, false)));
     return constructGraph(nodes, "dfa", height);
   }
 
   public static <T> BufferedImage automatonToImg(FeedbackAutomaton<T> automaton, int height) {
+    DeterministicFiniteAutomaton<T> dfa = automaton.buildMostLikelyDfa();
+
     Map<Integer, Node> nodes = constructNodes(automaton);
     double minProbToRender = getMinProbToRender(automaton);
     automaton
@@ -79,7 +83,9 @@ public class GraphRenderer {
                                           state,
                                           target,
                                           letter,
-                                          probabilities.get(letter).get(target))));
+                                          probabilities.get(letter).get(target),
+                                          dfa.hasTransition(
+                                              state.getId(), target.getId(), letter))));
             });
     return constructGraph(nodes, "feedback", height);
   }
@@ -113,7 +119,8 @@ public class GraphRenderer {
       State<S, T> source,
       State<S, T> target,
       T letter,
-      double probability) {
+      double probability,
+      boolean highlight) {
     nodes.put(
         source.getId(),
         nodes
@@ -123,8 +130,10 @@ public class GraphRenderer {
                     .with(
                         Label.of(String.valueOf(letter)),
                         Style.lineWidth(probability * MAX_LINE_WIDTH),
-                        Color.rgba(// problems with rgba method with 4 values
-                            HEX_BLACK + Integer.toHexString((int) (RGBA_MAX_VAL * probability))))));
+                        // problems with rgba method with 4 values
+                        Color.rgba(
+                            (highlight ? HEX_RED : HEX_BLACK)
+                                + Integer.toHexString((int) (RGBA_MAX_VAL * probability))))));
   }
 
   private static BufferedImage constructGraph(Map<Integer, Node> nodes, String name, int height) {
