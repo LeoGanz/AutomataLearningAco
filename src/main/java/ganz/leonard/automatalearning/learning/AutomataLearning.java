@@ -105,7 +105,6 @@ public class AutomataLearning<T> {
    * @return an unlinked automaton with the properties described above
    */
   public FeedbackAutomaton<T> getUnlinkedAutomaton() {
-    System.out.println("creating deep copy of current automaton");
     return FeedbackAutomaton.copyFeedbackAutomaton(automaton);
   }
 
