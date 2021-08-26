@@ -13,6 +13,7 @@ import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.language.Leaf;
 import ganz.leonard.automatalearning.language.Repetition;
 import ganz.leonard.automatalearning.language.Sequence;
+import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
 import nl.jqno.equalsverifier.ConfiguredEqualsVerifier;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
@@ -55,7 +56,10 @@ public class EqualsContractTest {
         .suppress(Warning.ALL_FIELDS_SHOULD_BE_USED)
         .withRedefinedSuperclass()
         .withPrefabValues(ProbToDetConverter.class, converter, converter2)
-        .withGenericPrefabValues(State.class, (s, t) -> new ProbabilityState<>(1, false))
+        .withGenericPrefabValues(
+            State.class,
+            (s, t) ->
+                new ProbabilityState<>(1, false, AutomataLearningOptionsBuilder.builder().build()))
         .verify();
   }
 

@@ -4,6 +4,8 @@ import ganz.leonard.automatalearning.gui.util.GuiUtil;
 import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.language.Leaf;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
+import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
+import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,8 +27,14 @@ public class GuiController {
     GuiUtil.executeOnSwingWorker(
         () -> {
           // TODO don't hard code but let the user decide
-          Map<List<Character>, Boolean> input = constructDefaultInput();
-          model = new AutomataLearning<>(2, 2, input);
+          AutomataLearningOptions options =
+              AutomataLearningOptionsBuilder.builder()
+                  .acceptingStates(2)
+                  .notAcceptingStates(2)
+                  .inputSamples(30)
+                  .build();
+          Map<List<Character>, Boolean> input = constructDefaultInput(options.inputSamples());
+          model = new AutomataLearning<>(options, input);
         },
         () -> {
           renderManager = new RenderManager<>(model);
@@ -35,10 +43,9 @@ public class GuiController {
         });
   }
 
-  private Map<List<Character>, Boolean> constructDefaultInput() {
+  private Map<List<Character>, Boolean> constructDefaultInput(int samples) {
     Language<Character> testLang =
         new Language<>(new Leaf<>('a').rep().seq(new Leaf<>('b'))); // a*b
-    int samples = 10;
     Map<List<Character>, Boolean> input =
         IntStream.range(0, samples)
             .boxed()

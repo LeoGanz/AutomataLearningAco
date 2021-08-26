@@ -2,6 +2,7 @@ package ganz.leonard.automatalearning.automata.probability;
 
 import ganz.leonard.automatalearning.automata.general.Automaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
+import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,9 +25,17 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
   // cannot use maps as duplicates are possible
   private final List<Pair<PheromoneTransition<T>, T>> currentPath;
   private final ProbToDetConverter<T> converter;
+  private final AutomataLearningOptions options;
 
-  public FeedbackAutomaton(Collection<ProbabilityState<T>> allStates, ProbabilityState<T> start) {
+  public FeedbackAutomaton(
+      Collection<ProbabilityState<T>> allStates,
+      ProbabilityState<T> start,
+      AutomataLearningOptions options) {
     super(allStates, start);
+    if (!allStates.stream().map(ProbabilityState::getOptions).allMatch(options::equals)) {
+      throw new IllegalArgumentException("Options of states and automaton have to be the same");
+    }
+    this.options = options;
     currentPath = new LinkedList<>();
     converter = new ProbToDetConverter<>(this);
   }
@@ -34,7 +43,7 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
   public static <T> FeedbackAutomaton<T> copyFeedbackAutomaton(FeedbackAutomaton<T> original) {
     Set<ProbabilityState<T>> newStates =
         original.getAllStates().values().stream()
-            .map(old -> new ProbabilityState<T>(old.getId(), old.isAccepting()))
+            .map(old -> new ProbabilityState<T>(old.getId(), old.isAccepting(), original.options))
             .collect(Collectors.toSet());
     Optional<ProbabilityState<T>> newStart =
         newStates.stream()
@@ -44,7 +53,8 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
       throw new IllegalArgumentException(
           "Could not find start state with proper id in provided automaton");
     }
-    FeedbackAutomaton<T> newAutomaton = new FeedbackAutomaton<>(newStates, newStart.get());
+    FeedbackAutomaton<T> newAutomaton =
+        new FeedbackAutomaton<>(newStates, newStart.get(), original.options);
     newStates.forEach(
         state ->
             state.initTransitionsLikeIn(
@@ -85,6 +95,10 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
     return converter.convert();
   }
 
+  public AutomataLearningOptions getOptions() {
+    return options;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -103,6 +117,10 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
       return false;
     }
 
+    if (!Objects.equals(options, that.options)) {
+      return false;
+    }
+
     if (getAllStates() != null && that.getAllStates() != null) {
       return getAllStates().values().stream()
           .allMatch(
@@ -118,6 +136,7 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
   @Override
   public int hashCode() {
     int result = super.hashCode();
+    result = 31 * result + (options != null ? options.hashCode() : 0);
     result = 31 * result + (currentPath != null ? currentPath.hashCode() : 0);
     if (getAllStates() != null) {
       for (ProbabilityState<T> s : getAllStates().values()) {

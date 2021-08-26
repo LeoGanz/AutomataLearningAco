@@ -1,6 +1,7 @@
 package ganz.leonard.automatalearning.automata.probability;
 
 import ganz.leonard.automatalearning.automata.general.BasicState;
+import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,9 +15,11 @@ import java.util.stream.Collectors;
  */
 public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
   private final Map<ProbabilityState<T>, PheromoneTransition<T>> outgoingTransitions;
+  private final AutomataLearningOptions options;
 
-  public ProbabilityState(int id, boolean isAccepting) {
+  public ProbabilityState(int id, boolean isAccepting, AutomataLearningOptions options) {
     super(id, isAccepting);
+    this.options = options;
     outgoingTransitions = new HashMap<>();
   }
 
@@ -24,7 +27,7 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
     states.stream()
         .filter(state -> state != this) // allow?
         .filter(state -> !outgoingTransitions.containsKey(state))
-        .forEach(state -> outgoingTransitions.put(state, new PheromoneTransition<>()));
+        .forEach(state -> outgoingTransitions.put(state, new PheromoneTransition<>(options)));
   }
 
   public void initTransitionsLikeIn(
@@ -33,7 +36,8 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
     original.outgoingTransitions.forEach(
         (origTarget, origTrans) ->
             outgoingTransitions.put(
-                withTheseStates.get(origTarget.getId()), new PheromoneTransition<>(origTrans)));
+                withTheseStates.get(origTarget.getId()), new PheromoneTransition<>(origTrans,
+                    options)));
   }
 
   @Override
@@ -63,5 +67,9 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
 
   public Map<ProbabilityState<T>, PheromoneTransition<T>> getOutgoingTransitions() {
     return outgoingTransitions;
+  }
+
+  public AutomataLearningOptions getOptions() {
+    return options;
   }
 }

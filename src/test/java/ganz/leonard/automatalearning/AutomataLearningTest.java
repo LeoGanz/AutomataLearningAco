@@ -5,6 +5,8 @@ import ganz.leonard.automatalearning.automata.tools.DfaToRegexConverter;
 import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.language.Leaf;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
+import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
+import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,7 +19,9 @@ public class AutomataLearningTest {
 
   private static void runLearning(Map<List<Character>, Boolean> input)
       throws IOException, InterruptedException {
-    AutomataLearning<Character> al = new AutomataLearning<>(1, 2, input);
+    AutomataLearningOptions options =
+        AutomataLearningOptionsBuilder.builder().acceptingStates(1).notAcceptingStates(2).build();
+    AutomataLearning<Character> al = new AutomataLearning<>(options, input);
     al.runWords(100);
 
     DeterministicFiniteAutomaton<Character> learnedDfa = al.getAutomaton().buildMostLikelyDfa();

@@ -25,32 +25,32 @@ public class AutomataLearning<T> {
    * Initialize a new automata learning setup. A graph of accepting and not accepting states will be
    * built. This graph has an additional not accepting starting state.
    *
-   * @param noAccepting number of states the automaton can hold in
-   * @param noNotAccepting number of states the automaton cannot hold in
+   * @param options collection of all the options used for running automata learning
    * @param inputWords the words that will be used to learn the automaton. Every word has to be
    *     marked as being part of the language or not
    */
-  public AutomataLearning(int noAccepting, int noNotAccepting, Map<List<T>, Boolean> inputWords) {
-    automaton = constructAutomaton(noAccepting, noNotAccepting);
+  public AutomataLearning(AutomataLearningOptions options, Map<List<T>, Boolean> inputWords) {
+    automaton = constructAutomaton(options);
     this.inputWords = inputWords;
     it = inputWords.entrySet().iterator();
     pcs = new PropertyChangeSupport(this);
   }
 
-  private FeedbackAutomaton<T> constructAutomaton(int noAccepting, int noNotAccepting) {
-    Collection<ProbabilityState<T>> states = new ArrayList<>(noAccepting + noNotAccepting);
+  private FeedbackAutomaton<T> constructAutomaton(AutomataLearningOptions options) {
+    Collection<ProbabilityState<T>> states =
+        new ArrayList<>(options.notAcceptingStates() + options.notAcceptingStates());
     AtomicInteger id = new AtomicInteger();
-    ProbabilityState<T> start = new ProbabilityState<>(id.getAndIncrement(), false);
-    IntStream.range(0, noAccepting)
-        .forEach(__ -> states.add(new ProbabilityState<>(id.getAndIncrement(), true)));
-    IntStream.range(0, noNotAccepting)
-        .forEach(__ -> states.add(new ProbabilityState<>(id.getAndIncrement(), false)));
+    ProbabilityState<T> start = new ProbabilityState<>(id.getAndIncrement(), false, options);
+    IntStream.range(0, options.acceptingStates())
+        .forEach(__ -> states.add(new ProbabilityState<>(id.getAndIncrement(), true, options)));
+    IntStream.range(0, options.notAcceptingStates())
+        .forEach(__ -> states.add(new ProbabilityState<>(id.getAndIncrement(), false, options)));
     Stream.concat(Stream.of(start), states.stream())
         .forEach(state -> state.addTransitionsTo(states));
 
     states.add(start); // add after init, as start should not be returned to
 
-    return new FeedbackAutomaton<>(states, start);
+    return new FeedbackAutomaton<>(states, start, options);
   }
 
   private void applyWord(List<T> word, boolean inLanguage) {

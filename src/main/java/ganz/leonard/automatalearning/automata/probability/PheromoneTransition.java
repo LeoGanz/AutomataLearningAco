@@ -1,6 +1,7 @@
 package ganz.leonard.automatalearning.automata.probability;
 
 import ganz.leonard.automatalearning.Util;
+import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,17 +15,19 @@ import java.util.stream.Collectors;
  * @param <T> type used as alphabet
  */
 public class PheromoneTransition<T> {
-  private static final double INIT_PHEROMONE = 1;
   private final Map<T, Double> pheromones;
+  private final AutomataLearningOptions options;
 
-  public PheromoneTransition() {
+  public PheromoneTransition(AutomataLearningOptions options) {
+    this.options = options;
     this.pheromones = new HashMap<>();
     // used for lazy init of pheromones; tracks decays
-    pheromones.put(null, INIT_PHEROMONE);
+    pheromones.put(null, (double) options.initialPheromones());
   }
 
-  public PheromoneTransition(PheromoneTransition<T> original) {
+  public PheromoneTransition(PheromoneTransition<T> original, AutomataLearningOptions options) {
     pheromones = new HashMap<>(original.pheromones);
+    this.options = options;
   }
 
   public double getRawProbabilityFor(T letter) {
@@ -44,12 +47,16 @@ public class PheromoneTransition<T> {
     Objects.requireNonNull(letter);
     ensureInit(letter);
     // update pheromones according to some formula
-    pheromones.put(letter, pheromones.get(letter) * 1.2);
+    pheromones.put(letter, pheromones.get(letter) * options.positiveFeedbackFactor());
   }
 
   public void decay() {
     // negative feedback / pheromone decay for all transitions
-    pheromones.keySet().forEach(letter -> pheromones.put(letter, pheromones.get(letter) / 2.0));
+    pheromones
+        .keySet()
+        .forEach(
+            letter ->
+                pheromones.put(letter, pheromones.get(letter) * options.negativeFeedbackFactor()));
   }
 
   public Collection<T> getKnownLetters() {
@@ -65,6 +72,10 @@ public class PheromoneTransition<T> {
     }
 
     PheromoneTransition<?> that = (PheromoneTransition<?>) o;
+
+    if (!Objects.equals(options, that.options)) {
+      return false;
+    }
 
     // Compare map containing doubles with tolerance
     if (pheromones == null) {
@@ -95,12 +106,16 @@ public class PheromoneTransition<T> {
 
     PheromoneTransition<?> that = (PheromoneTransition<?>) o;
 
-    // Doubles have to be strictly compared to ensure transitivity and a consistent hashcode
-    return Objects.equals(pheromones, that.pheromones);
+    if (!Objects.equals(pheromones, that.pheromones)) {
+      return false;
+    }
+    return Objects.equals(options, that.options);
   }
 
   @Override
   public int hashCode() {
-    return pheromones != null ? pheromones.hashCode() : 0;
+    int result = pheromones != null ? pheromones.hashCode() : 0;
+    result = 31 * result + (options != null ? options.hashCode() : 0);
+    return result;
   }
 }
