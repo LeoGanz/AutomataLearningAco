@@ -6,23 +6,28 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 
 public class Gui extends JFrame {
-  private static final int MINIMUM_FRAME_WIDTH = 700;
-  private static final int MINIMUM_FRAME_HEIGHT = 700;
 
   private final GuiController controller;
 
   public Gui(GuiController controller) {
     this.controller = controller;
-    setMinimumSize(new Dimension(MINIMUM_FRAME_WIDTH, MINIMUM_FRAME_HEIGHT));
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     setLocationRelativeTo(null);
-    showOptionsScreen();
   }
 
-  private void showOptionsScreen() {
+  public void showOptionsScreen() {
     clearAllContent();
-    add(new OptionsScreen(controller));
-    pack();
+    OptionsScreen screen = new OptionsScreen(controller);
+    add(screen);
+    getRootPane().setDefaultButton(screen.getDefaultButton());
+    finishPanelSwitch();
+  }
+
+  public <T> void showAutomataLearningScreen(
+      AutomataLearning<T> model, RenderManager<T> renderManager) {
+    clearAllContent();
+    add(new AutomataLearningScreen(controller, model, renderManager));
+    finishPanelSwitch();
   }
 
   private void clearAllContent() {
@@ -33,10 +38,10 @@ public class Gui extends JFrame {
     setVisible(true);
   }
 
-  public <T> void showAutomataLearningScreen(
-      AutomataLearning<T> model, RenderManager<T> renderManager) {
-    clearAllContent();
-    add(new AutomataLearningScreen(controller, model, renderManager));
+  private void finishPanelSwitch() {
+    setMinimumSize(new Dimension(0, 0));
     pack();
+    setLocationRelativeTo(null);
+    setMinimumSize(getSize());
   }
 }

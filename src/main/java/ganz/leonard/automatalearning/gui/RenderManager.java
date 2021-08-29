@@ -18,8 +18,8 @@ public class RenderManager<T> implements PropertyChangeListener {
   public static final String IMAGE_UPDATE_KEY = "RenderingUpdate";
   public static final String APPLIED_WORDS_UPDATE_KEY = "AppliedWordsUpdate";
   public static final String INPUT_WORDS_UPDATE_KEY = "InputWordsUpdate";
-  private static final int IMAGE_HEIGHT = 500;
-  private static final int MAX_IMAGE_WIDTH = 650;
+  public static final int IMAGE_HEIGHT = 500;
+  public static final int MAX_IMAGE_WIDTH = 650;
 
   private final AutomataLearning<T> model;
   private final LinkedList<CompletableFuture<BufferedImage>> renderingQueue;

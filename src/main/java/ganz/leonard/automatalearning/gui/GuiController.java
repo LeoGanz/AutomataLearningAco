@@ -20,19 +20,13 @@ public class GuiController {
 
   public void initAndShowGui() {
     gui = new Gui(this);
+    gui.showOptionsScreen();
     gui.makeVisible();
   }
 
-  public void simulationScreenRequested() {
+  public void simulationScreenRequested(AutomataLearningOptions options) {
     GuiUtil.executeOnSwingWorker(
         () -> {
-          // TODO don't hard code but let the user decide
-          AutomataLearningOptions options =
-              AutomataLearningOptionsBuilder.builder()
-                  .acceptingStates(2)
-                  .notAcceptingStates(2)
-                  .inputSamples(30)
-                  .build();
           Map<List<Character>, Boolean> input = constructDefaultInput(options.inputSamples());
           model = new AutomataLearning<>(options, input);
         },
