@@ -38,6 +38,18 @@ public class Util {
     return padRight(String.valueOf(d), digits + 1 + places);
   }
 
+  /**
+   * Format a double as percentage.
+   *
+   * @param value double to format
+   * @param places number of decimal places to display
+   * @return formatted double with percentage sign
+   * @see #formatDouble
+   */
+  public static String formatPercentage(double value, int places) {
+    return formatDouble(value * 100, 1) + "%";
+  }
+
   public static int nrOfDigits(int i) {
     if (i == 0) {
       return 1;

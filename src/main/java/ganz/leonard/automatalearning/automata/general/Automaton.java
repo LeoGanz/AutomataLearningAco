@@ -1,6 +1,7 @@
 package ganz.leonard.automatalearning.automata.general;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -57,6 +58,12 @@ public class Automaton<S extends State<S, T>, T> {
 
   public boolean canHold() {
     return current.isAccepting();
+  }
+
+  public boolean accepts(List<T> word) {
+    goToStart();
+    word.forEach(this::takeLetter);
+    return canHold();
   }
 
   @Override

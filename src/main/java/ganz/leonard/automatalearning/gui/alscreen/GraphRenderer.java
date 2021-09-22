@@ -110,7 +110,11 @@ public class GraphRenderer {
                         node(String.valueOf(state.getId()))
                             .with(state.isAccepting() ? Shape.DOUBLE_CIRCLE : Shape.CIRCLE)));
     Node startNode = node("start").with(Style.INVIS);
-    nodes.put(-1, startNode.link(nodes.get(automaton.getStartState().getId())));
+    nodes.put(
+        -1,
+        startNode.link(
+            to(nodes.get(automaton.getStartState().getId()))
+                .with(Color.rgba(HEX_RED + Integer.toHexString(RGBA_MAX_VAL)))));
     return nodes;
   }
 

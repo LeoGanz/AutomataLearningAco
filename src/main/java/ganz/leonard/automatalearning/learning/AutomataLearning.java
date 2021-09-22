@@ -1,9 +1,12 @@
 package ganz.leonard.automatalearning.learning;
 
+import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
+import ganz.leonard.automatalearning.automata.tools.DfaToRegexConverter;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -12,6 +15,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class AutomataLearning<T> {
   private final FeedbackAutomaton<T> automaton;
@@ -20,6 +25,9 @@ public class AutomataLearning<T> {
   private Iterator<Map.Entry<List<T>, Boolean>> it;
   private boolean firstRoundOfWords = true;
   private int nrAppliedWords = 0;
+
+  // Save intermediate dfa, specify at which applied word count it was derived
+  private Pair<Integer, DeterministicFiniteAutomaton<T>> intermediateDfa;
 
   /**
    * Initialize a new automata learning setup. A graph of accepting and not accepting states will be
@@ -123,5 +131,31 @@ public class AutomataLearning<T> {
 
   private void notifyListeners() {
     pcs.firePropertyChange("AutomataLearning", null, this);
+  }
+
+  private DeterministicFiniteAutomaton<T> getIntermediateDfa() {
+    if (intermediateDfa == null || !intermediateDfa.getLeft().equals(nrAppliedWords)) {
+      intermediateDfa = new ImmutablePair<>(nrAppliedWords, automaton.buildMostLikelyDfa());
+    }
+    return intermediateDfa.getRight();
+  }
+
+  public String getLanguageRegex() {
+    try {
+      return DfaToRegexConverter.convert(getIntermediateDfa());
+    } catch (IOException | InterruptedException e) {
+      // fall through to default return
+    }
+    return "N/A";
+  }
+
+  public double getMatchingInputScore() {
+    DeterministicFiniteAutomaton<T> dfa = getIntermediateDfa();
+    long correctlyMatched =
+        inputWords.entrySet().stream()
+            .map(entry -> entry.getValue().equals(dfa.accepts(entry.getKey())))
+            .filter(b -> b)
+            .count();
+    return ((double) correctlyMatched) / inputWords.size();
   }
 }
