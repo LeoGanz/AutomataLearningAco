@@ -9,8 +9,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.imgscalr.Scalr;
 
 public class RenderManager<T> implements PropertyChangeListener {
@@ -67,26 +65,6 @@ public class RenderManager<T> implements PropertyChangeListener {
           }
         });
     renderingQueue.add(nextFrame);
-  }
-
-  public void thinOutRenderingQueue(int framesToKeep) {
-    // keep rendering queue small
-    synchronized (renderingQueue) {
-      int size = renderingQueue.size();
-      if (size > framesToKeep) {
-        IntStream.range(0, size)
-            .filter(
-                i ->
-                    !((i == renderingQueue.size() - 1)
-                        || (i > 0 && i % Math.round(size / (double) framesToKeep) == 0)))
-            .forEach(i -> renderingQueue.get(i).cancel(true));
-
-        renderingQueue.removeAll(
-            renderingQueue.stream()
-                .filter(CompletableFuture::isCancelled)
-                .collect(Collectors.toSet()));
-      }
-    }
   }
 
   public void addPropertyChangeListener(PropertyChangeListener changeListener) {

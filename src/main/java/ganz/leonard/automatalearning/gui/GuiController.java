@@ -5,14 +5,12 @@ import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.language.Leaf;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
-import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class GuiController {
-  private static final int FRAMES_TO_KEEP = 3;
 
   private Gui gui;
   private AutomataLearning<Character> model;
@@ -45,9 +43,15 @@ public class GuiController {
             .boxed()
             .collect(Collectors.toMap(__ -> testLang.generateSample(), __ -> true, (k1, k2) -> k1));
     input.put(List.of('a'), false);
+    input.put(List.of('b'), true);
     input.put(List.of('a', 'a'), false);
+    input.put(List.of('b', 'a'), false);
+    input.put(List.of('a', 'b', 'a'), false);
+    input.put(List.of('b', 'b', 'a'), false);
     input.put(List.of('a', 'a', 'a'), false);
     input.put(List.of('a', 'a', 'a', 'a'), false);
+    input.put(List.of('b', 'a', 'a', 'a'), false);
+    input.put(List.of('a', 'a', 'b', 'a'), false);
     input.put(List.of('b', 'b'), false);
     return input;
   }
@@ -57,11 +61,7 @@ public class GuiController {
   }
 
   public void nextWords(int amount) {
-    GuiUtil.executeOnSwingWorker(
-        () -> {
-          model.runWords(amount);
-          renderManager.thinOutRenderingQueue(FRAMES_TO_KEEP);
-        });
+    GuiUtil.executeOnSwingWorker(() -> model.runWords(amount));
   }
 
   public void remainingWords() {

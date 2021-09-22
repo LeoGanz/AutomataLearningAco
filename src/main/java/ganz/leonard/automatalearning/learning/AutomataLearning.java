@@ -75,7 +75,7 @@ public class AutomataLearning<T> {
     }
   }
 
-  public void runNextWord() {
+  public synchronized void runNextWord() {
     ensureIteratorHasNext();
     Map.Entry<List<T>, Boolean> pair = it.next();
     applyWord(pair.getKey(), pair.getValue());
@@ -89,6 +89,7 @@ public class AutomataLearning<T> {
   }
 
   public void runWords(int amount) {
+    System.out.println("model processing " + amount + " words");
     for (int i = 0; i < amount; i++) {
       runNextWord();
     }
