@@ -37,12 +37,20 @@ public class GuiController {
           } else {
             input = InputProvider.generateSamples(options.inputSamples());
           }
-          model = new AutomataLearning<>(options, input);
+          if (input != null && !input.isEmpty()) {
+            model = new AutomataLearning<>(options, input);
+          } else {
+            model = null;
+          }
         },
         () -> {
-          renderManager = new RenderManager<>(model);
-          gui.showAutomataLearningScreen(model, renderManager);
-          renderManager.constructNewFrame();
+          if (model != null) {
+            renderManager = new RenderManager<>(model);
+            gui.showAutomataLearningScreen(model, renderManager);
+            renderManager.constructNewFrame();
+          } else {
+            gui.displayError("Could not start simulation. Check that input file is not empty!");
+          }
         });
   }
 

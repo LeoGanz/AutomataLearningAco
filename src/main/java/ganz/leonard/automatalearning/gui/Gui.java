@@ -4,6 +4,8 @@ import ganz.leonard.automatalearning.gui.alscreen.AutomataLearningScreen;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import java.awt.Dimension;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 public class Gui extends JFrame {
 
@@ -43,5 +45,13 @@ public class Gui extends JFrame {
     pack();
     setLocationRelativeTo(null);
     setMinimumSize(getSize());
+  }
+
+  public void displayError(String s) {
+    if (!SwingUtilities.isEventDispatchThread()) {
+      SwingUtilities.invokeLater(() -> displayError(s));
+    } else {
+      JOptionPane.showMessageDialog(this, s, "Error", JOptionPane.ERROR_MESSAGE);
+    }
   }
 }

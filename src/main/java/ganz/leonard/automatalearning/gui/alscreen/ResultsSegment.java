@@ -55,6 +55,7 @@ public class ResultsSegment<T> extends JPanel implements PropertyChangeListener 
 
   private void updateTexts(String regex, double score) {
     languageLabel.setText(regex);
-    scoreLabel.setText(Util.formatPercentage(score, 1));
+    String newScoreText = Double.isNaN(score) ? "N/A" : Util.formatPercentage(score, 1);
+    scoreLabel.setText(newScoreText);
   }
 }

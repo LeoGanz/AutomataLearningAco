@@ -35,12 +35,16 @@ public class AutomataLearning<T> {
    *
    * @param options collection of all the options used for running automata learning
    * @param inputWords the words that will be used to learn the automaton. Every word has to be
-   *     marked as being part of the language or not
+   *     marked as being part of the language or not. At least one word is required.
+   * @throws IllegalArgumentException if inputWords is empty
    */
   public AutomataLearning(AutomataLearningOptions options, Map<List<T>, Boolean> inputWords) {
+    if (inputWords.isEmpty()) {
+      throw new IllegalArgumentException("At least one word has to be provided as input");
+    }
+    it = inputWords.entrySet().iterator();
     automaton = constructAutomaton(options);
     this.inputWords = inputWords;
-    it = inputWords.entrySet().iterator();
     pcs = new PropertyChangeSupport(this);
   }
 
@@ -76,7 +80,7 @@ public class AutomataLearning<T> {
     return firstRoundOfWords && it.hasNext();
   }
 
-  private void ensureIteratorHasNext() {
+  private void refillIteratorIfNeeded() {
     if (!it.hasNext()) {
       it = inputWords.entrySet().iterator();
       firstRoundOfWords = false;
@@ -84,7 +88,7 @@ public class AutomataLearning<T> {
   }
 
   public synchronized void runNextWord() {
-    ensureIteratorHasNext();
+    refillIteratorIfNeeded();
     Map.Entry<List<T>, Boolean> pair = it.next();
     applyWord(pair.getKey(), pair.getValue());
   }
