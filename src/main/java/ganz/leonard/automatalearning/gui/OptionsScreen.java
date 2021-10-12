@@ -2,7 +2,11 @@ package ganz.leonard.automatalearning.gui;
 
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
+import java.awt.Font;
+import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -42,10 +46,21 @@ public class OptionsScreen extends JPanel {
     addOption("Negative Feedback Factor:", negativeFeedback, false, true);
     add(new JSeparator(), "span, growx, wrap");
 
+    JCheckBox generateSamples = new JCheckBox("Generate Input Words", true);
+    add(generateSamples, "span 2");
     SpinnerNumberModel samples =
         new SpinnerNumberModel(AutomataLearningOptions.DEF_INPUT_SAMPLES, 1, 1000, 1);
-    addOption("Input Samples to generate:", samples, true, true, true);
+    List<JComponent> componentsOfGenerate =
+        addOption("Input Samples to generate:", samples, false, false, false);
+    JLabel infoFileUsage = new JLabel("looking for file 'aStarB.txt' instead");
+    infoFileUsage.setFont(infoFileUsage.getFont().deriveFont(Font.ITALIC));
+    add(infoFileUsage, "span 2, gap unrelated, wrap 30:push");
+    updateVisibilityOfGenerateComponents(generateSamples, componentsOfGenerate, infoFileUsage);
 
+    generateSamples.addActionListener(
+        e ->
+            updateVisibilityOfGenerateComponents(
+                generateSamples, componentsOfGenerate, infoFileUsage));
     JButton reset = new JButton("Reset to Defaults");
     reset.addActionListener(
         e -> {
@@ -67,28 +82,36 @@ public class OptionsScreen extends JPanel {
                     .positiveFeedbackFactor(positiveFeedback.getNumber().doubleValue())
                     .negativeFeedbackFactor(negativeFeedback.getNumber().doubleValue())
                     .inputSamples(samples.getNumber().intValue())
-                    .build()));
+                    .build(),
+                !generateSamples.isSelected()));
 
     add(go, "tag ok, span, split 2, sizegroup button");
     add(reset, "tag cancel, sizegroup button");
+  }
+
+  private void updateVisibilityOfGenerateComponents(
+      JCheckBox generateSamples, List<JComponent> componentsOfGenerate, JLabel infoFileUsage) {
+    componentsOfGenerate.forEach(comp -> comp.setEnabled(generateSamples.isSelected()));
+    infoFileUsage.setVisible(!generateSamples.isSelected());
   }
 
   public JButton getDefaultButton() {
     return go;
   }
 
-  private void addOption(
+  private List<JComponent> addOption(
       String name, SpinnerNumberModel numberModel, boolean firstInLine, boolean wrapAfter) {
-    addOption(name, numberModel, firstInLine, wrapAfter, false);
+    return addOption(name, numberModel, firstInLine, wrapAfter, false);
   }
 
-  private void addOption(
+  private List<JComponent> addOption(
       String name,
       SpinnerNumberModel numberModel,
       boolean firstInLine,
       boolean wrapAfter,
       boolean pushWrap) {
-    add(new JLabel(name), "align label" + (firstInLine ? "" : ", gap unrelated"));
+    JLabel label = new JLabel(name);
+    add(label, "align label" + (firstInLine ? "" : ", gap unrelated"));
 
     StringBuilder constraints = new StringBuilder("sizegroup spinner");
     if (wrapAfter || pushWrap) {
@@ -97,6 +120,8 @@ public class OptionsScreen extends JPanel {
     if (pushWrap) {
       constraints.append(" 30:push");
     }
-    add(new JSpinner(numberModel), constraints.toString());
+    JSpinner spinner = new JSpinner(numberModel);
+    add(spinner, constraints.toString());
+    return List.of(label, spinner);
   }
 }

@@ -1,14 +1,13 @@
 package ganz.leonard.automatalearning.gui;
 
 import ganz.leonard.automatalearning.gui.util.GuiUtil;
-import ganz.leonard.automatalearning.language.Language;
-import ganz.leonard.automatalearning.language.Leaf;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class GuiController {
 
@@ -22,10 +21,22 @@ public class GuiController {
     gui.makeVisible();
   }
 
-  public void simulationScreenRequested(AutomataLearningOptions options) {
+  public void simulationScreenRequested(AutomataLearningOptions options, boolean useFile) {
     GuiUtil.executeOnSwingWorker(
         () -> {
-          Map<List<Character>, Boolean> input = constructDefaultInput(options.inputSamples());
+          Map<List<Character>, Boolean> input;
+          if (useFile) {
+            try {
+              input = InputProvider.readFromFile(InputProvider.INPUT_FILE_LOCATION);
+              System.out.println(input);
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            } catch (URISyntaxException e) {
+              throw new RuntimeException(e);
+            }
+          } else {
+            input = InputProvider.generateSamples(options.inputSamples());
+          }
           model = new AutomataLearning<>(options, input);
         },
         () -> {
@@ -33,27 +44,6 @@ public class GuiController {
           gui.showAutomataLearningScreen(model, renderManager);
           renderManager.constructNewFrame();
         });
-  }
-
-  private Map<List<Character>, Boolean> constructDefaultInput(int samples) {
-    Language<Character> testLang =
-        new Language<>(new Leaf<>('a').rep().seq(new Leaf<>('b'))); // a*b
-    Map<List<Character>, Boolean> input =
-        IntStream.range(0, samples)
-            .boxed()
-            .collect(Collectors.toMap(__ -> testLang.generateSample(), __ -> true, (k1, k2) -> k1));
-    input.put(List.of('a'), false);
-    input.put(List.of('b'), true);
-    input.put(List.of('a', 'a'), false);
-    input.put(List.of('b', 'a'), false);
-    input.put(List.of('a', 'b', 'a'), false);
-    input.put(List.of('b', 'b', 'a'), false);
-    input.put(List.of('a', 'a', 'a'), false);
-    input.put(List.of('a', 'a', 'a', 'a'), false);
-    input.put(List.of('b', 'a', 'a', 'a'), false);
-    input.put(List.of('a', 'a', 'b', 'a'), false);
-    input.put(List.of('b', 'b'), false);
-    return input;
   }
 
   public void nextWord() {

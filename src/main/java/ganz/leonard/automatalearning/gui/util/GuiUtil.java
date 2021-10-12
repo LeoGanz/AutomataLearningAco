@@ -1,6 +1,7 @@
 package ganz.leonard.automatalearning.gui.util;
 
 import java.awt.Insets;
+import java.util.concurrent.ExecutionException;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -50,6 +51,13 @@ public class GuiUtil {
 
       @Override
       protected void done() {
+        try {
+          // keeps exceptions in background thread from vanishing
+          get();
+        } catch (InterruptedException | ExecutionException e) {
+          e.printStackTrace();
+          throw new RuntimeException("No exception treatment possible here!");
+        }
         if (onDone != null) {
           onDone.run();
         }
