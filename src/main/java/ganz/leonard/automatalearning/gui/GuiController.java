@@ -1,46 +1,46 @@
 package ganz.leonard.automatalearning.gui;
 
+import ganz.leonard.automatalearning.gui.optionsscreen.OptionsScreenModel;
 import ganz.leonard.automatalearning.gui.util.GuiUtil;
+import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
 public class GuiController {
 
   private Gui gui;
+  private OptionsScreenModel optionsScreenModel;
   private AutomataLearning<Character> model;
   private RenderManager<Character> renderManager;
 
   public void initAndShowGui() {
     gui = new Gui(this);
-    gui.showOptionsScreen();
+    optionsScreenRequested();
     gui.makeVisible();
   }
 
-  public void simulationScreenRequested(AutomataLearningOptions options, boolean useFile) {
+  private void optionsScreenRequested() {
+    GuiUtil.executeOnSwingWorker(
+        () -> optionsScreenModel = new OptionsScreenModel(),
+        () -> gui.showOptionsScreen(optionsScreenModel));
+  }
+
+  public void simulationScreenRequested(AutomataLearningOptions options) {
     GuiUtil.executeOnSwingWorker(
         () -> {
-          Map<List<Character>, Boolean> input;
-          if (useFile) {
-            try {
-              input = InputProvider.readFromFile(InputProvider.INPUT_FILE_LOCATION);
-              System.out.println(input);
-            } catch (IOException e) {
-              throw new UncheckedIOException(e);
-            } catch (URISyntaxException e) {
-              throw new RuntimeException(e);
-            }
-          } else {
-            input = InputProvider.generateSamples(options.inputSamples());
+          Map<List<Character>, Boolean> input = null;
+          try {
+            input = optionsScreenModel.getChosenInput(options.inputSamples());
+          } catch (IOException | URISyntaxException e) {
+            // ignore. simulation will not start and warning will be displayed as model will be null
           }
-          if (input != null && !input.isEmpty()) {
+          if (input != null) {
             model = new AutomataLearning<>(options, input);
-          } else {
-            model = null;
           }
         },
         () -> {
@@ -49,7 +49,8 @@ public class GuiController {
             gui.showAutomataLearningScreen(model, renderManager);
             renderManager.constructNewFrame();
           } else {
-            gui.displayError("Could not start simulation. Check that input file is not empty!");
+            gui.displayError(
+                "Could not start simulation. Possible causes include empty input files.");
           }
         });
   }
@@ -64,5 +65,20 @@ public class GuiController {
 
   public void remainingWords() {
     GuiUtil.executeOnSwingWorker(() -> model.runRemainingWords());
+  }
+
+  // Delegate requests to options model
+
+  public void requestedSelectedInputFile(Path selectedInputFile) {
+    GuiUtil.executeOnSwingWorker(() -> optionsScreenModel.setSelectedInputFile(selectedInputFile));
+  }
+
+  public void requestedSelectedGeneratingLanguage(Language<Character> selectedGeneratingLanguage) {
+    GuiUtil.executeOnSwingWorker(
+        () -> optionsScreenModel.setSelectedGeneratingLanguage(selectedGeneratingLanguage));
+  }
+
+  public void requestedGenerateSamples(boolean generateSamples) {
+    GuiUtil.executeOnSwingWorker(() -> optionsScreenModel.setGenerateSamples(generateSamples));
   }
 }

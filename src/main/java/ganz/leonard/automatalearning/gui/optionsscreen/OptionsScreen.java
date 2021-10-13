@@ -1,25 +1,40 @@
-package ganz.leonard.automatalearning.gui;
+package ganz.leonard.automatalearning.gui.optionsscreen;
 
+import ganz.leonard.automatalearning.gui.GuiController;
+import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
-import java.awt.Font;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntFunction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 
-public class OptionsScreen extends JPanel {
+public class OptionsScreen extends JPanel implements PropertyChangeListener {
 
   public static final float TITLE_FONT_SIZE = 25f;
   private final JButton go;
+  private final OptionsScreenModel optionsScreenModel;
+  private final JCheckBox generateSamples;
+  private final List<JComponent> componentsOfGenerate;
+  private final List<JComponent> componentsOfFiles;
+  private final JComboBox<Language<Character>> availableGeneratingLanguages;
+  private final JComboBox<PathWrapper> availableInputFiles;
 
-  public OptionsScreen(GuiController controller) {
+  public OptionsScreen(GuiController controller, OptionsScreenModel optionsScreenModel) {
+    this.optionsScreenModel = optionsScreenModel;
+    optionsScreenModel.addPropertyChangeListener(this);
     setLayout(new MigLayout("insets 30", "grow", "10"));
 
     JLabel title = new JLabel("Options for Automata Learning");
@@ -46,21 +61,36 @@ public class OptionsScreen extends JPanel {
     addOption("Negative Feedback Factor:", negativeFeedback, false, true);
     add(new JSeparator(), "span, growx, wrap");
 
-    JCheckBox generateSamples = new JCheckBox("Generate Input Words", true);
+    generateSamples = new JCheckBox("Generate Input Words", optionsScreenModel.isGenerateSamples());
+    generateSamples.addActionListener(
+        e -> controller.requestedGenerateSamples(generateSamples.isSelected()));
     add(generateSamples, "span 2");
+    availableGeneratingLanguages =
+        new JComboBox<>(
+            optionsScreenModel
+                .getAvailableGeneratingLanguages()
+                .toArray((IntFunction<Language<Character>[]>) Language[]::new));
+    availableGeneratingLanguages.addItemListener(
+        e -> controller.requestedSelectedGeneratingLanguage((Language<Character>) e.getItem()));
+    componentsOfGenerate =
+        // arraylist needed to make result mutable
+        new ArrayList<>(
+            addOption("for language:", availableGeneratingLanguages, false, 0, false, false));
     SpinnerNumberModel samples =
         new SpinnerNumberModel(AutomataLearningOptions.DEF_INPUT_SAMPLES, 1, 1000, 1);
-    List<JComponent> componentsOfGenerate =
-        addOption("Input Samples to generate:", samples, false, false, false);
-    JLabel infoFileUsage = new JLabel("looking for file 'aStarB.txt' instead");
-    infoFileUsage.setFont(infoFileUsage.getFont().deriveFont(Font.ITALIC));
-    add(infoFileUsage, "span 2, gap unrelated, wrap 30:push");
-    updateVisibilityOfGenerateComponents(generateSamples, componentsOfGenerate, infoFileUsage);
+    componentsOfGenerate.addAll(addOption("Samples to generate:", samples, false, true, false));
 
-    generateSamples.addActionListener(
-        e ->
-            updateVisibilityOfGenerateComponents(
-                generateSamples, componentsOfGenerate, infoFileUsage));
+    availableInputFiles =
+        new JComboBox<>(
+            optionsScreenModel.getAvailableInputFiles().stream()
+                .map(PathWrapper::new)
+                .toArray(PathWrapper[]::new));
+    availableInputFiles.addItemListener(
+        e -> controller.requestedSelectedInputFile(((PathWrapper) e.getItem()).path()));
+    componentsOfFiles =
+        addOption("instead use input file:", availableInputFiles, false, 2, true, true);
+    updateInputComponents();
+
     JButton reset = new JButton("Reset to Defaults");
     reset.addActionListener(
         e -> {
@@ -82,17 +112,19 @@ public class OptionsScreen extends JPanel {
                     .positiveFeedbackFactor(positiveFeedback.getNumber().doubleValue())
                     .negativeFeedbackFactor(negativeFeedback.getNumber().doubleValue())
                     .inputSamples(samples.getNumber().intValue())
-                    .build(),
-                !generateSamples.isSelected()));
+                    .build()));
 
     add(go, "tag ok, span, split 2, sizegroup button");
     add(reset, "tag cancel, sizegroup button");
   }
 
-  private void updateVisibilityOfGenerateComponents(
-      JCheckBox generateSamples, List<JComponent> componentsOfGenerate, JLabel infoFileUsage) {
+  private void updateInputComponents() {
+    generateSamples.setSelected(optionsScreenModel.isGenerateSamples());
+    availableGeneratingLanguages.setSelectedItem(
+        optionsScreenModel.getSelectedGeneratingLanguage());
+    availableInputFiles.setSelectedItem(new PathWrapper(optionsScreenModel.getSelectedInputFile()));
     componentsOfGenerate.forEach(comp -> comp.setEnabled(generateSamples.isSelected()));
-    infoFileUsage.setVisible(!generateSamples.isSelected());
+    componentsOfFiles.forEach(comp -> comp.setEnabled(!generateSamples.isSelected()));
   }
 
   public JButton getDefaultButton() {
@@ -110,18 +142,33 @@ public class OptionsScreen extends JPanel {
       boolean firstInLine,
       boolean wrapAfter,
       boolean pushWrap) {
-    JLabel label = new JLabel(name);
-    add(label, "align label" + (firstInLine ? "" : ", gap unrelated"));
+    return addOption(name, new JSpinner(numberModel), firstInLine, 0, wrapAfter, pushWrap);
+  }
 
-    StringBuilder constraints = new StringBuilder("sizegroup spinner");
+  private List<JComponent> addOption(
+      String name,
+      JComponent chooser,
+      boolean firstInLine,
+      int skipCellsBefore,
+      boolean wrapAfter,
+      boolean pushWrap) {
+    JLabel label = new JLabel(name);
+    add(label, "align label, skip " + skipCellsBefore + (firstInLine ? "" : ", gap unrelated"));
+
+    StringBuilder constraints = new StringBuilder("sizegroup choosingElement");
     if (wrapAfter || pushWrap) {
       constraints.append(", wrap");
     }
     if (pushWrap) {
       constraints.append(" 30:push");
     }
-    JSpinner spinner = new JSpinner(numberModel);
-    add(spinner, constraints.toString());
-    return List.of(label, spinner);
+
+    add(chooser, constraints.toString());
+    return List.of(label, chooser);
+  }
+
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    SwingUtilities.invokeLater(this::updateInputComponents);
   }
 }

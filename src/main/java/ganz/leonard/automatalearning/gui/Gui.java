@@ -1,6 +1,8 @@
 package ganz.leonard.automatalearning.gui;
 
 import ganz.leonard.automatalearning.gui.alscreen.AutomataLearningScreen;
+import ganz.leonard.automatalearning.gui.optionsscreen.OptionsScreen;
+import ganz.leonard.automatalearning.gui.optionsscreen.OptionsScreenModel;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import java.awt.Dimension;
 import javax.swing.JFrame;
@@ -17,9 +19,10 @@ public class Gui extends JFrame {
     setLocationRelativeTo(null);
   }
 
-  public void showOptionsScreen() {
+  public void showOptionsScreen(
+      OptionsScreenModel optionsScreenModel) {
     clearAllContent();
-    OptionsScreen screen = new OptionsScreen(controller);
+    OptionsScreen screen = new OptionsScreen(controller, optionsScreenModel);
     add(screen);
     getRootPane().setDefaultButton(screen.getDefaultButton());
     finishPanelSwitch();
