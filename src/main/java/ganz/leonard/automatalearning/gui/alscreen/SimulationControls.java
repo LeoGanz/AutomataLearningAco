@@ -6,6 +6,7 @@ import ganz.leonard.automatalearning.gui.util.GuiUtil;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,6 +35,10 @@ class SimulationControls<T> extends JPanel implements PropertyChangeListener {
     remaining = new JButton("Remaining Words");
     remaining.addActionListener(e -> controller.remainingWords());
     add(remaining);
+    add(Box.createHorizontalStrut(50));
+    JButton backToOptions = new JButton("Back");
+    backToOptions.addActionListener(e -> controller.optionsScreenRequested());
+    add(backToOptions);
     update();
     addAncestorListener(
         new AncestorAdapter() {

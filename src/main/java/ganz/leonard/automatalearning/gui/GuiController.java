@@ -24,7 +24,7 @@ public class GuiController {
     gui.makeVisible();
   }
 
-  private void optionsScreenRequested() {
+  public void optionsScreenRequested() {
     GuiUtil.executeOnSwingWorker(
         () -> optionsScreenModel = new OptionsScreenModel(),
         () -> gui.showOptionsScreen(optionsScreenModel));
