@@ -14,7 +14,7 @@ public class OptionsScreenModel {
   private final PropertyChangeSupport pcs;
   private boolean generateSamples;
   private Path selectedInputFile;
-  private Language<Character> selectedGeneratingLanguage;
+  private Language<?> selectedGeneratingLanguage;
 
   public OptionsScreenModel() {
     pcs = new PropertyChangeSupport(this);
@@ -33,7 +33,7 @@ public class OptionsScreenModel {
     notifyListeners();
   }
 
-  public Language<Character> getSelectedGeneratingLanguage() {
+  public Language<?> getSelectedGeneratingLanguage() {
     return selectedGeneratingLanguage;
   }
 
@@ -55,11 +55,11 @@ public class OptionsScreenModel {
     return InputProvider.getAvailableInputFiles();
   }
 
-  public Set<Language<Character>> getAvailableGeneratingLanguages() {
+  public Set<Language<?>> getAvailableGeneratingLanguages() {
     return InputProvider.getAvailableGeneratingLanguages();
   }
 
-  public Map<List<Character>, Boolean> getChosenInput(int sampleNoForGeneration)
+  public Map<List<Object>, Boolean> getChosenInput(int sampleNoForGeneration)
       throws IOException, URISyntaxException {
     if (generateSamples) {
       if (selectedGeneratingLanguage == null) {

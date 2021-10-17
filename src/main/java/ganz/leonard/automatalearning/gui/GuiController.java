@@ -15,8 +15,8 @@ public class GuiController {
 
   private Gui gui;
   private OptionsScreenModel optionsScreenModel;
-  private AutomataLearning<Character> model;
-  private RenderManager<Character> renderManager;
+  private AutomataLearning<Object> model;
+  private RenderManager<Object> renderManager;
 
   public void initAndShowGui() {
     gui = new Gui(this);
@@ -33,7 +33,7 @@ public class GuiController {
   public void simulationScreenRequested(AutomataLearningOptions options) {
     GuiUtil.executeOnSwingWorker(
         () -> {
-          Map<List<Character>, Boolean> input = null;
+          Map<List<Object>, Boolean> input = null;
           try {
             input = optionsScreenModel.getChosenInput(options.inputSamples());
           } catch (IOException | URISyntaxException e) {
