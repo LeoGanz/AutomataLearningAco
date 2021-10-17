@@ -1,5 +1,6 @@
 package ganz.leonard.automatalearning.language;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,7 +66,9 @@ public class SampleBuilder<T> implements ExpressionVisitor<T> {
 
   @Override
   public List<T> visit(Leaf<T> leaf) {
-    return List.of(leaf.elem());
+    List<T> result = new ArrayList<>(1);
+    result.add(leaf.elem());
+    return result;
   }
 
   private enum RepetitionSamplingMode {
