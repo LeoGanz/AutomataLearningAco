@@ -91,8 +91,8 @@ public class GraphRenderer {
   }
 
   public static <T> double getMinProbToRender(FeedbackAutomaton<T> automaton) {
-    // normal nodes cannot return to start and by design not to themselves
-    int possibleTransitions = automaton.getAllStates().size() - 2;
+    // normal nodes cannot return to start
+    int possibleTransitions = automaton.getAllStates().size() - 1;
     double prob = 1.0 / possibleTransitions;
     // if prob drops below 1/k of the prob for choosing randomly don't render (to keep graph clean)
     prob *= MIN_PORTION_OF_RANDOM_CHOICE_PROB;
