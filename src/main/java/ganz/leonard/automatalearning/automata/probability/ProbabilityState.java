@@ -25,7 +25,6 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
 
   public void addTransitionsTo(Collection<ProbabilityState<T>> states) {
     states.stream()
-        .filter(state -> state != this) // allow?
         .filter(state -> !outgoingTransitions.containsKey(state))
         .forEach(state -> outgoingTransitions.put(state, new PheromoneTransition<>(options)));
   }
