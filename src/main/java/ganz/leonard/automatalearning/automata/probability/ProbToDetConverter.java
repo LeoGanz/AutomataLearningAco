@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ProbToDetConverter<T> {
-  private static final double MIN_PROBABILITY = 0.5;
+  public static final double MIN_PROBABILITY = 0.5;
   private final FeedbackAutomaton<T> automaton;
   private DeterministicFiniteAutomaton<T> dfa;
 

@@ -1,6 +1,7 @@
 package ganz.leonard.automatalearning.gui.alscreen;
 
 import ganz.leonard.automatalearning.Util;
+import ganz.leonard.automatalearning.automata.probability.ProbToDetConverter;
 import ganz.leonard.automatalearning.gui.RenderManager;
 import ganz.leonard.automatalearning.gui.util.GuiUtil;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
@@ -22,7 +23,7 @@ public class SimulationInfo<T> extends JPanel implements PropertyChangeListener 
   public SimulationInfo(RenderManager<T> renderManager, AutomataLearning<T> model) {
     renderManager.addPropertyChangeListener(this);
     GuiUtil.pad(this);
-    setLayout(new GridLayout(4, 2));
+    setLayout(new GridLayout(5, 2));
 
     JLabel appliedWordsInfo = new JLabel("Applied Words: ");
     appliedWordsInfo.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -42,6 +43,11 @@ public class SimulationInfo<T> extends JPanel implements PropertyChangeListener 
     JLabel minRenderProbValue = new JLabel(
         Util.formatDouble(GraphRenderer.getMinProbToRender(model.getAutomaton()), 2));
     add(minRenderProbValue);
+    JLabel minHighlightProbInfo = new JLabel("Minimum probability to highlight transition / use t. in dfa : ");
+    minRenderProbInfo.setHorizontalAlignment(SwingConstants.RIGHT);
+    add(minHighlightProbInfo);
+    JLabel minHighlightProbValue = new JLabel(String.valueOf(ProbToDetConverter.MIN_PROBABILITY));
+    add(minHighlightProbValue);
   }
 
   @Override
