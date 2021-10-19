@@ -18,10 +18,15 @@ public class OptionsScreenModel {
 
   public OptionsScreenModel() {
     pcs = new PropertyChangeSupport(this);
+    resetToDefaults();
+  }
+
+  public void resetToDefaults() {
     generateSamples = true;
     selectedInputFile = InputProvider.getAvailableInputFiles().stream().findFirst().orElse(null);
     selectedGeneratingLanguage =
         InputProvider.getAvailableGeneratingLanguages().stream().findFirst().orElse(null);
+    notifyListeners();
   }
 
   public Path getSelectedInputFile() {

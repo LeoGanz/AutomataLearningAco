@@ -100,6 +100,7 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
           positiveFeedback.setValue(AutomataLearningOptions.DEF_POSITIVE_FEEDBACK_FACTOR);
           negativeFeedback.setValue(AutomataLearningOptions.DEF_NEGATIVE_FEEDBACK_FACTOR);
           samples.setValue(AutomataLearningOptions.DEF_INPUT_SAMPLES);
+          optionsScreenModel.resetToDefaults();
         });
     go = new JButton("Start Automata Learning");
     go.addActionListener(
