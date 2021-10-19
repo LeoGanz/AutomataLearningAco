@@ -5,6 +5,7 @@ import ganz.leonard.automatalearning.gui.util.GuiUtil;
 import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
+import ganz.leonard.automatalearning.learning.UpdateImportance;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -47,7 +48,7 @@ public class GuiController {
           if (model != null) {
             renderManager = new RenderManager<>(model);
             gui.showAutomataLearningScreen(model, renderManager);
-            renderManager.constructNewFrame();
+            renderManager.constructNewFrame(UpdateImportance.HIGH);
           } else {
             gui.displayError(
                 "Could not start simulation. Possible causes include empty input files.");

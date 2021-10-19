@@ -3,6 +3,7 @@ package ganz.leonard.automatalearning.gui;
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.gui.alscreen.GraphRenderer;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
+import ganz.leonard.automatalearning.learning.UpdateImportance;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -20,6 +21,8 @@ public class RenderManager<T> implements PropertyChangeListener {
   public static final String QUEUE_DONE_KEY = "QueueDone";
   public static final int IMAGE_HEIGHT = 500;
   public static final int MAX_IMAGE_WIDTH = 650;
+  private static final int MAX_QUEUE_SIZE_LOW_IMPORTANCE = 5;
+  private static final int MAX_QUEUE_SIZE_MEDIUM_IMPORTANCE = 15;
 
   private final AutomataLearning<T> model;
   private final Queue<CompletableFuture<BufferedImage>> renderingQueue;
@@ -34,10 +37,21 @@ public class RenderManager<T> implements PropertyChangeListener {
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    constructNewFrame();
+    if (evt.getOldValue() instanceof UpdateImportance importance) {
+      constructNewFrame(importance);
+    } else {
+      constructNewFrame(UpdateImportance.HIGH);
+    }
   }
 
-  public void constructNewFrame() {
+  public void constructNewFrame(UpdateImportance importance) {
+    if ((importance == UpdateImportance.LOW
+        && renderingQueue.size() > MAX_QUEUE_SIZE_LOW_IMPORTANCE)
+        || (importance == UpdateImportance.MEDIUM
+        && renderingQueue.size() > MAX_QUEUE_SIZE_MEDIUM_IMPORTANCE)) {
+      return; // drop frame as queue is too full
+    }
+
     FeedbackAutomaton<T> automaton = model.getUnlinkedAutomaton();
     int nrApplied = model.getNrAppliedWords();
     int nrTotal = model.getNrInputWords();

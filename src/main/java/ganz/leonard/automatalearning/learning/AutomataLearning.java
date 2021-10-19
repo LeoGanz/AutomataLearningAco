@@ -19,6 +19,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class AutomataLearning<T> {
+  public static final int NR_MEDIUM_IMPORTANCE_UPDATES = 3;
   private final FeedbackAutomaton<T> automaton;
   private final PropertyChangeSupport pcs;
   private final Map<List<T>, Boolean> inputWords;
@@ -65,7 +66,7 @@ public class AutomataLearning<T> {
     return new FeedbackAutomaton<>(states, start, options);
   }
 
-  private void applyWord(List<T> word, boolean inLanguage) {
+  private void applyWord(List<T> word, boolean inLanguage, UpdateImportance importance) {
     automaton.goToStart();
     word.forEach(automaton::takeLetter);
     if (automaton.canHold() == inLanguage) {
@@ -73,7 +74,7 @@ public class AutomataLearning<T> {
     }
     automaton.decay();
     nrAppliedWords++;
-    notifyListeners();
+    notifyListeners(importance);
   }
 
   public boolean hasNextWord() {
@@ -88,22 +89,38 @@ public class AutomataLearning<T> {
   }
 
   public synchronized void runNextWord() {
+    runNextWord(UpdateImportance.HIGH);
+  }
+
+  public synchronized void runNextWord(UpdateImportance importance) {
     refillIteratorIfNeeded();
     Map.Entry<List<T>, Boolean> pair = it.next();
-    applyWord(pair.getKey(), pair.getValue());
+    applyWord(pair.getKey(), pair.getValue(), importance);
   }
 
   public void runRemainingWords() {
     // only run words of first round
-    while (hasNextWord()) {
-      runNextWord();
+    if (hasNextWord()) {
+      runWords(getNrInputWords() - nrAppliedWords);
     }
   }
 
   public void runWords(int amount) {
+    // runs up to x updates of medium importance
+    // last update with high importance
+    int spacingForMedium = amount / (NR_MEDIUM_IMPORTANCE_UPDATES + 1);
+    int nrMediumsSent = 0; // don't exceed max which might happen due to rounding otherwise
     System.out.println("model processing " + amount + " words");
     for (int i = 0; i < amount; i++) {
-      runNextWord();
+      UpdateImportance importance = UpdateImportance.LOW;
+      if ((i + 1) % spacingForMedium == 0 && nrMediumsSent < NR_MEDIUM_IMPORTANCE_UPDATES) {
+        nrMediumsSent++;
+        importance = UpdateImportance.MEDIUM;
+      }
+      if (i == (amount - 1)) {
+        importance = UpdateImportance.HIGH;
+      }
+      runNextWord(importance);
     }
   }
 
@@ -133,8 +150,8 @@ public class AutomataLearning<T> {
     pcs.addPropertyChangeListener(changeListener);
   }
 
-  private void notifyListeners() {
-    pcs.firePropertyChange("AutomataLearning", null, this);
+  private void notifyListeners(UpdateImportance importance) {
+    pcs.firePropertyChange("AutomataLearning", importance, this);
   }
 
   private DeterministicFiniteAutomaton<T> getIntermediateDfa() {
