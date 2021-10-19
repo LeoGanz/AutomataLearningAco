@@ -1,5 +1,6 @@
 package ganz.leonard.automatalearning.automata.probability;
 
+import ganz.leonard.automatalearning.Util;
 import ganz.leonard.automatalearning.automata.general.BasicState;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import java.util.Collection;
@@ -35,13 +36,18 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
     original.outgoingTransitions.forEach(
         (origTarget, origTrans) ->
             outgoingTransitions.put(
-                withTheseStates.get(origTarget.getId()), new PheromoneTransition<>(origTrans,
-                    options)));
+                withTheseStates.get(origTarget.getId()),
+                new PheromoneTransition<>(origTrans, options)));
   }
 
   @Override
   public ProbabilityState<T> transit(T letter) {
     Map<ProbabilityState<T>, Double> probabilities = getNormalizedTransitionProbabilities(letter);
+    if (probabilities.values().stream().mapToDouble(Double::doubleValue).sum()
+        < Util.DOUBLE_COMPARISON_PRECISION) {
+      // nowhere left to go as all probabilities are zero
+      return null;
+    }
     return ProbabilityUtil.sample(probabilities);
   }
 
