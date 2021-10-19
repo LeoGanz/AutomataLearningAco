@@ -9,6 +9,7 @@ import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -25,10 +26,14 @@ public class ProbToDetConverterTest {
     fst.addTransitionsTo(states);
     snd.addTransitionsTo(states);
 
-    fst.getTransitionTo(snd).positivePheromoneFeedback('a');
-    fst.getTransitionTo(third).positivePheromoneFeedback('b');
-    snd.getTransitionTo(fst).positivePheromoneFeedback('a');
-    snd.getTransitionTo(third).positivePheromoneFeedback('b');
+    IntStream.range(0, 5)
+        .forEach(
+            __ -> {
+              fst.getTransitionTo(snd).positivePheromoneFeedback('a');
+              fst.getTransitionTo(third).positivePheromoneFeedback('b');
+              snd.getTransitionTo(fst).positivePheromoneFeedback('a');
+              snd.getTransitionTo(third).positivePheromoneFeedback('b');
+            });
 
     FeedbackAutomaton<Character> feedbackAutomaton = new FeedbackAutomaton<>(states, fst, options);
 
