@@ -15,7 +15,8 @@ import javax.swing.event.AncestorEvent;
 
 class SimulationControls<T> extends JPanel implements PropertyChangeListener {
 
-  private static final int WORDS_AMOUNT = 10;
+  private static final int FEW_WORDS_AMOUNT = 10;
+  private static final int MANY_WORDS_AMOUNT = 100;
   private final AutomataLearning<T> model;
   private final JButton remaining;
 
@@ -29,9 +30,12 @@ class SimulationControls<T> extends JPanel implements PropertyChangeListener {
     JButton next = new JButton("Next Word");
     next.addActionListener(e -> controller.nextWord());
     add(next);
-    JButton nextWords = new JButton("Next " + WORDS_AMOUNT + " Words");
-    nextWords.addActionListener(e -> controller.nextWords(WORDS_AMOUNT));
-    add(nextWords);
+    JButton fewWords = new JButton(FEW_WORDS_AMOUNT + " Words");
+    fewWords.addActionListener(e -> controller.nextWords(FEW_WORDS_AMOUNT));
+    add(fewWords);
+    JButton manyWords = new JButton(MANY_WORDS_AMOUNT + " Words");
+    manyWords.addActionListener(e -> controller.nextWords(MANY_WORDS_AMOUNT));
+    add(manyWords);
     remaining = new JButton("Remaining Words");
     remaining.addActionListener(e -> controller.remainingWords());
     add(remaining);
