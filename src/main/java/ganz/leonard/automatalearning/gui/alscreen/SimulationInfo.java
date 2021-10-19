@@ -43,7 +43,8 @@ public class SimulationInfo<T> extends JPanel implements PropertyChangeListener 
     JLabel minRenderProbValue = new JLabel(
         Util.formatDouble(GraphRenderer.getMinProbToRender(model.getAutomaton()), 2));
     add(minRenderProbValue);
-    JLabel minHighlightProbInfo = new JLabel("Minimum probability to highlight transition / use t. in dfa : ");
+    JLabel minHighlightProbInfo =
+        new JLabel("Minimum probability to highlight transition / use t. in dfa : ");
     minRenderProbInfo.setHorizontalAlignment(SwingConstants.RIGHT);
     add(minHighlightProbInfo);
     JLabel minHighlightProbValue = new JLabel(String.valueOf(ProbToDetConverter.MIN_PROBABILITY));

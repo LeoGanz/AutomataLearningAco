@@ -18,8 +18,8 @@ import java.util.stream.Stream;
 public class InputProvider {
 
   private static final String INPUT_FILE_DIRECTORY = "ganz/leonard/automatalearning/input/";
-  private static final Map<Language<?>, Map<List<Object>, Boolean>>
-      LANGUAGES_WITH_DEFAULTS = new HashMap<>();
+  private static final Map<Language<?>, Map<List<Object>, Boolean>> LANGUAGES_WITH_DEFAULTS =
+      new HashMap<>();
 
   static {
     // a*b
@@ -75,8 +75,7 @@ public class InputProvider {
    * @return input words and whether they're part of the language or not
    * @throws IOException if the specified file cannot be read
    */
-  public static Map<List<Object>, Boolean> readFromFile(Path pathInResources)
-      throws IOException {
+  public static Map<List<Object>, Boolean> readFromFile(Path pathInResources) throws IOException {
     System.out.println("Reading input from: " + pathInResources.toAbsolutePath());
     List<String> lines = Files.readAllLines(pathInResources);
     return lines.stream()
@@ -101,11 +100,13 @@ public class InputProvider {
    *     removed and defaults being added the final amount of samples is in general not equal to the
    *     parameter 'samples'
    */
-  public static Map<List<Object>, Boolean> generateSamples(
-      Language<?> language, int samples) {
-    Map<List<Object>, Boolean> input = IntStream.range(0, samples)
-        .boxed()
-        .collect(Collectors.toMap(__ -> (List<Object>) language.generateSample(), __ -> true, (k1, k2) -> k1));
+  public static Map<List<Object>, Boolean> generateSamples(Language<?> language, int samples) {
+    Map<List<Object>, Boolean> input =
+        IntStream.range(0, samples)
+            .boxed()
+            .collect(
+                Collectors.toMap(
+                    __ -> (List<Object>) language.generateSample(), __ -> true, (k1, k2) -> k1));
     input.putAll(LANGUAGES_WITH_DEFAULTS.get(language));
     return input;
   }
