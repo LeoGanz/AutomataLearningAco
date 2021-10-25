@@ -65,9 +65,9 @@ public class SampleBuilder<T> implements ExpressionVisitor<T> {
   }
 
   @Override
-  public List<T> visit(Leaf<T> leaf) {
+  public List<T> visit(Symbol<T> symbol) {
     List<T> result = new ArrayList<>(1);
-    result.add(leaf.elem());
+    result.add(symbol.elem());
     return result;
   }
 

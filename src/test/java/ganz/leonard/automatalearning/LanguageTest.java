@@ -1,7 +1,7 @@
 package ganz.leonard.automatalearning;
 
 import ganz.leonard.automatalearning.language.Language;
-import ganz.leonard.automatalearning.language.Leaf;
+import ganz.leonard.automatalearning.language.Symbol;
 import java.util.Comparator;
 import java.util.List;
 import java.util.SortedMap;
@@ -13,7 +13,7 @@ public class LanguageTest {
 
   public static void main(String[] args) {
     Language<String> testLang =
-        new Language<>(new Leaf<>("Fst").rep().seq(new Leaf<>("Snd"))); // a*b
+        new Language<>(new Symbol<>("Fst").rep().seq(new Symbol<>("Snd"))); // a*b
     System.out.println("Language: " + testLang);
 
     SortedMap<List<?>, Integer> frequencies = new TreeMap<>(Comparator.comparingInt(List::size));

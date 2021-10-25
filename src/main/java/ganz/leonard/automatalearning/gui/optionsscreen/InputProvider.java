@@ -1,7 +1,7 @@
 package ganz.leonard.automatalearning.gui.optionsscreen;
 
 import ganz.leonard.automatalearning.language.Language;
-import ganz.leonard.automatalearning.language.Leaf;
+import ganz.leonard.automatalearning.language.Symbol;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -35,19 +35,19 @@ public class InputProvider {
     input.put(List.of('b', 'a', 'a', 'a'), false);
     input.put(List.of('a', 'a', 'b', 'a'), false);
     input.put(List.of('b', 'b'), false);
-    Language<Character> asThenB = new Language<>(new Leaf<>('a').rep().seq(new Leaf<>('b')));
+    Language<Character> asThenB = new Language<>(new Symbol<>('a').rep().seq(new Symbol<>('b')));
     LANGUAGES_WITH_DEFAULTS.put(asThenB, input);
 
     // aa*b
     input.put(List.of('b'), false); // only difference to samples above
     Language<Character> leadingaThenAsThenB =
-        new Language<>(new Leaf<>('a').seq(new Leaf<>('a').rep()).seq(new Leaf<>('b')));
+        new Language<>(new Symbol<>('a').seq(new Symbol<>('a').rep()).seq(new Symbol<>('b')));
     LANGUAGES_WITH_DEFAULTS.put(leadingaThenAsThenB, input);
 
     // 12*3
 
     Language<Integer> oneTwosThree =
-        new Language<>(new Leaf<>(1).seq(new Leaf<>(2).rep()).seq(new Leaf<>(3)));
+        new Language<>(new Symbol<>(1).seq(new Symbol<>(2).rep()).seq(new Symbol<>(3)));
     LANGUAGES_WITH_DEFAULTS.put(oneTwosThree, Map.of());
   }
 

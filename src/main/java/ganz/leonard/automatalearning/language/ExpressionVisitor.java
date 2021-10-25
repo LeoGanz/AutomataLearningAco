@@ -9,5 +9,5 @@ public interface ExpressionVisitor<T> {
 
   List<T> visit(Repetition<T> seq);
 
-  List<T> visit(Leaf<T> seq);
+  List<T> visit(Symbol<T> seq);
 }

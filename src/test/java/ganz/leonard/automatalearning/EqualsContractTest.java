@@ -10,7 +10,7 @@ import ganz.leonard.automatalearning.automata.probability.ProbToDetConverter;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
 import ganz.leonard.automatalearning.language.Alternative;
 import ganz.leonard.automatalearning.language.Language;
-import ganz.leonard.automatalearning.language.Leaf;
+import ganz.leonard.automatalearning.language.Symbol;
 import ganz.leonard.automatalearning.language.Repetition;
 import ganz.leonard.automatalearning.language.Sequence;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
@@ -70,7 +70,7 @@ public class EqualsContractTest {
 
   @Test
   void language() {
-    ev.forClasses(Alternative.class, Language.class, Leaf.class, Repetition.class, Sequence.class)
+    ev.forClasses(Alternative.class, Language.class, Symbol.class, Repetition.class, Sequence.class)
         .verify();
   }
 }

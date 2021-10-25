@@ -3,7 +3,7 @@ package ganz.leonard.automatalearning;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.tools.DfaToRegexConverter;
 import ganz.leonard.automatalearning.language.Language;
-import ganz.leonard.automatalearning.language.Leaf;
+import ganz.leonard.automatalearning.language.Symbol;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
@@ -57,7 +57,7 @@ public class AutomataLearningTest {
   void learnWithGeneratedInput() throws IOException, InterruptedException {
     // a*b
     Language<Character> testLang =
-        new Language<>(new Leaf<>('a').rep().seq(new Leaf<>('b'))); // a*b
+        new Language<>(new Symbol<>('a').rep().seq(new Symbol<>('b'))); // a*b
     int samples = 10;
     Map<List<Character>, Boolean> input =
         IntStream.range(0, samples)
