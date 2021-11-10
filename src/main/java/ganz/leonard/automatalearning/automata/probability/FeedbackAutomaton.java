@@ -91,6 +91,12 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
         .forEach(PheromoneTransition::decay);
   }
 
+  public Set<T> getKnownAlphabet() {
+    return getAllStates().values().stream()
+        .flatMap(state -> state.getUsedLetters().stream())
+        .collect(Collectors.toSet());
+  }
+
   public DeterministicFiniteAutomaton<T> buildMostLikelyDfa() {
     return converter.convert();
   }

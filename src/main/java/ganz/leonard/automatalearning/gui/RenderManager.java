@@ -4,11 +4,15 @@ import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.gui.alscreen.GraphRenderer;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.UpdateImportance;
+import guru.nidi.graphviz.engine.Graphviz;
+import guru.nidi.graphviz.engine.GraphvizV8Engine;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -20,23 +24,62 @@ public class RenderManager<T> implements PropertyChangeListener {
   public static final String APPLIED_WORDS_UPDATE_KEY = "AppliedWordsUpdate";
   public static final String INPUT_WORDS_UPDATE_KEY = "InputWordsUpdate";
   public static final String QUEUE_DONE_KEY = "QueueDone";
+  public static final String REBUILD_GUI_KEY = "Rebuild";
   public static final int IMAGE_HEIGHT = 500;
   public static final int MAX_IMAGE_WIDTH = 650;
   private static final int MAX_QUEUE_SIZE_LOW_IMPORTANCE = 3;
   private static final int MAX_QUEUE_SIZE_MEDIUM_IMPORTANCE = 8;
+  private static final long DELAY = 5000; // ms
 
   private final AutomataLearning<T> model;
   private final Queue<Frame> renderingQueue;
   private final PropertyChangeSupport pcs;
-int framesRem = 0;
-int imgCtr = 0;
-private int nextFrameId = 0;
+  private final Timer timer;
+  private int nextFrameId = 0;
 
   public RenderManager(AutomataLearning<T> model) {
     this.model = model;
     model.addPropertyChangeListener(this);
     renderingQueue = new ConcurrentLinkedQueue<>();
     pcs = new PropertyChangeSupport(this);
+    timer = new Timer(true);
+    timer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        unstuckQueue();
+      }
+    }, DELAY, DELAY);
+  }
+
+  private void unstuckQueue() {
+    pcs.firePropertyChange(REBUILD_GUI_KEY, null, null);
+    Frame peek = renderingQueue.peek();
+    if (peek != null) {
+      timer.schedule(new TimerTask() {
+        @Override
+        public void run() {
+          Frame sndPeek = renderingQueue.peek();
+          if (sndPeek != null && peek.id == sndPeek.id) {
+            // queue seems to be stuck
+            System.out.println("Trying to unstuck rendering queue and engine");
+            clearQueue();
+            Graphviz.releaseEngine();
+            try {
+              Thread.sleep(200);
+            } catch (InterruptedException ignored) {
+              // ignore
+            }
+            Graphviz.useEngine(new GraphvizV8Engine());
+            constructNewFrame(UpdateImportance.HIGH);
+          }
+        }
+      }, DELAY / 2);
+    }
+  }
+
+  private void clearQueue() {
+    renderingQueue.forEach(frame -> frame.future.cancel(true));
+    renderingQueue.clear();
   }
 
   @Override
@@ -48,11 +91,12 @@ private int nextFrameId = 0;
     }
   }
 
-  public synchronized void constructNewFrame(UpdateImportance importance) {
+  public void constructNewFrame(UpdateImportance importance) {
     if ((importance == UpdateImportance.LOW
-        && renderingQueue.size() > MAX_QUEUE_SIZE_LOW_IMPORTANCE)
-        || (importance == UpdateImportance.MEDIUM
-        && renderingQueue.size() > MAX_QUEUE_SIZE_MEDIUM_IMPORTANCE)) {
+        && renderingQueue.size() > MAX_QUEUE_SIZE_LOW_IMPORTANCE
+      ) || (importance == UpdateImportance.MEDIUM
+        && renderingQueue.size() > MAX_QUEUE_SIZE_MEDIUM_IMPORTANCE
+      )) {
       return; // drop frame as queue is too full
     }
 
@@ -63,14 +107,12 @@ private int nextFrameId = 0;
     CompletableFuture<BufferedImage> futureImg =
         CompletableFuture.supplyAsync(
             () -> {
-              System.out.println("calc img");
               BufferedImage img = GraphRenderer.automatonToImg(automaton, IMAGE_HEIGHT);
               if (img.getWidth() > MAX_IMAGE_WIDTH) {
                 img = Scalr.resize(img, MAX_IMAGE_WIDTH);
               }
-              System.out.println("img done "+ imgCtr++);
               return img;
-            }).orTimeout(2, TimeUnit.SECONDS);
+            }).orTimeout(DELAY, TimeUnit.MILLISECONDS);
     Frame nextFrame = new Frame(futureImg, nextFrameId++);
     futureImg.thenAccept(
         img -> {
@@ -83,13 +125,11 @@ private int nextFrameId = 0;
               }
             }
             renderingQueue.poll();
-            System.out.println("removed frame " + framesRem++);
             notifyListeners(img, nrApplied, nrTotal);
             renderingQueue.notifyAll();
           }
         });
     renderingQueue.add(nextFrame);
-    System.out.println("added frame " + (nextFrameId -1));
   }
 
   public void addPropertyChangeListener(PropertyChangeListener changeListener) {
@@ -97,7 +137,6 @@ private int nextFrameId = 0;
   }
 
   private void notifyListeners(BufferedImage img, int nrApplied, int nrTotal) {
-    System.out.println("update + " + renderingQueue.size());
     pcs.firePropertyChange(IMAGE_UPDATE_KEY, null, img);
     pcs.firePropertyChange(APPLIED_WORDS_UPDATE_KEY, null, nrApplied);
     pcs.firePropertyChange(INPUT_WORDS_UPDATE_KEY, null, nrTotal);
@@ -105,10 +144,15 @@ private int nextFrameId = 0;
       pcs.firePropertyChange(QUEUE_DONE_KEY, null, null);
     }
   }
-  
-  private static record Frame (
+
+  public void stop() {
+    timer.cancel();
+    clearQueue();
+  }
+
+  private static record Frame(
       CompletableFuture<BufferedImage> future,
       int id
-    ){
+  ) {
   }
 }

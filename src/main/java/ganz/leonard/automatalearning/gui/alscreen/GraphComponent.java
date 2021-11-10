@@ -54,6 +54,8 @@ class GraphComponent<T> extends JPanel implements PropertyChangeListener {
         throw new IllegalArgumentException("Change event contains unexpected data");
       }
       SwingUtilities.invokeLater(() -> updateWithImg(bufferedImage));
+    } else if (evt.getPropertyName().equals(RenderManager.REBUILD_GUI_KEY)) {
+      SwingUtilities.invokeLater(this::repaint);
     }
   }
 

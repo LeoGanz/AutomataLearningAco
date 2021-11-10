@@ -2,6 +2,9 @@ package ganz.leonard.automatalearning;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Comparator;
+import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 public class Util {
 
@@ -66,5 +69,23 @@ public class Util {
 
   public static int calcSubstringStart(String key, String line) {
     return line.indexOf(key) + key.length();
+  }
+
+  /**
+   * Determine the x th highest element in a stream or the highest element for smaller streams.
+   *
+   * @param x offset in reverse sorted stream
+   * @param stream stream containing the input data (unsorted)
+   * @param <R> type of input data, has to be sortable
+   * @return xth highest element or highest of input data if the stream contains less than x
+   *     elements
+   * @throws NoSuchElementException if stream is empty
+   */
+  public static <R extends Comparable<R>> R getXthHighestVal(int x, Stream<R> stream) {
+    return stream
+        .sorted(Comparator.reverseOrder())
+        .limit(x)
+        .reduce((fst, snd) -> snd)
+        .orElseThrow(() -> new NoSuchElementException("No xth highest element in empty stream"));
   }
 }

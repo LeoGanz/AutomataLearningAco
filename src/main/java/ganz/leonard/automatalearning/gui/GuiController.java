@@ -46,6 +46,9 @@ public class GuiController {
         },
         () -> {
           if (model != null) {
+            if (renderManager != null) {
+              renderManager.stop();
+            }
             renderManager = new RenderManager<>(model);
             gui.showAutomataLearningScreen(model, renderManager);
             renderManager.constructNewFrame(UpdateImportance.HIGH);

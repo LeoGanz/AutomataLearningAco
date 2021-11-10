@@ -9,6 +9,7 @@ import ganz.leonard.automatalearning.automata.general.Automaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.general.State;
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
+import ganz.leonard.automatalearning.automata.probability.PheromoneTransition;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
 import guru.nidi.graphviz.attribute.Color;
 import guru.nidi.graphviz.attribute.Label;
@@ -20,11 +21,12 @@ import guru.nidi.graphviz.engine.GraphvizV8Engine;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 import java.awt.image.BufferedImage;
+import java.util.Comparator;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class GraphRenderer {
+  public static final int TRANS_TO_DRAW_PER_LETTER_AND_STATE = 2;
   private static final int MAX_LINE_WIDTH = 5;
   private static final String HEX_BLACK = "000000";
   private static final String HEX_RED = "FF0000";
@@ -60,34 +62,44 @@ public class GraphRenderer {
     automaton
         .getAllStates()
         .values()
-        .forEach(
-            state -> {
-              Map<T, Map<ProbabilityState<T>, Double>> probabilities =
-                  state.getUsedLetters().stream()
-                      .collect(
-                          Collectors.toMap(
-                              Function.identity(), state::getNormalizedTransitionProbabilities));
-              state
-                  .getOutgoingTransitions()
-                  .forEach(
-                      (target, transition) ->
-                          transition.getKnownLetters().stream()
-                              .filter(
-                                  letter ->
-                                      probabilities.get(letter).get(target)
-                                          > (minProbToRender - Util.DOUBLE_COMPARISON_PRECISION))
-                              .forEach(
-                                  letter ->
-                                      buildLink(
-                                          nodes,
-                                          state,
-                                          target,
-                                          letter,
-                                          probabilities.get(letter).get(target),
-                                          dfa.hasTransition(
-                                              state.getId(), target.getId(), letter))));
-            });
+        .forEach(state -> constructTransitions(dfa, state, nodes, minProbToRender));
     return constructGraph(nodes, "feedback", height);
+  }
+
+  private static <T> void constructTransitions(
+      DeterministicFiniteAutomaton<T> dfa,
+      ProbabilityState<T> fromState,
+      Map<Integer, Node> nodes,
+      double minProbToRender) {
+    fromState
+        .getUsedLetters()
+        .forEach(
+            letter -> {
+              Map<ProbabilityState<T>, Double> probabilities =
+                  fromState.getNormalizedTransitionProbabilities(letter);
+              fromState.getOutgoingTransitions().entrySet().stream()
+                  .sorted(
+                      Comparator.comparingDouble(
+                              (Map.Entry<ProbabilityState<T>, PheromoneTransition<T>>
+                                      targetTrans) ->
+                                  targetTrans.getValue().getRawProbabilityFor(letter))
+                          .reversed())
+                  .limit(TRANS_TO_DRAW_PER_LETTER_AND_STATE)
+                  .filter(
+                      targetTrans ->
+                          probabilities.get(targetTrans.getKey())
+                              > (minProbToRender - Util.DOUBLE_COMPARISON_PRECISION))
+                  .forEach(
+                      targetTrans ->
+                          buildLink(
+                              nodes,
+                              fromState,
+                              targetTrans.getKey(),
+                              letter,
+                              probabilities.get(targetTrans.getKey()),
+                              dfa.hasTransition(
+                                  fromState.getId(), targetTrans.getKey().getId(), letter)));
+            });
   }
 
   public static <T> double getMinProbToRender(FeedbackAutomaton<T> automaton) {
