@@ -172,11 +172,11 @@ public class AutomataLearning<T> {
 
   public double getMatchingInputScore() {
     DeterministicFiniteAutomaton<T> dfa = getIntermediateDfa();
-    long correctlyMatched =
+    double correctlyMatched =
         inputWords.entrySet().stream()
             .map(entry -> entry.getValue().equals(dfa.accepts(entry.getKey())))
             .filter(b -> b)
             .count();
-    return ((double) correctlyMatched) / inputWords.size();
+    return correctlyMatched / inputWords.size();
   }
 }
