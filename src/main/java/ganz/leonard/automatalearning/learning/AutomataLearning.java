@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 public class AutomataLearning<T> {
   public static final int NR_MEDIUM_IMPORTANCE_UPDATES = 3;
@@ -27,8 +25,8 @@ public class AutomataLearning<T> {
   private boolean firstRoundOfWords = true;
   private int nrAppliedWords = 0;
 
-  // Save intermediate dfa, specify at which applied word count it was derived
-  private Pair<Integer, DeterministicFiniteAutomaton<T>> intermediateDfa;
+  private IntermediateResult<T> intermediateDfa;
+  private IntermediateResult<T> bestDfa = new IntermediateResult<>(0, null, -1);
 
   /**
    * Initialize a new automata learning setup. A graph of accepting and not accepting states will be
@@ -96,6 +94,11 @@ public class AutomataLearning<T> {
     refillIteratorIfNeeded();
     Map.Entry<List<T>, Boolean> pair = it.next();
     applyWord(pair.getKey(), pair.getValue(), importance);
+
+    double score = calcMatchingInputScore(getIntermediateDfa());
+    if (score > bestDfa.score()) {
+      bestDfa = intermediateDfa;
+    }
   }
 
   public void runRemainingWords() {
@@ -154,11 +157,16 @@ public class AutomataLearning<T> {
     pcs.firePropertyChange("AutomataLearning", importance, this);
   }
 
-  private DeterministicFiniteAutomaton<T> getIntermediateDfa() {
-    if (intermediateDfa == null || !intermediateDfa.getLeft().equals(nrAppliedWords)) {
-      intermediateDfa = new ImmutablePair<>(nrAppliedWords, automaton.buildMostLikelyDfa());
+  public DeterministicFiniteAutomaton<T> getIntermediateDfa() {
+    if (intermediateDfa == null || intermediateDfa.nrAppliedWords() != nrAppliedWords) {
+      DeterministicFiniteAutomaton<T> dfa = this.automaton.buildMostLikelyDfa();
+      intermediateDfa = new IntermediateResult<>(nrAppliedWords, dfa, calcMatchingInputScore(dfa));
     }
-    return intermediateDfa.getRight();
+    return intermediateDfa.automaton();
+  }
+
+  public IntermediateResult<T> getBestDfaResult() {
+    return bestDfa;
   }
 
   public String getLanguageRegex() {
@@ -170,8 +178,7 @@ public class AutomataLearning<T> {
     return "N/A";
   }
 
-  public double getMatchingInputScore() {
-    DeterministicFiniteAutomaton<T> dfa = getIntermediateDfa();
+  public double calcMatchingInputScore(DeterministicFiniteAutomaton<T> dfa) {
     double correctlyMatched =
         inputWords.entrySet().stream()
             .map(entry -> entry.getValue().equals(dfa.accepts(entry.getKey())))
