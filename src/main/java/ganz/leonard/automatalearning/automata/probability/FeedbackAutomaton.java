@@ -80,8 +80,8 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
     currentPath.clear();
   }
 
-  public void positiveFeedback() {
-    currentPath.forEach(pair -> pair.getKey().positivePheromoneFeedback(pair.getValue()));
+  public void feedback(boolean positive) {
+    currentPath.forEach(pair -> pair.getKey().pheromoneFeedback(pair.getValue(), positive));
   }
 
   public void decay() {

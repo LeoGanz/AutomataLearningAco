@@ -43,11 +43,15 @@ public class PheromoneTransition<T> {
     }
   }
 
-  public void positivePheromoneFeedback(T letter) {
+  public void pheromoneFeedback(T letter, boolean positive) {
     Objects.requireNonNull(letter);
     ensureInit(letter);
     // update pheromones according to some formula
-    pheromones.put(letter, pheromones.get(letter) * options.positiveFeedbackFactor());
+    double newVal =
+        positive
+            ? pheromones.get(letter) * options.feedbackFactor()
+            : pheromones.get(letter) / options.feedbackFactor();
+    pheromones.put(letter, newVal);
   }
 
   public void decay() {
@@ -56,7 +60,7 @@ public class PheromoneTransition<T> {
         .keySet()
         .forEach(
             letter ->
-                pheromones.put(letter, pheromones.get(letter) * options.negativeFeedbackFactor()));
+                pheromones.put(letter, pheromones.get(letter) * options.decayFactor()));
   }
 
   public Collection<T> getKnownLetters() {

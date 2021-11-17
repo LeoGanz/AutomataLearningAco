@@ -29,10 +29,10 @@ public class ProbToDetConverterTest {
     IntStream.range(0, 5)
         .forEach(
             __ -> {
-              fst.getTransitionTo(snd).positivePheromoneFeedback('a');
-              fst.getTransitionTo(third).positivePheromoneFeedback('b');
-              snd.getTransitionTo(fst).positivePheromoneFeedback('a');
-              snd.getTransitionTo(third).positivePheromoneFeedback('b');
+              fst.getTransitionTo(snd).pheromoneFeedback('a', true);
+              fst.getTransitionTo(third).pheromoneFeedback('b', true);
+              snd.getTransitionTo(fst).pheromoneFeedback('a', true);
+              snd.getTransitionTo(third).pheromoneFeedback('b', true);
             });
 
     FeedbackAutomaton<Character> feedbackAutomaton = new FeedbackAutomaton<>(states, fst, options);

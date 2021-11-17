@@ -68,9 +68,7 @@ public class AutomataLearning<T> {
   private void applyWord(List<T> word, boolean inLanguage, UpdateImportance importance) {
     automaton.goToStart();
     word.forEach(automaton::takeLetter);
-    if (automaton.canHold() == inLanguage) {
-      automaton.positiveFeedback();
-    }
+    automaton.feedback(automaton.canHold() == inLanguage);
     automaton.decay();
     nrAppliedWords++;
     notifyListeners(importance);
