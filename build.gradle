@@ -24,13 +24,13 @@ dependencies {
     implementation 'guru.nidi:graphviz-java:0.18.1'
     implementation 'com.eclipsesource.j2v8:j2v8_win32_x86_64:4.6.0'
     implementation 'com.eclipsesource.j2v8:j2v8_linux_x86_64:4.8.0'
-    implementation 'ch.qos.logback:logback-classic:1.2.5'
+    implementation 'ch.qos.logback:logback-classic:1.2.7'
     implementation 'org.imgscalr:imgscalr-lib:4.2'
     implementation 'com.miglayout:miglayout-swing:5.3'
-    implementation 'io.soabase.record-builder:record-builder-core:26'
-    annotationProcessor 'io.soabase.record-builder:record-builder-processor:26'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
-    testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.7.1'
+    implementation 'io.soabase.record-builder:record-builder-core:29'
+    annotationProcessor 'io.soabase.record-builder:record-builder-processor:29'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.7.2'
 }
 
 System.setProperty("org.checkstyle.google.suppressionfilter.config", "$rootProject.projectDir/config/checkstyle/checkstyle-suppressions.xml")
@@ -43,6 +43,9 @@ test {
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
+    }
+    filter {
+        excludeTestsMatching("ganz.leonard.automatalearning.altests.*") // used for parameter optimization; no unit tests
     }
 }
 
