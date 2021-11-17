@@ -1,5 +1,6 @@
 package ganz.leonard.automatalearning.learning;
 
+import ganz.leonard.automatalearning.Util;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
@@ -95,8 +96,7 @@ public class AutomataLearning<T> {
     Map.Entry<List<T>, Boolean> pair = it.next();
     applyWord(pair.getKey(), pair.getValue(), importance);
 
-    double score = calcMatchingInputScore(getIntermediateDfa());
-    if (score > bestDfa.score()) {
+    if (getIntermediateResult().score() > bestDfa.score()) {
       bestDfa = intermediateDfa;
     }
   }
@@ -111,9 +111,8 @@ public class AutomataLearning<T> {
   public void runWords(int amount) {
     // runs up to x updates of medium importance
     // last update with high importance
-    int spacingForMedium = amount / (NR_MEDIUM_IMPORTANCE_UPDATES + 1);
+    int spacingForMedium = Math.max(1, amount / (NR_MEDIUM_IMPORTANCE_UPDATES + 1));
     int nrMediumsSent = 0; // don't exceed max which might happen due to rounding otherwise
-    System.out.println("model processing " + amount + " words");
     for (int i = 0; i < amount; i++) {
       UpdateImportance importance = UpdateImportance.LOW;
       if ((i + 1) % spacingForMedium == 0 && nrMediumsSent < NR_MEDIUM_IMPORTANCE_UPDATES) {
@@ -157,21 +156,21 @@ public class AutomataLearning<T> {
     pcs.firePropertyChange("AutomataLearning", importance, this);
   }
 
-  public DeterministicFiniteAutomaton<T> getIntermediateDfa() {
+  public IntermediateResult<T> getIntermediateResult() {
     if (intermediateDfa == null || intermediateDfa.nrAppliedWords() != nrAppliedWords) {
       DeterministicFiniteAutomaton<T> dfa = this.automaton.buildMostLikelyDfa();
       intermediateDfa = new IntermediateResult<>(nrAppliedWords, dfa, calcMatchingInputScore(dfa));
     }
-    return intermediateDfa.automaton();
+    return intermediateDfa;
   }
 
-  public IntermediateResult<T> getBestDfaResult() {
+  public IntermediateResult<T> getBestResult() {
     return bestDfa;
   }
 
   public String getLanguageRegex() {
     try {
-      return DfaToRegexConverter.convert(getIntermediateDfa());
+      return DfaToRegexConverter.convert(getIntermediateResult().automaton());
     } catch (IOException | InterruptedException e) {
       // fall through to default return
     }

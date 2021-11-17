@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning;
+package ganz.leonard.automatalearning.unittests;
 
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicState;

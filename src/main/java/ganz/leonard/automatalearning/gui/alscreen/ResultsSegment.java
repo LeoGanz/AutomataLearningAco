@@ -49,7 +49,7 @@ public class ResultsSegment<T> extends JPanel implements PropertyChangeListener 
 
   private void update() {
     String language = model.getLanguageRegex();
-    double score = model.calcMatchingInputScore(model.getIntermediateDfa());
+    double score = model.getIntermediateResult().score();
     SwingUtilities.invokeLater(() -> updateTexts(language, score));
   }
 

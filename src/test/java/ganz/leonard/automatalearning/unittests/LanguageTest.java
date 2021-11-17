@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning;
+package ganz.leonard.automatalearning.unittests;
 
 import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.language.Symbol;
