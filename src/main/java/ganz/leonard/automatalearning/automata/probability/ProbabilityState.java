@@ -55,10 +55,17 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
   }
 
   public Map<ProbabilityState<T>, Double> getNormalizedTransitionProbabilities(T letter) {
-    return ProbabilityUtil.normalizeProbabilities(
+    double sumOfRawProbs =
+        outgoingTransitions.values().stream()
+            .mapToDouble(trans -> trans.getRawProbFor(letter, false))
+            .sum();
+    Map<ProbabilityState<T>, Double> probs =
         outgoingTransitions.entrySet().stream()
             .collect(
-                Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getProbFor(letter))));
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> entry.getValue().getRawProbFor(letter) / sumOfRawProbs));
+    return ProbabilityUtil.normalizeProbabilities(probs);
   }
 
   public Set<T> getUsedLetters() {
