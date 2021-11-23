@@ -82,7 +82,7 @@ public class GraphRenderer {
                       Comparator.comparingDouble(
                               (Map.Entry<ProbabilityState<T>, PheromoneTransition<T>>
                                       targetTrans) ->
-                                  targetTrans.getValue().getRawProbabilityFor(letter))
+                                  targetTrans.getValue().getPheromoneFor(letter))
                           .reversed())
                   .limit(TRANS_TO_DRAW_PER_LETTER_AND_STATE)
                   .filter(

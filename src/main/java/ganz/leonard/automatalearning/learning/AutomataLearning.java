@@ -1,6 +1,5 @@
 package ganz.leonard.automatalearning.learning;
 
-import ganz.leonard.automatalearning.Util;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
@@ -14,11 +13,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class AutomataLearning<T> {
   public static final int NR_MEDIUM_IMPORTANCE_UPDATES = 3;
+  private static final Function<Double, Double> DEFAULT_LEARN_FUNCTION =
+      pheromones -> pheromones / (1 + Math.abs(pheromones));
   private final FeedbackAutomaton<T> automaton;
   private final PropertyChangeSupport pcs;
   private final Map<List<T>, Boolean> inputWords;

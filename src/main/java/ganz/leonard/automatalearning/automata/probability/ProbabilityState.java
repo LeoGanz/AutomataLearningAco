@@ -28,6 +28,9 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
     states.stream()
         .filter(state -> !outgoingTransitions.containsKey(state))
         .forEach(state -> outgoingTransitions.put(state, new PheromoneTransition<>(options)));
+    outgoingTransitions
+        .values()
+        .forEach(transition -> transition.updateDefaultProb(outgoingTransitions.size()));
   }
 
   public void initTransitionsLikeIn(
@@ -55,8 +58,7 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
     return ProbabilityUtil.normalizeProbabilities(
         outgoingTransitions.entrySet().stream()
             .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey, entry -> entry.getValue().getRawProbabilityFor(letter))));
+                Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getProbFor(letter))));
   }
 
   public Set<T> getUsedLetters() {

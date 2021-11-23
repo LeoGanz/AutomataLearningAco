@@ -50,10 +50,10 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
     add(new JSeparator(), "span, growx, wrap");
 
     SpinnerNumberModel initialPheromones =
-        new SpinnerNumberModel(AutomataLearningOptions.DEF_INITIAL_PHEROMONES, 0.000001, 100, 1);
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_INITIAL_PHEROMONES, 0, 100, 1);
     addOption("Initial Pheromones:", initialPheromones, true, false);
     SpinnerNumberModel feedback =
-        new SpinnerNumberModel(AutomataLearningOptions.DEF_FEEDBACK_FACTOR, 1, 100, 0.1);
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_FEEDBACK_FACTOR, 0, 100, 0.1);
     addOption("Feedback Factor:", feedback, false, false);
     SpinnerNumberModel decay =
         new SpinnerNumberModel(
