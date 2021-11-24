@@ -43,10 +43,7 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
   public static <T> FeedbackAutomaton<T> copyFeedbackAutomaton(FeedbackAutomaton<T> original) {
     Set<ProbabilityState<T>> newStates =
         original.getAllStates().values().stream()
-            .map(
-                old ->
-                    new ProbabilityState<T>(
-                        old.getId(), old.isAccepting(), original.options))
+            .map(old -> new ProbabilityState<T>(old.getId(), old.isAccepting(), original.options))
             .collect(Collectors.toSet());
     Optional<ProbabilityState<T>> newStart =
         newStates.stream()
@@ -83,8 +80,8 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
     currentPath.clear();
   }
 
-  public void feedback(boolean positive) {
-    currentPath.forEach(pair -> pair.getKey().pheromoneFeedback(pair.getValue(), positive));
+  public void feedback(List<Pair<PheromoneTransition<T>, T>> path, boolean positive) {
+    path.forEach(pair -> pair.getKey().pheromoneFeedback(pair.getValue(), positive));
   }
 
   public void decay() {
@@ -106,6 +103,10 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
 
   public AutomataLearningOptions getOptions() {
     return options;
+  }
+
+  public List<Pair<PheromoneTransition<T>, T>> getCurrentPath() {
+    return currentPath;
   }
 
   @Override

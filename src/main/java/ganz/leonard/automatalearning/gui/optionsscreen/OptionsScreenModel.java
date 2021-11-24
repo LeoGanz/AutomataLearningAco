@@ -13,6 +13,7 @@ import java.util.Set;
 public class OptionsScreenModel {
   private final PropertyChangeSupport pcs;
   private boolean generateSamples;
+  private boolean automaticColonySize;
   private Path selectedInputFile;
   private Language<?> selectedGeneratingLanguage;
 
@@ -23,6 +24,7 @@ public class OptionsScreenModel {
 
   public void resetToDefaults() {
     generateSamples = true;
+    automaticColonySize = true;
     selectedInputFile = InputProvider.getAvailableInputFiles().stream().findFirst().orElse(null);
     selectedGeneratingLanguage =
         InputProvider.getAvailableGeneratingLanguages().stream().findFirst().orElse(null);
@@ -53,6 +55,15 @@ public class OptionsScreenModel {
 
   public void setGenerateSamples(boolean generateSamples) {
     this.generateSamples = generateSamples;
+    notifyListeners();
+  }
+
+  public boolean isAutomaticColonySize() {
+    return automaticColonySize;
+  }
+
+  public void setAutomaticColonySize(boolean automaticColonySize) {
+    this.automaticColonySize = automaticColonySize;
     notifyListeners();
   }
 

@@ -47,7 +47,7 @@ public class ParameterTests {
           CompletableFuture.supplyAsync(
               () -> {
                 AutomataLearning<Object> al = new AutomataLearning<>(options, input);
-                al.runWords(2000);
+                al.runColonies(2000);
                 return al.getBestResult();
               }));
     }

@@ -27,8 +27,10 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
   private final JButton go;
   private final OptionsScreenModel optionsScreenModel;
   private final JCheckBox generateSamples;
+  private final JCheckBox automaticColonySize;
   private final List<JComponent> componentsOfGenerate;
   private final List<JComponent> componentsOfFiles;
+  private final List<JComponent> componentsOfColony;
   private final JComboBox<Language<Character>> availableGeneratingLanguages;
   private final JComboBox<PathWrapper> availableInputFiles;
 
@@ -47,7 +49,7 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
     SpinnerNumberModel notAcceptingStates =
         new SpinnerNumberModel(AutomataLearningOptions.DEF_NOT_ACCEPTING_STATES, 0, 100, 1);
     addOption("Not accepting States:", notAcceptingStates, false, true);
-    add(new JSeparator(), "span, growx, wrap");
+    addSeparator();
 
     SpinnerNumberModel initialPheromones =
         new SpinnerNumberModel(AutomataLearningOptions.DEF_INITIAL_PHEROMONES, 0, 100, 1);
@@ -56,10 +58,19 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
         new SpinnerNumberModel(AutomataLearningOptions.DEF_FEEDBACK_FACTOR, 0, 100, 0.1);
     addOption("Feedback Factor:", feedback, false, false);
     SpinnerNumberModel decay =
-        new SpinnerNumberModel(
-            AutomataLearningOptions.DEF_DECAY_FACTOR, 0.000001, 1, 0.1);
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_DECAY_FACTOR, 0.000001, 1, 0.1);
     addOption("Decay Factor:", decay, false, true);
-    add(new JSeparator(), "span, growx, wrap");
+    addSeparator();
+
+    automaticColonySize =
+        new JCheckBox("Colony Size = No. input words", optionsScreenModel.isAutomaticColonySize());
+    automaticColonySize.addActionListener(
+        e -> controller.requestedAutomaticColonySize(automaticColonySize.isSelected()));
+    add(automaticColonySize, "span 2");
+    SpinnerNumberModel colonySize =
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_COLONY_SIZE, 1, 10000, 1);
+    componentsOfColony = addOption("Colony Size:", colonySize, false, true);
+    addSeparator();
 
     generateSamples = new JCheckBox("Generate Input Words", optionsScreenModel.isGenerateSamples());
     generateSamples.addActionListener(
@@ -100,6 +111,7 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
           feedback.setValue(AutomataLearningOptions.DEF_FEEDBACK_FACTOR);
           decay.setValue(AutomataLearningOptions.DEF_DECAY_FACTOR);
           samples.setValue(AutomataLearningOptions.DEF_INPUT_SAMPLES);
+          colonySize.setValue(AutomataLearningOptions.DEF_COLONY_SIZE);
           optionsScreenModel.resetToDefaults();
         });
     go = new JButton("Start Automata Learning");
@@ -113,19 +125,30 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
                     .feedbackFactor(feedback.getNumber().doubleValue())
                     .decayFactor(decay.getNumber().doubleValue())
                     .inputSamples(samples.getNumber().intValue())
+                    .colonySize(
+                        optionsScreenModel.isAutomaticColonySize()
+                            ? -1
+                            : colonySize.getNumber().intValue())
                     .build()));
 
     add(go, "tag ok, span, split 2, sizegroup button");
     add(reset, "tag cancel, sizegroup button");
   }
 
+  private void addSeparator() {
+    add(new JSeparator(), "span, growx, wrap");
+  }
+
   private void updateInputComponents() {
     generateSamples.setSelected(optionsScreenModel.isGenerateSamples());
+    automaticColonySize.setSelected(optionsScreenModel.isAutomaticColonySize());
     availableGeneratingLanguages.setSelectedItem(
         optionsScreenModel.getSelectedGeneratingLanguage());
     availableInputFiles.setSelectedItem(new PathWrapper(optionsScreenModel.getSelectedInputFile()));
-    componentsOfGenerate.forEach(comp -> comp.setEnabled(generateSamples.isSelected()));
-    componentsOfFiles.forEach(comp -> comp.setEnabled(!generateSamples.isSelected()));
+    componentsOfGenerate.forEach(comp -> comp.setEnabled(optionsScreenModel.isGenerateSamples()));
+    componentsOfFiles.forEach(comp -> comp.setEnabled(!optionsScreenModel.isGenerateSamples()));
+    componentsOfColony.forEach(
+        comp -> comp.setEnabled(!optionsScreenModel.isAutomaticColonySize()));
   }
 
   public JButton getDefaultButton() {

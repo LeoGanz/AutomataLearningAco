@@ -15,7 +15,7 @@ public class AutomataLearningScreen extends JPanel {
   public <T> AutomataLearningScreen(
       GuiController controller, AutomataLearning<T> model, RenderManager<T> renderManager) {
     setLayout(new BorderLayout());
-    add(new SimulationControls<>(controller, model), BorderLayout.NORTH);
+    add(new SimulationControls(controller), BorderLayout.NORTH);
     add(GuiUtil.centerHorizontally(new GraphComponent<>(renderManager)), BorderLayout.CENTER);
     JComponent south = Box.createVerticalBox();
     south.add(new JSeparator());

@@ -22,7 +22,7 @@ public class AutomataLearningTest {
     AutomataLearningOptions options =
         AutomataLearningOptionsBuilder.builder().acceptingStates(1).notAcceptingStates(2).build();
     AutomataLearning<Character> al = new AutomataLearning<>(options, input);
-    al.runWords(100);
+    al.runColonies(100);
 
     DeterministicFiniteAutomaton<Character> learnedDfa = al.getAutomaton().buildMostLikelyDfa();
     learnedDfa

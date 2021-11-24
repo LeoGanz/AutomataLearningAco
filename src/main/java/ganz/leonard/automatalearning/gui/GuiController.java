@@ -59,16 +59,8 @@ public class GuiController {
         });
   }
 
-  public void nextWord() {
-    GuiUtil.executeOnSwingWorker(() -> model.runNextWord());
-  }
-
-  public void nextWords(int amount) {
-    GuiUtil.executeOnSwingWorker(() -> model.runWords(amount));
-  }
-
-  public void remainingWords() {
-    GuiUtil.executeOnSwingWorker(() -> model.runRemainingWords());
+  public void nextColonies(int amount) {
+    GuiUtil.executeOnSwingWorker(() -> model.runColonies(amount));
   }
 
   // Delegate requests to options model
@@ -84,5 +76,9 @@ public class GuiController {
 
   public void requestedGenerateSamples(boolean generateSamples) {
     GuiUtil.executeOnSwingWorker(() -> optionsScreenModel.setGenerateSamples(generateSamples));
+  }
+
+  public void requestedAutomaticColonySize(boolean automaticSize) {
+    GuiUtil.executeOnSwingWorker(() -> optionsScreenModel.setAutomaticColonySize(automaticSize));
   }
 }

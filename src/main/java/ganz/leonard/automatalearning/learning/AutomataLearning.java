@@ -1,6 +1,7 @@
 package ganz.leonard.automatalearning.learning;
 
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
+import ganz.leonard.automatalearning.automata.probability.Ant;
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
 import ganz.leonard.automatalearning.automata.tools.DfaToRegexConverter;
@@ -9,24 +10,24 @@ import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class AutomataLearning<T> {
   public static final int NR_MEDIUM_IMPORTANCE_UPDATES = 3;
-  private static final Function<Double, Double> DEFAULT_LEARN_FUNCTION =
-      pheromones -> pheromones / (1 + Math.abs(pheromones));
   private final FeedbackAutomaton<T> automaton;
   private final PropertyChangeSupport pcs;
   private final Map<List<T>, Boolean> inputWords;
+  private final AutomataLearningOptions options;
   private Iterator<Map.Entry<List<T>, Boolean>> it;
-  private boolean firstRoundOfWords = true;
   private int nrAppliedWords = 0;
+  private final Set<Ant<T>> antsInCurrentRun;
 
   private IntermediateResult<T> intermediateDfa;
   private IntermediateResult<T> bestDfa = new IntermediateResult<>(0, null, -1);
@@ -44,9 +45,11 @@ public class AutomataLearning<T> {
     if (inputWords.isEmpty()) {
       throw new IllegalArgumentException("At least one word has to be provided as input");
     }
+    this.options = options;
     it = inputWords.entrySet().iterator();
     automaton = constructAutomaton(options);
     this.inputWords = inputWords;
+    antsInCurrentRun = new HashSet<>();
     pcs = new PropertyChangeSupport(this);
   }
 
@@ -67,48 +70,38 @@ public class AutomataLearning<T> {
     return new FeedbackAutomaton<>(states, start, options);
   }
 
-  private void applyWord(List<T> word, boolean inLanguage, UpdateImportance importance) {
-    automaton.goToStart();
-    word.forEach(automaton::takeLetter);
-    automaton.feedback(automaton.canHold() == inLanguage);
-    automaton.decay();
+  private void createAnt(List<T> word, boolean inLanguage) {
+    refillIteratorIfNeeded();
+    Ant<T> ant = new Ant<>(word, inLanguage, automaton);
+    antsInCurrentRun.add(ant);
+    ant.buildSolution();
     nrAppliedWords++;
-    notifyListeners(importance);
-  }
-
-  public boolean hasNextWord() {
-    return firstRoundOfWords && it.hasNext();
   }
 
   private void refillIteratorIfNeeded() {
     if (!it.hasNext()) {
       it = inputWords.entrySet().iterator();
-      firstRoundOfWords = false;
     }
   }
 
-  public synchronized void runNextWord() {
-    runNextWord(UpdateImportance.HIGH);
-  }
-
-  public synchronized void runNextWord(UpdateImportance importance) {
-    refillIteratorIfNeeded();
+  private synchronized void runSingleColony(UpdateImportance importance) {
     Map.Entry<List<T>, Boolean> pair = it.next();
-    applyWord(pair.getKey(), pair.getValue(), importance);
+    int colonySize = options.colonySize() < 1 ? inputWords.size() : options.colonySize();
+    for (int i = 0; i < colonySize; i++) {
+      createAnt(pair.getKey(), pair.getValue());
+    }
 
     if (getIntermediateResult().score() > bestDfa.score()) {
       bestDfa = intermediateDfa;
     }
+
+    antsInCurrentRun.forEach(Ant::distributePheromones);
+    antsInCurrentRun.clear();
+    automaton.decay();
+    notifyListeners(importance);
   }
 
-  public void runRemainingWords() {
-    // only run words of first round
-    if (hasNextWord()) {
-      runWords(getNrInputWords() - nrAppliedWords);
-    }
-  }
-
-  public void runWords(int amount) {
+  public void runColonies(int amount) {
     // runs up to x updates of medium importance
     // last update with high importance
     int spacingForMedium = Math.max(1, amount / (NR_MEDIUM_IMPORTANCE_UPDATES + 1));
@@ -122,7 +115,7 @@ public class AutomataLearning<T> {
       if (i == (amount - 1)) {
         importance = UpdateImportance.HIGH;
       }
-      runNextWord(importance);
+      runSingleColony(importance);
     }
   }
 
