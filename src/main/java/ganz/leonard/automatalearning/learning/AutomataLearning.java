@@ -95,9 +95,9 @@ public class AutomataLearning<T> {
       bestDfa = intermediateDfa;
     }
 
+    automaton.decay();
     antsInCurrentRun.forEach(Ant::distributePheromones);
     antsInCurrentRun.clear();
-    automaton.decay();
     notifyListeners(importance);
   }
 

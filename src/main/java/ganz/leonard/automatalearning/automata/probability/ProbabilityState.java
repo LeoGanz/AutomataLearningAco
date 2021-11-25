@@ -51,13 +51,15 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
       // nowhere left to go as all probabilities are zero
       return null;
     }
-    return ProbabilityUtil.sample(probabilities);
+    ProbabilityState<T> target = ProbabilityUtil.sample(probabilities);
+    outgoingTransitions.get(target).setPrevProb(letter, probabilities.get(target));
+    return target;
   }
 
   public Map<ProbabilityState<T>, Double> getNormalizedTransitionProbabilities(T letter) {
     double sumOfRawProbs =
         outgoingTransitions.values().stream()
-            .mapToDouble(trans -> trans.getRawProbFor(letter, false))
+            .mapToDouble(trans -> trans.getRawProbFor(letter))
             .sum();
     Map<ProbabilityState<T>, Double> probs =
         outgoingTransitions.entrySet().stream()

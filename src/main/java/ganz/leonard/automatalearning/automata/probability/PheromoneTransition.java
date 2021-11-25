@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
  * @param <T> type used as alphabet
  */
 public class PheromoneTransition<T> {
-  public static final double PHEROMONE_PROB_WEIGHT = 1;
-  public static final double PREV_PROB_WEIGHT = 0;
-  public static final Function<Double, Double> SIGMOID = val -> val / (1 + Math.abs(val));
+  public static final double PHEROMONE_PROB_WEIGHT = .5;
+  public static final double PREV_PROB_WEIGHT = .8;
+  public static final Function<Double, Double> SIGMOID = val -> val / (3 + Math.abs(val));
   private final Map<T, Double> pheromones;
   private final Map<T, Double> probs;
   private final AutomataLearningOptions options;
@@ -45,23 +45,20 @@ public class PheromoneTransition<T> {
     double pheromoneProb = SIGMOID.apply(pheromones);
     return Math.max(
         0.01,
-        Math.pow(pheromoneProb, PHEROMONE_PROB_WEIGHT) * Math.pow(prevProb, PREV_PROB_WEIGHT));
+        Math.pow(pheromoneProb, PHEROMONE_PROB_WEIGHT) + Math.pow(prevProb, PREV_PROB_WEIGHT));
   }
+
 
   public double getRawProbFor(T letter) {
-    return getRawProbFor(letter, true);
-  }
-
-  public double getRawProbFor(T letter, boolean saveAsPrev) {
     if (!probs.containsKey(null)) {
       throw new IllegalStateException("Default transition probability has never been updated");
     }
     ensureInit(letter);
-    double newProb = learnFunction(pheromones.get(letter), probs.get(letter));
-    if (saveAsPrev) {
-      probs.put(letter, newProb);
-    }
-    return newProb;
+    return learnFunction(pheromones.get(letter), probs.get(letter));
+  }
+
+  public void setPrevProb(T letter, double prob) {
+    probs.put(letter, prob);
   }
 
   public double getPheromoneFor(T letter) {
