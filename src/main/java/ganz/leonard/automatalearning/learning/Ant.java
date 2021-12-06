@@ -1,5 +1,7 @@
-package ganz.leonard.automatalearning.automata.probability;
+package ganz.leonard.automatalearning.learning;
 
+import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
+import ganz.leonard.automatalearning.automata.probability.PheromoneTransition;
 import java.util.List;
 import javafx.util.Pair;
 

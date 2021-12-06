@@ -1,11 +1,11 @@
 package ganz.leonard.automatalearning.automata.probability;
 
-import ganz.leonard.automatalearning.Util;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -16,14 +16,15 @@ import java.util.stream.Collectors;
  * @param <T> type used as alphabet
  */
 public class PheromoneTransition<T> {
-  public static final double PHEROMONE_PROB_WEIGHT = .5;
-  public static final double PREV_PROB_WEIGHT = .8;
-  public static final Function<Double, Double> SIGMOID = val -> val / (3 + Math.abs(val));
+  public static final Function<Double, Double> SIGMOID = val -> val / (1 + Math.abs(val));
+  // transitions with same values in pheromones and probs are not necessarily the same transitions
+  private final UUID uuid;
   private final Map<T, Double> pheromones;
   private final Map<T, Double> probs;
   private final AutomataLearningOptions options;
 
   public PheromoneTransition(AutomataLearningOptions options) {
+    uuid = UUID.randomUUID();
     this.options = options;
     pheromones = new HashMap<>();
     probs = new HashMap<>();
@@ -32,54 +33,58 @@ public class PheromoneTransition<T> {
   }
 
   public PheromoneTransition(PheromoneTransition<T> original, AutomataLearningOptions options) {
+    uuid = UUID.randomUUID();
     pheromones = new HashMap<>(original.pheromones);
     probs = new HashMap<>(original.probs);
     this.options = options;
   }
 
-  public void updateDefaultProb(int noNeighbors) {
-    probs.put(null, 1.0 / noNeighbors);
-  }
-
-  private double learnFunction(double pheromones, double prevProb) {
-    double pheromoneProb = SIGMOID.apply(pheromones);
-    return Math.max(
-        0.01,
-        Math.pow(pheromoneProb, PHEROMONE_PROB_WEIGHT) + Math.pow(prevProb, PREV_PROB_WEIGHT));
-  }
-
-
-  public double getRawProbFor(T letter) {
-    if (!probs.containsKey(null)) {
-      throw new IllegalStateException("Default transition probability has never been updated");
-    }
+  public double learnFunction(T letter) {
     ensureInit(letter);
-    return learnFunction(pheromones.get(letter), probs.get(letter));
+    double pheromoneVal = pheromones.get(letter);
+    double prevProb = probs.get(letter);
+    double factor = SIGMOID.apply(pheromoneVal); // in [-1 ;1  ]
+    factor /= 10; // in [-.1; .1]
+    factor += 1; // in [0.9;1.1]
+    return Math.max(0.01, factor * prevProb);
   }
 
-  public void setPrevProb(T letter, double prob) {
-    probs.put(letter, prob);
-  }
-
-  public double getPheromoneFor(T letter) {
-    Objects.requireNonNull(letter);
-    ensureInit(letter);
-    return pheromones.get(letter);
-  }
-
-  public double getPrevProbFor(T letter) {
+  public double getTransitionProbability(T letter) {
     Objects.requireNonNull(letter);
     ensureInit(letter);
     return probs.get(letter);
   }
 
+  public void updateDefaultProbability(int noNeighbors) {
+    probs.put(null, 1.0 / noNeighbors);
+  }
+
+  /**
+   * Call after distributing pheromones! <br>
+   * Call only once per letter even if one ant visited this transition multiple times!
+   *
+   * @param letter symbol for which to update the transition probability
+   */
+  public void setTransitionProbability(T letter, double prob) {
+    probs.put(letter, prob);
+  }
+
   private void ensureInit(T letter) {
+    if (!probs.containsKey(null)) {
+      throw new IllegalStateException("Default transition probability has never been updated");
+    }
     if (!pheromones.containsKey(letter)) {
       pheromones.put(letter, pheromones.get(null));
     }
     if (!probs.containsKey(letter)) {
       probs.put(letter, probs.get(null));
     }
+  }
+
+  public double getPheromoneFor(T letter) {
+    Objects.requireNonNull(letter);
+    ensureInit(letter);
+    return pheromones.get(letter);
   }
 
   public void pheromoneFeedback(T letter, boolean positive) {
@@ -104,38 +109,6 @@ public class PheromoneTransition<T> {
     return pheromones.keySet().stream().filter(Objects::nonNull).collect(Collectors.toSet());
   }
 
-  public boolean equalsApprox(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    PheromoneTransition<?> that = (PheromoneTransition<?>) o;
-
-    if (!Objects.equals(options, that.options)) {
-      return false;
-    }
-
-    // Compare map containing doubles with tolerance
-    if (pheromones == null) {
-      return that.pheromones == null;
-    }
-    if (that.pheromones == null) {
-      return false;
-    }
-    if (pheromones.size() != that.pheromones.size()) {
-      return false;
-    }
-    if (!Objects.equals(pheromones.keySet(), that.pheromones.keySet())) {
-      return false;
-    }
-
-    return pheromones.keySet().stream()
-        .allMatch(key -> Util.doubleApproxEquals(pheromones.get(key), that.pheromones.get(key)));
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -147,7 +120,13 @@ public class PheromoneTransition<T> {
 
     PheromoneTransition<?> that = (PheromoneTransition<?>) o;
 
+    if (!Objects.equals(uuid, that.uuid)) {
+      return false;
+    }
     if (!Objects.equals(pheromones, that.pheromones)) {
+      return false;
+    }
+    if (!Objects.equals(probs, that.probs)) {
       return false;
     }
     return Objects.equals(options, that.options);
@@ -155,7 +134,9 @@ public class PheromoneTransition<T> {
 
   @Override
   public int hashCode() {
-    int result = pheromones != null ? pheromones.hashCode() : 0;
+    int result = uuid.hashCode();
+    result = 31 * result + pheromones.hashCode();
+    result = 31 * result + probs.hashCode();
     result = 31 * result + (options != null ? options.hashCode() : 0);
     return result;
   }

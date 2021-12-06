@@ -76,7 +76,7 @@ public class GraphRenderer {
         .forEach(
             letter -> {
               Map<ProbabilityState<T>, Double> probabilities =
-                  fromState.getNormalizedTransitionProbabilities(letter);
+                  fromState.collectTransitionProbabilities(letter);
               fromState.getOutgoingTransitions().entrySet().stream()
                   .sorted(
                       Comparator.comparingDouble(

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +31,7 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
         .forEach(state -> outgoingTransitions.put(state, new PheromoneTransition<>(options)));
     outgoingTransitions
         .values()
-        .forEach(transition -> transition.updateDefaultProb(outgoingTransitions.size()));
+        .forEach(transition -> transition.updateDefaultProbability(outgoingTransitions.size()));
   }
 
   public void initTransitionsLikeIn(
@@ -45,29 +46,27 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
 
   @Override
   public ProbabilityState<T> transit(T letter) {
-    Map<ProbabilityState<T>, Double> probabilities = getNormalizedTransitionProbabilities(letter);
+    Map<ProbabilityState<T>, Double> probabilities = collectTransitionProbabilities(letter);
     if (probabilities.values().stream().mapToDouble(Double::doubleValue).sum()
         < Util.DOUBLE_COMPARISON_PRECISION) {
       // nowhere left to go as all probabilities are zero
       return null;
     }
-    ProbabilityState<T> target = ProbabilityUtil.sample(probabilities);
-    outgoingTransitions.get(target).setPrevProb(letter, probabilities.get(target));
-    return target;
+    return ProbabilityUtil.sample(probabilities);
   }
 
-  public Map<ProbabilityState<T>, Double> getNormalizedTransitionProbabilities(T letter) {
-    double sumOfRawProbs =
-        outgoingTransitions.values().stream()
-            .mapToDouble(trans -> trans.getRawProbFor(letter))
-            .sum();
-    Map<ProbabilityState<T>, Double> probs =
-        outgoingTransitions.entrySet().stream()
-            .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey,
-                    entry -> entry.getValue().getRawProbFor(letter) / sumOfRawProbs));
-    return ProbabilityUtil.normalizeProbabilities(probs);
+  public Map<ProbabilityState<T>, Double> collectTransitionProbabilities(T letter) {
+    return outgoingTransitions.entrySet().stream()
+        .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getTransitionProbability(letter)));
+  }
+
+  public void updateProbabilities(T letter) {
+    Map<PheromoneTransition<T>, Double> newTransitionProbs =
+        ProbabilityUtil.normalizeProbabilities(
+            outgoingTransitions.values().stream()
+                .collect(
+                    Collectors.toMap(Function.identity(), trans -> trans.learnFunction(letter))));
+    newTransitionProbs.forEach((trans, prob) -> trans.setTransitionProbability(letter, prob));
   }
 
   public Set<T> getUsedLetters() {

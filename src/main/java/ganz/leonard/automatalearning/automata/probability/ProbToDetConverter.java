@@ -22,7 +22,7 @@ public class ProbToDetConverter<T> {
 
   private void constructSingleTransition(ProbabilityState<T> probState, T letter) {
     Map<ProbabilityState<T>, Double> probabilities =
-        probState.getNormalizedTransitionProbabilities(letter);
+        probState.collectTransitionProbabilities(letter);
     Optional<Map.Entry<ProbabilityState<T>, Double>> successor =
         probabilities.entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue));
     if (successor.isPresent()) {

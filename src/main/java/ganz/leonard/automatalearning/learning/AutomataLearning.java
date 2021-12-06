@@ -1,7 +1,6 @@
 package ganz.leonard.automatalearning.learning;
 
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
-import ganz.leonard.automatalearning.automata.probability.Ant;
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
 import ganz.leonard.automatalearning.automata.tools.DfaToRegexConverter;
