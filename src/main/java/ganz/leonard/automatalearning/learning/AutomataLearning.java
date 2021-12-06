@@ -90,13 +90,14 @@ public class AutomataLearning<T> {
       createAnt(pair.getKey(), pair.getValue());
     }
 
+    automaton.decay();
+    antsInCurrentRun.forEach(Ant::distributePheromones);
+    antsInCurrentRun.clear();
+
     if (getIntermediateResult().score() > bestDfa.score()) {
       bestDfa = intermediateDfa;
     }
 
-    automaton.decay();
-    antsInCurrentRun.forEach(Ant::distributePheromones);
-    antsInCurrentRun.clear();
     notifyListeners(importance);
   }
 

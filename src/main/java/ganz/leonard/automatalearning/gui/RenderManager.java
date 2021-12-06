@@ -23,8 +23,9 @@ public class RenderManager<T> implements PropertyChangeListener {
   public static final String IMAGE_UPDATE_KEY = "RenderingUpdate";
   public static final String APPLIED_WORDS_UPDATE_KEY = "AppliedWordsUpdate";
   public static final String INPUT_WORDS_UPDATE_KEY = "InputWordsUpdate";
-  public static final String QUEUE_DONE_KEY = "QueueDone";
   public static final String REBUILD_GUI_KEY = "Rebuild";
+  public static final String REGEX_UPDATE_KEY = "RegexUpdate";
+  public static final String SCORE_UPDATE_KEY = "ScoreUpdate";
   public static final int IMAGE_HEIGHT = 500;
   public static final int MAX_IMAGE_WIDTH = 650;
   private static final int MAX_QUEUE_SIZE_LOW_IMPORTANCE = 3;
@@ -103,6 +104,8 @@ public class RenderManager<T> implements PropertyChangeListener {
     FeedbackAutomaton<T> automaton = model.getUnlinkedAutomaton();
     int nrApplied = model.getNrAppliedWords();
     int nrTotal = model.getNrInputWords();
+    String regex = model.getLanguageRegex();
+    double score = model.getIntermediateResult().score();
 
     CompletableFuture<BufferedImage> futureImg =
         CompletableFuture.supplyAsync(
@@ -125,7 +128,7 @@ public class RenderManager<T> implements PropertyChangeListener {
               }
             }
             renderingQueue.poll();
-            notifyListeners(img, nrApplied, nrTotal);
+            notifyListeners(img, nrApplied, nrTotal, regex, score);
             renderingQueue.notifyAll();
           }
         });
@@ -136,13 +139,13 @@ public class RenderManager<T> implements PropertyChangeListener {
     pcs.addPropertyChangeListener(changeListener);
   }
 
-  private void notifyListeners(BufferedImage img, int nrApplied, int nrTotal) {
+  private void notifyListeners(BufferedImage img, int nrApplied, int nrTotal,
+                               String regex, double score) {
     pcs.firePropertyChange(IMAGE_UPDATE_KEY, null, img);
     pcs.firePropertyChange(APPLIED_WORDS_UPDATE_KEY, null, nrApplied);
     pcs.firePropertyChange(INPUT_WORDS_UPDATE_KEY, null, nrTotal);
-    if (renderingQueue.isEmpty()) {
-      pcs.firePropertyChange(QUEUE_DONE_KEY, null, null);
-    }
+    pcs.firePropertyChange(REGEX_UPDATE_KEY, null, regex);
+    pcs.firePropertyChange(SCORE_UPDATE_KEY, null, score);
   }
 
   public void stop() {

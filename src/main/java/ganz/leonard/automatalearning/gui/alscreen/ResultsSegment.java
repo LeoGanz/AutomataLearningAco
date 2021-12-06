@@ -36,26 +36,26 @@ public class ResultsSegment<T> extends JPanel implements PropertyChangeListener 
     add(scoreInfo);
     scoreLabel = new JLabel();
     add(scoreLabel);
-
-    update();
   }
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    if (evt.getPropertyName().equals(RenderManager.QUEUE_DONE_KEY)) {
-      update();
+    switch (evt.getPropertyName()) {
+      case RenderManager.REGEX_UPDATE_KEY -> SwingUtilities.invokeLater(() ->
+          updateRegex((String) evt.getNewValue()));
+      case RenderManager.SCORE_UPDATE_KEY -> SwingUtilities.invokeLater(() ->
+          updateScore((double) evt.getNewValue()));
+      case RenderManager.REBUILD_GUI_KEY -> SwingUtilities.invokeLater(this::repaint);
+      default -> { /* Event not intended for this panel */ }
     }
   }
 
-  private void update() {
-    String language = model.getLanguageRegex();
-    double score = model.getIntermediateResult().score();
-    SwingUtilities.invokeLater(() -> updateTexts(language, score));
+  private void updateRegex(String newValue) {
+    languageLabel.setText(newValue);
   }
 
-  private void updateTexts(String regex, double score) {
-    languageLabel.setText(regex);
-    String newScoreText = Double.isNaN(score) ? "N/A" : Util.formatPercentage(score, 1);
+  private void updateScore(double newValue) {
+    String newScoreText = Double.isNaN(newValue) ? "N/A" : Util.formatPercentage(newValue, 1);
     scoreLabel.setText(newScoreText);
   }
 }
