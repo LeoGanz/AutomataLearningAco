@@ -142,7 +142,7 @@ public class GraphRenderer {
         nodes
             .get(source.getId())
             .link(
-                to(nodes.get(target.getId()))
+                to(node(String.valueOf(target.getId())))
                     .with(
                         Label.of(String.valueOf(letter)),
                         Style.lineWidth(probability * MAX_LINE_WIDTH),
