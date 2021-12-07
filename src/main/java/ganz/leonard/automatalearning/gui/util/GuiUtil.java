@@ -16,11 +16,23 @@ public class GuiUtil {
 
   private GuiUtil() {}
 
+  public static JComponent center(final JComponent component) {
+    return centerVertically(centerHorizontally(component));
+  }
+
   public static JComponent centerHorizontally(final JComponent component) {
     JComponent center = new Box(BoxLayout.LINE_AXIS);
     center.add(Box.createHorizontalGlue());
     center.add(component);
     center.add(Box.createHorizontalGlue());
+    return center;
+  }
+
+  public static JComponent centerVertically(final JComponent component) {
+    JComponent center = new Box(BoxLayout.PAGE_AXIS);
+    center.add(Box.createVerticalGlue());
+    center.add(component);
+    center.add(Box.createVerticalGlue());
     return center;
   }
 

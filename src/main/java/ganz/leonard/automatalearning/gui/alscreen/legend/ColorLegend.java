@@ -14,6 +14,6 @@ public class ColorLegend extends JPanel {
     add(new JLabel("Color Legend"), "center, wrap");
     GradientBar gradientBar = new GradientBar(gradient, true);
     add(gradientBar, "center, grow, push, wrap");
-    add(new JLabel("<html>Percentage of Ants<br>choosing a transition"), "wrap 20");
+    add(new JLabel("<html>Percentage of Ants<br>choosing a transition"), "wrap");
   }
 }

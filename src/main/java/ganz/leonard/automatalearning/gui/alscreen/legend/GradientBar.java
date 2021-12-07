@@ -19,7 +19,7 @@ class GradientBar extends JPanel {
   }
 
   @Override
-  public void paintComponent(Graphics g) {
+  protected void paintComponent(Graphics g) {
     super.paintComponent(g);
     Graphics2D g2 = (Graphics2D) g;
     g2.setFont(new Font("monospaced", g2.getFont().getStyle(), g2.getFont().getSize()));
@@ -34,7 +34,9 @@ class GradientBar extends JPanel {
     for (int i = 0; i < steps; i++) {
       int offset = i == 0 ? yFontOffset : yFontOffset / 2;
       g2.drawString(
-          "- " + Util.padLeft(i * 100 / steps + "%", 3), barWidth, i * getHeight() / steps + offset);
+          "- " + Util.padLeft(i * 100 / steps + "%", 3),
+          barWidth,
+          i * getHeight() / steps + offset);
     }
     g2.drawString("- 100%", barWidth, getHeight() - yFontOffset / 4);
   }

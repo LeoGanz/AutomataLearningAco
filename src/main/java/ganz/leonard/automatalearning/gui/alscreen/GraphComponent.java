@@ -30,7 +30,7 @@ class GraphComponent<T> extends JPanel implements PropertyChangeListener {
     if (img != null) {
       return new Dimension(img.getWidth(), img.getHeight());
     } else {
-      return new Dimension(RenderManager.MAX_IMAGE_WIDTH, RenderManager.IMAGE_HEIGHT);
+      return new Dimension(RenderManager.MAX_IMAGE_WIDTH , RenderManager.IMAGE_HEIGHT);
     }
   }
 
@@ -63,7 +63,7 @@ class GraphComponent<T> extends JPanel implements PropertyChangeListener {
 
   private void updateWithImg(BufferedImage img) {
     // Number of calls to this method not necessarily equals the number of repaints as swing might
-    // drop repaints if they are to close together
+    // drop repaints if they are too close together
     this.img = img;
     revalidate();
     repaint();

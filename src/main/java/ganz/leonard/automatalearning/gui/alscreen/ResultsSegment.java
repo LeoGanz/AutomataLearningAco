@@ -14,12 +14,10 @@ import javax.swing.SwingUtilities;
 
 public class ResultsSegment<T> extends JPanel implements PropertyChangeListener {
 
-  private final AutomataLearning<T> model;
   private final JLabel languageLabel;
   private final JLabel scoreLabel;
 
-  public ResultsSegment(RenderManager<T> renderManager, AutomataLearning<T> model) {
-    this.model = model;
+  public ResultsSegment(RenderManager<T> renderManager) {
     renderManager.addPropertyChangeListener(this);
 
     GuiUtil.pad(this);

@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import javax.swing.SwingUtilities;
 
 public class GuiController {
 
@@ -57,6 +58,10 @@ public class GuiController {
                 "Could not start simulation. Possible causes include empty input files.");
           }
         });
+  }
+
+  public void requestRepack() {
+    SwingUtilities.invokeLater(() -> gui.pack());
   }
 
   public void nextColonies(int amount) {

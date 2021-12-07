@@ -10,24 +10,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.apache.commons.collections4.iterators.PeekingIterator;
 
 public class AutomataLearning<T> {
   public static final int NR_MEDIUM_IMPORTANCE_UPDATES = 3;
   private final FeedbackAutomaton<T> automaton;
   private final PropertyChangeSupport pcs;
-  private final Map<List<T>, Boolean> inputWords;
+  private final LinkedHashMap<List<T>, Boolean> inputWords;
   private final AutomataLearningOptions options;
-  private Iterator<Map.Entry<List<T>, Boolean>> it;
-  private int nrAppliedWords = 0;
   private final Set<Ant<T>> antsInCurrentRun;
-
+  private PeekingIterator<Map.Entry<List<T>, Boolean>> it;
+  private int nrAppliedWords = 0;
   private IntermediateResult<T> intermediateDfa;
   private IntermediateResult<T> bestDfa = new IntermediateResult<>(0, null, -1);
 
@@ -45,9 +46,8 @@ public class AutomataLearning<T> {
       throw new IllegalArgumentException("At least one word has to be provided as input");
     }
     this.options = options;
-    it = inputWords.entrySet().iterator();
     automaton = constructAutomaton(options);
-    this.inputWords = inputWords;
+    this.inputWords = new LinkedHashMap<>(inputWords);
     antsInCurrentRun = new HashSet<>();
     pcs = new PropertyChangeSupport(this);
   }
@@ -69,25 +69,25 @@ public class AutomataLearning<T> {
     return new FeedbackAutomaton<>(states, start, options);
   }
 
-  private void createAnt(List<T> word, boolean inLanguage) {
+  private void createAnt() {
     refillIteratorIfNeeded();
-    Ant<T> ant = new Ant<>(word, inLanguage, automaton);
+    Map.Entry<List<T>, Boolean> pair = it.next();
+    Ant<T> ant = new Ant<>(pair.getKey(), pair.getValue(), automaton);
     antsInCurrentRun.add(ant);
     ant.buildSolution();
     nrAppliedWords++;
   }
 
   private void refillIteratorIfNeeded() {
-    if (!it.hasNext()) {
-      it = inputWords.entrySet().iterator();
+    if (it == null || !it.hasNext()) {
+      it = PeekingIterator.peekingIterator(inputWords.entrySet().iterator());
     }
   }
 
   private synchronized void runSingleColony(UpdateImportance importance) {
-    Map.Entry<List<T>, Boolean> pair = it.next();
     int colonySize = options.colonySize() < 1 ? inputWords.size() : options.colonySize();
     for (int i = 0; i < colonySize; i++) {
-      createAnt(pair.getKey(), pair.getValue());
+      createAnt();
     }
 
     automaton.decay();
@@ -131,6 +131,15 @@ public class AutomataLearning<T> {
    */
   public FeedbackAutomaton<T> getUnlinkedAutomaton() {
     return FeedbackAutomaton.copyFeedbackAutomaton(automaton);
+  }
+
+  public List<Map.Entry<List<T>, Boolean>> getInput() {
+    return new LinkedList<>(inputWords.entrySet()); // immutable copy
+  }
+
+  public Map.Entry<List<T>, Boolean> peekNextInputWord() {
+    refillIteratorIfNeeded();
+    return it.peek();
   }
 
   public int getNrAppliedWords() {

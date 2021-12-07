@@ -11,6 +11,8 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -27,6 +29,7 @@ public class RenderManager<T> implements PropertyChangeListener {
   public static final String REBUILD_GUI_KEY = "Rebuild";
   public static final String REGEX_UPDATE_KEY = "RegexUpdate";
   public static final String SCORE_UPDATE_KEY = "ScoreUpdate";
+  public static final String NEXT_WORD_UPDATE_KEY = "NextWordUpdate";
   public static final int IMAGE_HEIGHT = 500;
   public static final int MAX_IMAGE_WIDTH = 650;
   private static final int MAX_QUEUE_SIZE_LOW_IMPORTANCE = 3;
@@ -106,6 +109,7 @@ public class RenderManager<T> implements PropertyChangeListener {
     }
 
     FeedbackAutomaton<T> automaton = model.getUnlinkedAutomaton();
+    Map.Entry<List<T>, Boolean> nextWord = model.peekNextInputWord();
     int nrApplied = model.getNrAppliedWords();
     int nrTotal = model.getNrInputWords();
     String regex = model.getLanguageRegex();
@@ -132,7 +136,7 @@ public class RenderManager<T> implements PropertyChangeListener {
               }
             }
             renderingQueue.poll();
-            notifyListeners(img, nrApplied, nrTotal, regex, score);
+            notifyListeners(img, nextWord, nrApplied, nrTotal, regex, score);
             renderingQueue.notifyAll();
           }
         });
@@ -147,9 +151,12 @@ public class RenderManager<T> implements PropertyChangeListener {
     pcs.addPropertyChangeListener(changeListener);
   }
 
-  private void notifyListeners(BufferedImage img, int nrApplied, int nrTotal,
+  private void notifyListeners(BufferedImage img,
+                               Map.Entry<List<T>, Boolean> nextWord,
+                               int nrApplied, int nrTotal,
                                String regex, double score) {
     pcs.firePropertyChange(IMAGE_UPDATE_KEY, null, img);
+    pcs.firePropertyChange(NEXT_WORD_UPDATE_KEY, null, nextWord);
     pcs.firePropertyChange(APPLIED_WORDS_UPDATE_KEY, null, nrApplied);
     pcs.firePropertyChange(INPUT_WORDS_UPDATE_KEY, null, nrTotal);
     pcs.firePropertyChange(REGEX_UPDATE_KEY, null, regex);
