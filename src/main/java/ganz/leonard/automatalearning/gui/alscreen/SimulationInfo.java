@@ -23,7 +23,7 @@ public class SimulationInfo<T> extends JPanel implements PropertyChangeListener 
   public SimulationInfo(RenderManager<T> renderManager, AutomataLearning<T> model) {
     renderManager.addPropertyChangeListener(this);
     GuiUtil.pad(this);
-    setLayout(new GridLayout(5, 2));
+    setLayout(new GridLayout(6, 2));
 
     JLabel appliedWordsInfo = new JLabel("Applied Words: ");
     appliedWordsInfo.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -44,12 +44,15 @@ public class SimulationInfo<T> extends JPanel implements PropertyChangeListener 
         Util.formatDouble(GraphRenderer.getMinProbToRender(model.getAutomaton()), 2));
     add(minRenderProbValue);
     JLabel minHighlightProbInfo =
-        new JLabel("Minimum probability to highlight transition / use t. in dfa : ");
+        new JLabel("Minimum probability to highlight transition: ");
     minHighlightProbInfo.setHorizontalAlignment(SwingConstants.RIGHT);
     add(minHighlightProbInfo);
     JLabel minHighlightProbValue = new JLabel(
         Util.formatDouble(ProbToDetConverter.MIN_PROBABILITY, 2));
     add(minHighlightProbValue);
+    JLabel solidTransInfo = new JLabel("Highlighted (solid) transitions are part of dfa ");
+    solidTransInfo.setHorizontalAlignment(SwingConstants.RIGHT);
+    add(solidTransInfo);
   }
 
   @Override

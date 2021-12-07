@@ -38,6 +38,7 @@ public class RenderManager<T> implements PropertyChangeListener {
   private final Queue<Frame> renderingQueue;
   private final PropertyChangeSupport pcs;
   private final Timer timer;
+  private final GraphRenderer graphRenderer;
   private int nextFrameId = 0;
 
   public RenderManager(AutomataLearning<T> model) {
@@ -52,6 +53,7 @@ public class RenderManager<T> implements PropertyChangeListener {
         unstuckQueue();
       }
     }, DELAY, DELAY);
+    graphRenderer = new GraphRenderer(getGradient());
   }
 
   private void unstuckQueue() {
@@ -112,7 +114,7 @@ public class RenderManager<T> implements PropertyChangeListener {
     CompletableFuture<BufferedImage> futureImg =
         CompletableFuture.supplyAsync(
             () -> {
-              BufferedImage img = GraphRenderer.automatonToImg(automaton, IMAGE_HEIGHT);
+              BufferedImage img = graphRenderer.automatonToImg(automaton,  IMAGE_HEIGHT);
               if (img.getWidth() > MAX_IMAGE_WIDTH) {
                 img = Scalr.resize(img, MAX_IMAGE_WIDTH);
               }
