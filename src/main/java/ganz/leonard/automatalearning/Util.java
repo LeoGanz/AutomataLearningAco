@@ -27,6 +27,10 @@ public class Util {
     return String.format("%-" + length + "s", s);
   }
 
+  public static String padLeft(String s, int length) {
+    return String.format("%1$" + length + "s", s);
+  }
+
   /**
    * Pads rounded number with spaces so the final length is number of non-decimal places + 1 +
    * <code>places</code>.

@@ -2,6 +2,7 @@ package ganz.leonard.automatalearning.gui;
 
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.gui.alscreen.GraphRenderer;
+import ganz.leonard.automatalearning.gui.util.LinearColorGradient;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.UpdateImportance;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -31,6 +32,7 @@ public class RenderManager<T> implements PropertyChangeListener {
   private static final int MAX_QUEUE_SIZE_LOW_IMPORTANCE = 3;
   private static final int MAX_QUEUE_SIZE_MEDIUM_IMPORTANCE = 8;
   private static final long DELAY = 5000; // ms
+  private static final LinearColorGradient GRADIENT = new LinearColorGradient();
 
   private final AutomataLearning<T> model;
   private final Queue<Frame> renderingQueue;
@@ -133,6 +135,10 @@ public class RenderManager<T> implements PropertyChangeListener {
           }
         });
     renderingQueue.add(nextFrame);
+  }
+
+  public LinearColorGradient getGradient() {
+    return GRADIENT;
   }
 
   public void addPropertyChangeListener(PropertyChangeListener changeListener) {
