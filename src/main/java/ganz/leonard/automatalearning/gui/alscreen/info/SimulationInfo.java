@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning.gui.alscreen;
+package ganz.leonard.automatalearning.gui.alscreen.info;
 
 import ganz.leonard.automatalearning.gui.RenderManager;
 import ganz.leonard.automatalearning.gui.util.GuiUtil;

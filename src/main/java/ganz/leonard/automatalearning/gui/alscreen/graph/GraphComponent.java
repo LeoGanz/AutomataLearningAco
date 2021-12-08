@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning.gui.alscreen;
+package ganz.leonard.automatalearning.gui.alscreen.graph;
 
 import ganz.leonard.automatalearning.gui.RenderManager;
 import java.awt.Dimension;
@@ -9,7 +9,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-class GraphComponent<T> extends JPanel implements PropertyChangeListener {
+public class GraphComponent<T> extends JPanel implements PropertyChangeListener {
 
   private BufferedImage img;
 

@@ -1,7 +1,7 @@
 package ganz.leonard.automatalearning.gui;
 
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
-import ganz.leonard.automatalearning.gui.alscreen.GraphRenderer;
+import ganz.leonard.automatalearning.gui.alscreen.graph.GraphRenderer;
 import ganz.leonard.automatalearning.gui.util.LinearColorGradient;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.UpdateImportance;

@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning.gui.alscreen;
+package ganz.leonard.automatalearning.gui.alscreen.graph;
 
 import static guru.nidi.graphviz.model.Factory.graph;
 import static guru.nidi.graphviz.model.Factory.node;

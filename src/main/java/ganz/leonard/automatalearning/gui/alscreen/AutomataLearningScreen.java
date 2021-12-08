@@ -2,6 +2,9 @@ package ganz.leonard.automatalearning.gui.alscreen;
 
 import ganz.leonard.automatalearning.gui.GuiController;
 import ganz.leonard.automatalearning.gui.RenderManager;
+import ganz.leonard.automatalearning.gui.alscreen.graph.GraphComponent;
+import ganz.leonard.automatalearning.gui.alscreen.info.ResultsSegment;
+import ganz.leonard.automatalearning.gui.alscreen.info.SimulationInfo;
 import ganz.leonard.automatalearning.gui.alscreen.inputwords.InputDisplay;
 import ganz.leonard.automatalearning.gui.alscreen.legend.ProbabilityControl;
 import ganz.leonard.automatalearning.gui.util.GuiUtil;
