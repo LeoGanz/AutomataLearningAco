@@ -68,6 +68,10 @@ public class GuiController {
     GuiUtil.executeOnSwingWorker(() -> model.runColonies(amount));
   }
 
+  public void requestsMinDfaProbChange(double newProb) {
+    GuiUtil.executeOnSwingWorker(() -> model.updateMinDfaProb(newProb));
+  }
+
   // Delegate requests to options model
 
   public void requestedSelectedInputFile(Path selectedInputFile) {

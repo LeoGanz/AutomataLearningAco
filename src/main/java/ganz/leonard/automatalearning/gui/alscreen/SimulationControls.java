@@ -18,6 +18,7 @@ class SimulationControls extends JPanel {
     GuiUtil.pad(this);
 
     JLabel runColonies = new JLabel("Run simulation with: ");
+    runColonies.setFont(runColonies.getFont().deriveFont(AutomataLearningScreen.HEADING_FONT_SIZE));
     add(runColonies);
     JButton next = new JButton("Next Colony");
     next.addActionListener(e -> controller.nextColonies(1));

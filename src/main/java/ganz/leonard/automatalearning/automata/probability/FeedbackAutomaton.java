@@ -59,6 +59,7 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
         state ->
             state.initTransitionsLikeIn(
                 original.getAllStates().get(state.getId()), newAutomaton.getAllStates()));
+    newAutomaton.converter.setMinProbability(original.converter.getMinProbability());
     return newAutomaton;
   }
 
@@ -106,6 +107,14 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
 
   public AutomataLearningOptions getOptions() {
     return options;
+  }
+
+  public void updateMinDfaProb(double newProb) {
+    converter.setMinProbability(newProb);
+  }
+
+  public double getMinDfaProb() {
+    return converter.getMinProbability();
   }
 
   public List<Pair<PheromoneTransition<T>, T>> getCurrentPath() {

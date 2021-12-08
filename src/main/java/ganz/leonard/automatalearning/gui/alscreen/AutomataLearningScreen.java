@@ -3,7 +3,7 @@ package ganz.leonard.automatalearning.gui.alscreen;
 import ganz.leonard.automatalearning.gui.GuiController;
 import ganz.leonard.automatalearning.gui.RenderManager;
 import ganz.leonard.automatalearning.gui.alscreen.inputwords.InputDisplay;
-import ganz.leonard.automatalearning.gui.alscreen.legend.ColorLegend;
+import ganz.leonard.automatalearning.gui.alscreen.legend.ProbabilityControl;
 import ganz.leonard.automatalearning.gui.util.GuiUtil;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import java.awt.BorderLayout;
@@ -14,6 +14,8 @@ import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
 public class AutomataLearningScreen extends JPanel {
+
+  public static final float HEADING_FONT_SIZE = 17;
 
   public <T> AutomataLearningScreen(
       GuiController controller, AutomataLearning<T> model, RenderManager<T> renderManager) {
@@ -28,8 +30,7 @@ public class AutomataLearningScreen extends JPanel {
 
     JComponent south = Box.createVerticalBox();
     south.add(new JSeparator());
-    south.add(new SimulationInfo<>(renderManager, model));
-    south.add(new JSeparator());
+    south.add(new SimulationInfo<>(renderManager));
     south.add(new ResultsSegment<>(renderManager));
     add(south, BorderLayout.SOUTH);
 
@@ -40,7 +41,7 @@ public class AutomataLearningScreen extends JPanel {
 
     JComponent east = Box.createHorizontalBox();
     east.add(new JSeparator(SwingConstants.VERTICAL));
-    east.add(new ColorLegend(renderManager.getGradient()));
+    east.add(new ProbabilityControl(controller, renderManager));
     add(east, BorderLayout.EAST);
   }
 }

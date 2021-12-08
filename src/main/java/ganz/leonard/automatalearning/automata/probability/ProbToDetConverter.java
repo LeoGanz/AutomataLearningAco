@@ -8,9 +8,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ProbToDetConverter<T> {
-  public static final double MIN_PROBABILITY = 0.5;
+  private static final double DEF_MIN_PROBABILITY = 0.5;
   private final FeedbackAutomaton<T> automaton;
   private DeterministicFiniteAutomaton<T> dfa;
+  private double minProbability = DEF_MIN_PROBABILITY;
 
   public ProbToDetConverter(FeedbackAutomaton<T> automaton) {
     this.automaton = automaton;
@@ -26,7 +27,7 @@ public class ProbToDetConverter<T> {
     Optional<Map.Entry<ProbabilityState<T>, Double>> successor =
         probabilities.entrySet().stream().max(Comparator.comparingDouble(Map.Entry::getValue));
     if (successor.isPresent()) {
-      if (successor.get().getValue() > MIN_PROBABILITY) {
+      if (successor.get().getValue() > minProbability) {
         DeterministicState<T> successorDfa =
             dfa.getAllStates().get(successor.get().getKey().getId());
         dfa.getAllStates().get(probState.getId()).addTransitions(Map.of(letter, successorDfa));
@@ -58,5 +59,13 @@ public class ProbToDetConverter<T> {
                             entry.getValue().getId(), entry.getValue().isAccepting())));
     DeterministicState<T> start = newStates.get(automaton.getStartState().getId());
     dfa = new DeterministicFiniteAutomaton<>(newStates, start);
+  }
+
+  public double getMinProbability() {
+    return minProbability;
+  }
+
+  public void setMinProbability(double minProbability) {
+    this.minProbability = minProbability;
   }
 }

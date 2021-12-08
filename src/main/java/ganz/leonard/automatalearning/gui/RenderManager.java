@@ -30,6 +30,7 @@ public class RenderManager<T> implements PropertyChangeListener {
   public static final String REGEX_UPDATE_KEY = "RegexUpdate";
   public static final String SCORE_UPDATE_KEY = "ScoreUpdate";
   public static final String NEXT_WORD_UPDATE_KEY = "NextWordUpdate";
+  public static final String MIN_DFA_PROB_UPDATE = "MinDfaProbUpdate";
   public static final int IMAGE_HEIGHT = 500;
   public static final int MAX_IMAGE_WIDTH = 650;
   private static final int MAX_QUEUE_SIZE_LOW_IMPORTANCE = 3;
@@ -114,6 +115,7 @@ public class RenderManager<T> implements PropertyChangeListener {
     int nrTotal = model.getNrInputWords();
     String regex = model.getLanguageRegex();
     double score = model.getIntermediateResult().score();
+    double minDfaProb = model.getMinDfaProb();
 
     CompletableFuture<BufferedImage> futureImg =
         CompletableFuture.supplyAsync(
@@ -136,7 +138,7 @@ public class RenderManager<T> implements PropertyChangeListener {
               }
             }
             renderingQueue.poll();
-            notifyListeners(img, nextWord, nrApplied, nrTotal, regex, score);
+            notifyListeners(img, nextWord, nrApplied, nrTotal, regex, score, minDfaProb);
             renderingQueue.notifyAll();
           }
         });
@@ -154,13 +156,14 @@ public class RenderManager<T> implements PropertyChangeListener {
   private void notifyListeners(BufferedImage img,
                                Map.Entry<List<T>, Boolean> nextWord,
                                int nrApplied, int nrTotal,
-                               String regex, double score) {
+                               String regex, double score, double minDfaProb) {
     pcs.firePropertyChange(IMAGE_UPDATE_KEY, null, img);
     pcs.firePropertyChange(NEXT_WORD_UPDATE_KEY, null, nextWord);
     pcs.firePropertyChange(APPLIED_WORDS_UPDATE_KEY, null, nrApplied);
     pcs.firePropertyChange(INPUT_WORDS_UPDATE_KEY, null, nrTotal);
     pcs.firePropertyChange(REGEX_UPDATE_KEY, null, regex);
     pcs.firePropertyChange(SCORE_UPDATE_KEY, null, score);
+    pcs.firePropertyChange(MIN_DFA_PROB_UPDATE, null, minDfaProb);
   }
 
   public void stop() {

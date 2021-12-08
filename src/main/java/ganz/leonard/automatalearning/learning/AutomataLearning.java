@@ -94,11 +94,15 @@ public class AutomataLearning<T> {
     antsInCurrentRun.forEach(Ant::distributePheromones);
     antsInCurrentRun.clear();
 
+    updateBestDfa();
+
+    notifyListeners(importance);
+  }
+
+  private void updateBestDfa() {
     if (getIntermediateResult().score() > bestDfa.score()) {
       bestDfa = intermediateDfa;
     }
-
-    notifyListeners(importance);
   }
 
   public void runColonies(int amount) {
@@ -140,6 +144,18 @@ public class AutomataLearning<T> {
   public Map.Entry<List<T>, Boolean> peekNextInputWord() {
     refillIteratorIfNeeded();
     return it.peek();
+  }
+
+  public void updateMinDfaProb(double newProb) {
+    automaton.updateMinDfaProb(newProb);
+    intermediateDfa = null;
+    getIntermediateResult();
+    updateBestDfa();
+    notifyListeners(UpdateImportance.HIGH);
+  }
+
+  public double getMinDfaProb() {
+    return automaton.getMinDfaProb();
   }
 
   public int getNrAppliedWords() {

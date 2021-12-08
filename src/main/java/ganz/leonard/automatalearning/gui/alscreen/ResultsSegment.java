@@ -3,7 +3,6 @@ package ganz.leonard.automatalearning.gui.alscreen;
 import ganz.leonard.automatalearning.Util;
 import ganz.leonard.automatalearning.gui.RenderManager;
 import ganz.leonard.automatalearning.gui.util.GuiUtil;
-import ganz.leonard.automatalearning.learning.AutomataLearning;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,7 +31,8 @@ public class ResultsSegment<T> extends JPanel implements PropertyChangeListener 
     JLabel scoreInfo = new JLabel("Correctly matched input words: ");
     scoreInfo.setHorizontalAlignment(SwingConstants.RIGHT);
     add(scoreInfo);
-    scoreLabel = new JLabel();
+    scoreLabel = new JLabel(" ");
+    scoreLabel.setFont(scoreLabel.getFont().deriveFont(AutomataLearningScreen.HEADING_FONT_SIZE));
     add(scoreLabel);
   }
 
