@@ -11,11 +11,14 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 public class InputDisplay<T> extends JPanel {
+
+  public static final int VERTICAL_GAP = 10;
+
   public InputDisplay(
       GuiController controller,
       RenderManager<T> renderManager,
       AutomataLearning<T> automataLearning) {
-    setLayout(new BorderLayout(0, 10));
+    setLayout(new BorderLayout(0, VERTICAL_GAP));
     JLabel title = new JLabel("Input Words");
     title.setFont(title.getFont().deriveFont(AutomataLearningScreen.HEADING_FONT_SIZE));
     title.setHorizontalAlignment(SwingConstants.CENTER);

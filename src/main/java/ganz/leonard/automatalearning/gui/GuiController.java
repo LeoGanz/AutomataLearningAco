@@ -28,7 +28,10 @@ public class GuiController {
 
   public void optionsScreenRequested() {
     GuiUtil.executeOnSwingWorker(
-        () -> optionsScreenModel = new OptionsScreenModel(),
+        () -> {
+          stopRendering();
+          optionsScreenModel = new OptionsScreenModel();
+        },
         () -> gui.showOptionsScreen(optionsScreenModel));
   }
 
@@ -47,9 +50,7 @@ public class GuiController {
         },
         () -> {
           if (model != null) {
-            if (renderManager != null) {
-              renderManager.stop();
-            }
+            stopRendering();
             renderManager = new RenderManager<>(model);
             gui.showAutomataLearningScreen(model, renderManager);
             renderManager.constructNewFrame(UpdateImportance.HIGH);
@@ -58,6 +59,12 @@ public class GuiController {
                 "Could not start simulation. Possible causes include empty input files.");
           }
         });
+  }
+
+  private void stopRendering() {
+    if (renderManager != null) {
+      renderManager.stop();
+    }
   }
 
   public void requestRepack() {

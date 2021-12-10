@@ -55,8 +55,8 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
         new SpinnerNumberModel(AutomataLearningOptions.DEF_INITIAL_PHEROMONES, 0, 100, 1);
     addOption("Initial Pheromones:", initialPheromones, true, false);
     SpinnerNumberModel feedback =
-        new SpinnerNumberModel(AutomataLearningOptions.DEF_FEEDBACK_FACTOR, 0, 100, 0.1);
-    addOption("Feedback Factor:", feedback, false, false);
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_FEEDBACK, 0, 100, 0.1);
+    addOption("Feedback:", feedback, false, false);
     SpinnerNumberModel decay =
         new SpinnerNumberModel(AutomataLearningOptions.DEF_DECAY_FACTOR, 0.000001, 1, 0.1);
     addOption("Decay Factor:", decay, false, true);
@@ -108,7 +108,7 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
           acceptingStates.setValue(AutomataLearningOptions.DEF_ACCEPTING_STATES);
           notAcceptingStates.setValue(AutomataLearningOptions.DEF_NOT_ACCEPTING_STATES);
           initialPheromones.setValue(AutomataLearningOptions.DEF_INITIAL_PHEROMONES);
-          feedback.setValue(AutomataLearningOptions.DEF_FEEDBACK_FACTOR);
+          feedback.setValue(AutomataLearningOptions.DEF_FEEDBACK);
           decay.setValue(AutomataLearningOptions.DEF_DECAY_FACTOR);
           samples.setValue(AutomataLearningOptions.DEF_INPUT_SAMPLES);
           colonySize.setValue(AutomataLearningOptions.DEF_COLONY_SIZE);
@@ -122,7 +122,7 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
                     .acceptingStates(acceptingStates.getNumber().intValue())
                     .notAcceptingStates(notAcceptingStates.getNumber().intValue())
                     .initialPheromones(initialPheromones.getNumber().intValue())
-                    .feedbackFactor(feedback.getNumber().doubleValue())
+                    .feedback(feedback.getNumber().doubleValue())
                     .decayFactor(decay.getNumber().doubleValue())
                     .inputSamples(samples.getNumber().intValue())
                     .colonySize(

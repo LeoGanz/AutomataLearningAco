@@ -39,7 +39,7 @@ public class WordList<T> extends JPanel implements PropertyChangeListener {
     int y = g.getFontMetrics().getHeight();
     for (Map.Entry<List<T>, Boolean> elem : automataLearning.getInput()) {
       if (elem.equals(nextWord)) {
-        g2.drawString("\u27A4", 0, y); // arrow
+        g2.drawString("\u27A4", 0, y); // arrow right
       }
       String word = stringifyEntry(elem);
       g2.drawString(word, INDENT, y);

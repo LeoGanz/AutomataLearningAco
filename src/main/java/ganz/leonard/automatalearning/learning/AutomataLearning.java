@@ -69,21 +69,6 @@ public class AutomataLearning<T> {
     return new FeedbackAutomaton<>(states, start, options);
   }
 
-  private void createAnt() {
-    refillIteratorIfNeeded();
-    Map.Entry<List<T>, Boolean> pair = it.next();
-    Ant<T> ant = new Ant<>(pair.getKey(), pair.getValue(), automaton);
-    antsInCurrentRun.add(ant);
-    ant.buildSolution();
-    nrAppliedWords++;
-  }
-
-  private void refillIteratorIfNeeded() {
-    if (it == null || !it.hasNext()) {
-      it = PeekingIterator.peekingIterator(inputWords.entrySet().iterator());
-    }
-  }
-
   private synchronized void runSingleColony(UpdateImportance importance) {
     int colonySize = options.colonySize() < 1 ? inputWords.size() : options.colonySize();
     for (int i = 0; i < colonySize; i++) {
@@ -97,12 +82,6 @@ public class AutomataLearning<T> {
     updateBestDfa();
 
     notifyListeners(importance);
-  }
-
-  private void updateBestDfa() {
-    if (getIntermediateResult().score() > bestDfa.score()) {
-      bestDfa = intermediateDfa;
-    }
   }
 
   public void runColonies(int amount) {
@@ -120,6 +99,27 @@ public class AutomataLearning<T> {
         importance = UpdateImportance.HIGH;
       }
       runSingleColony(importance);
+    }
+  }
+
+  private void createAnt() {
+    refillIteratorIfNeeded();
+    Map.Entry<List<T>, Boolean> pair = it.next();
+    Ant<T> ant = new Ant<>(pair.getKey(), pair.getValue(), automaton);
+    antsInCurrentRun.add(ant);
+    ant.buildSolution();
+    nrAppliedWords++;
+  }
+
+  private void refillIteratorIfNeeded() {
+    if (it == null || !it.hasNext()) {
+      it = PeekingIterator.peekingIterator(inputWords.entrySet().iterator());
+    }
+  }
+
+  private void updateBestDfa() {
+    if (getIntermediateResult().score() > bestDfa.score()) {
+      bestDfa = intermediateDfa;
     }
   }
 
@@ -149,7 +149,6 @@ public class AutomataLearning<T> {
   public void updateMinDfaProb(double newProb) {
     automaton.updateMinDfaProb(newProb);
     intermediateDfa = null;
-    getIntermediateResult();
     updateBestDfa();
     notifyListeners(UpdateImportance.HIGH);
   }
@@ -164,14 +163,6 @@ public class AutomataLearning<T> {
 
   public int getNrInputWords() {
     return inputWords.size();
-  }
-
-  public void addPropertyChangeListener(PropertyChangeListener changeListener) {
-    pcs.addPropertyChangeListener(changeListener);
-  }
-
-  private void notifyListeners(UpdateImportance importance) {
-    pcs.firePropertyChange("AutomataLearning", importance, this);
   }
 
   public IntermediateResult<T> getIntermediateResult() {
@@ -202,5 +193,13 @@ public class AutomataLearning<T> {
             .filter(b -> b)
             .count();
     return correctlyMatched / inputWords.size();
+  }
+
+  public void addPropertyChangeListener(PropertyChangeListener changeListener) {
+    pcs.addPropertyChangeListener(changeListener);
+  }
+
+  private void notifyListeners(UpdateImportance importance) {
+    pcs.firePropertyChange("AutomataLearning", importance, this);
   }
 }

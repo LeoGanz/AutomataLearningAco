@@ -17,7 +17,8 @@ public class ProbToDetConverterTest {
 
   @Test
   void testWithKnownAutomaton() {
-    AutomataLearningOptions options = AutomataLearningOptionsBuilder.builder().colonySize(1).build();
+    AutomataLearningOptions options =
+        AutomataLearningOptionsBuilder.builder().colonySize(1).build();
     ProbabilityState<Character> fst = new ProbabilityState<>(0, false, options);
     ProbabilityState<Character> snd = new ProbabilityState<>(1, false, options);
     ProbabilityState<Character> third = new ProbabilityState<>(2, true, options);

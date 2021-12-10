@@ -60,8 +60,7 @@ public class PheromoneTransition<T> {
   }
 
   /**
-   * Call after distributing pheromones! <br>
-   * Call only once per letter even if one ant visited this transition multiple times!
+   * Call after distributing pheromones.
    *
    * @param letter symbol for which to update the transition probability
    */
@@ -93,8 +92,8 @@ public class PheromoneTransition<T> {
     // update pheromones according to some formula
     double newVal =
         positive
-            ? pheromones.get(letter) + options.feedbackFactor()
-            : pheromones.get(letter) - options.feedbackFactor();
+            ? pheromones.get(letter) + options.feedback()
+            : pheromones.get(letter) - options.feedback();
     pheromones.put(letter, newVal);
   }
 

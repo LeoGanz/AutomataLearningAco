@@ -7,7 +7,7 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 public record AutomataLearningOptions(int acceptingStates,
                                       int notAcceptingStates,
                                       int initialPheromones,
-                                      double feedbackFactor,
+                                      double feedback,
                                       double decayFactor,
                                       int inputSamples,
                                       int colonySize)
@@ -16,7 +16,7 @@ public record AutomataLearningOptions(int acceptingStates,
   public static final int DEF_ACCEPTING_STATES = 2;
   public static final int DEF_NOT_ACCEPTING_STATES = 2;
   public static final int DEF_INITIAL_PHEROMONES = 0;
-  public static final double DEF_FEEDBACK_FACTOR = 1;
+  public static final double DEF_FEEDBACK = 1;
   public static final double DEF_DECAY_FACTOR = .8;
   public static final int DEF_INPUT_SAMPLES = 20;
   public static final int DEF_COLONY_SIZE = 1;

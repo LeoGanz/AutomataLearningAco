@@ -9,7 +9,8 @@ import java.awt.GradientPaint;
 import java.util.function.Function;
 
 public record LinearColorGradient(Color start, Color end) {
-  private static final Color DEFAULT_START = new Color(255, 255, 120);
+  public static final int MAX_RGB_VAL = 255;
+  private static final Color DEFAULT_START = new Color(MAX_RGB_VAL, MAX_RGB_VAL, 120);
   private static final Color DEFAULT_END = new Color(0, 0, 75);
 
   public LinearColorGradient() {
@@ -24,7 +25,8 @@ public record LinearColorGradient(Color start, Color end) {
     double fst = 1 - percentage;
     double snd = percentage;
 
-    Function<Double, Integer> toRgbValSpace = (color) -> (int) min(255, max(0, round(color)));
+    Function<Double, Integer> toRgbValSpace =
+        (color) -> (int) min(MAX_RGB_VAL, max(0, round(color)));
     int red = toRgbValSpace.apply(fst * start.getRed() + snd * end.getRed());
     int green = toRgbValSpace.apply(fst * start.getGreen() + snd * end.getGreen());
     int blue = toRgbValSpace.apply(fst * start.getBlue() + snd * end.getBlue());
@@ -32,7 +34,7 @@ public record LinearColorGradient(Color start, Color end) {
   }
 
   public GradientPaint getGradientPaint(int length, boolean vertical) {
-    return new GradientPaint(0,0, start, vertical ? 0 : length, vertical ? length : 0, end);
+    return new GradientPaint(0, 0, start, vertical ? 0 : length, vertical ? length : 0, end);
   }
 
 }

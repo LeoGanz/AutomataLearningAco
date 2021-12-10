@@ -57,7 +57,9 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
 
   public Map<ProbabilityState<T>, Double> collectTransitionProbabilities(T letter) {
     return outgoingTransitions.entrySet().stream()
-        .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getTransitionProbability(letter)));
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey, entry -> entry.getValue().getTransitionProbability(letter)));
   }
 
   public void updateProbabilities(T letter) {

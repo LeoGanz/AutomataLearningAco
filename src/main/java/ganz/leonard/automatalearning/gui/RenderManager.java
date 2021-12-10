@@ -60,46 +60,6 @@ public class RenderManager<T> implements PropertyChangeListener {
     graphRenderer = new GraphRenderer(getGradient());
   }
 
-  private void unstuckQueue() {
-    pcs.firePropertyChange(REBUILD_GUI_KEY, null, null);
-    Frame peek = renderingQueue.peek();
-    if (peek != null) {
-      timer.schedule(new TimerTask() {
-        @Override
-        public void run() {
-          Frame sndPeek = renderingQueue.peek();
-          if (sndPeek != null && peek.id == sndPeek.id) {
-            // queue seems to be stuck
-            System.out.println("Trying to unstuck rendering queue and engine");
-            clearQueue();
-            Graphviz.releaseEngine();
-            try {
-              Thread.sleep(200);
-            } catch (InterruptedException ignored) {
-              // ignore
-            }
-            Graphviz.useEngine(new GraphvizV8Engine());
-            constructNewFrame(UpdateImportance.HIGH);
-          }
-        }
-      }, DELAY / 2);
-    }
-  }
-
-  private void clearQueue() {
-    renderingQueue.forEach(frame -> frame.future.cancel(true));
-    renderingQueue.clear();
-  }
-
-  @Override
-  public void propertyChange(PropertyChangeEvent evt) {
-    if (evt.getOldValue() instanceof UpdateImportance importance) {
-      constructNewFrame(importance);
-    } else {
-      constructNewFrame(UpdateImportance.HIGH);
-    }
-  }
-
   public void constructNewFrame(UpdateImportance importance) {
     if ((importance == UpdateImportance.LOW
         && renderingQueue.size() > MAX_QUEUE_SIZE_LOW_IMPORTANCE
@@ -145,8 +105,53 @@ public class RenderManager<T> implements PropertyChangeListener {
     renderingQueue.add(nextFrame);
   }
 
+  private void unstuckQueue() {
+    pcs.firePropertyChange(REBUILD_GUI_KEY, null, null);
+    Frame peek = renderingQueue.peek();
+    if (peek != null) {
+      timer.schedule(new TimerTask() {
+        @Override
+        public void run() {
+          Frame sndPeek = renderingQueue.peek();
+          if (sndPeek != null && peek.id == sndPeek.id) {
+            // queue seems to be stuck
+            System.out.println("Trying to unstuck rendering queue and engine");
+            clearQueue();
+            Graphviz.releaseEngine();
+            try {
+              Thread.sleep(200);
+            } catch (InterruptedException ignored) {
+              // ignore
+            }
+            Graphviz.useEngine(new GraphvizV8Engine());
+            constructNewFrame(UpdateImportance.HIGH);
+          }
+        }
+      }, DELAY / 2);
+    }
+  }
+
+  private void clearQueue() {
+    renderingQueue.forEach(frame -> frame.future.cancel(true));
+    renderingQueue.clear();
+  }
+
+  public void stop() {
+    timer.cancel();
+    clearQueue();
+  }
+
   public LinearColorGradient getGradient() {
     return GRADIENT;
+  }
+
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    if (evt.getOldValue() instanceof UpdateImportance importance) {
+      constructNewFrame(importance);
+    } else {
+      constructNewFrame(UpdateImportance.HIGH);
+    }
   }
 
   public void addPropertyChangeListener(PropertyChangeListener changeListener) {
@@ -164,11 +169,6 @@ public class RenderManager<T> implements PropertyChangeListener {
     pcs.firePropertyChange(REGEX_UPDATE_KEY, null, regex);
     pcs.firePropertyChange(SCORE_UPDATE_KEY, null, score);
     pcs.firePropertyChange(MIN_DFA_PROB_UPDATE, null, minDfaProb);
-  }
-
-  public void stop() {
-    timer.cancel();
-    clearQueue();
   }
 
   private static record Frame(

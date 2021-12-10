@@ -30,7 +30,7 @@ public class GraphComponent<T> extends JPanel implements PropertyChangeListener 
     if (img != null) {
       return new Dimension(img.getWidth(), img.getHeight());
     } else {
-      return new Dimension(RenderManager.MAX_IMAGE_WIDTH , RenderManager.IMAGE_HEIGHT);
+      return new Dimension(RenderManager.MAX_IMAGE_WIDTH, RenderManager.IMAGE_HEIGHT);
     }
   }
 

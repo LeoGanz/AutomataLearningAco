@@ -10,12 +10,13 @@ import javax.swing.JPanel;
 
 class GradientBar extends JPanel {
 
+  public static final int NUMBER_SCALE_STEPS = 4;
+  public static final double BAR_PORTION_OF_WIDTH = 1.0 / 3;
+  public static final int STRING_LENGTH_OF_PERCENTAGES = 3;
   private final LinearColorGradient gradient;
-  private final boolean vertical;
 
-  public GradientBar(LinearColorGradient gradient, boolean vertical) {
+  public GradientBar(LinearColorGradient gradient) {
     this.gradient = gradient;
-    this.vertical = vertical;
   }
 
   @Override
@@ -23,21 +24,21 @@ class GradientBar extends JPanel {
     super.paintComponent(g);
     Graphics2D g2 = (Graphics2D) g;
     g2.setFont(new Font("monospaced", g2.getFont().getStyle(), g2.getFont().getSize()));
-    int yFontOffset = g2.getFont().getSize();
-    int barWidth = getWidth() / 4;
-    int barHeight = getHeight() - yFontOffset;
-    g2.setPaint(gradient.getGradientPaint(getHeight(), vertical));
-    g2.fillRect(0, yFontOffset / 2, barWidth, barHeight);
+    int verticalFontOffset = g2.getFont().getSize();
+    int barWidth = (int) (getWidth() * BAR_PORTION_OF_WIDTH);
+    int barHeight = getHeight() - verticalFontOffset;
+    g2.setPaint(gradient.getGradientPaint(getHeight(), true));
+    g2.fillRect(0, verticalFontOffset / 2, barWidth, barHeight);
 
     g2.setPaint(Color.BLACK);
-    int steps = 4;
-    for (int i = 0; i < steps; i++) {
-      int offset = i == 0 ? yFontOffset : yFontOffset / 2;
+
+    for (int i = 0; i < NUMBER_SCALE_STEPS; i++) {
+      int offset = i == 0 ? verticalFontOffset : verticalFontOffset / 2;
       g2.drawString(
-          "- " + Util.padLeft(i * 100 / steps + "%", 3),
+          "- " + Util.padLeft(i * 100 / NUMBER_SCALE_STEPS + "%", STRING_LENGTH_OF_PERCENTAGES),
           barWidth,
-          i * getHeight() / steps + offset);
+          i * getHeight() / NUMBER_SCALE_STEPS + offset);
     }
-    g2.drawString("- 100%", barWidth, getHeight() - yFontOffset / 4);
+    g2.drawString("- 100%", barWidth, getHeight() - verticalFontOffset / 4);
   }
 }
