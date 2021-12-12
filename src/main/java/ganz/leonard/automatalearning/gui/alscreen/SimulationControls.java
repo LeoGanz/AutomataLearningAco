@@ -1,22 +1,29 @@
 package ganz.leonard.automatalearning.gui.alscreen;
 
 import ganz.leonard.automatalearning.gui.GuiController;
+import ganz.leonard.automatalearning.gui.RenderManager;
 import ganz.leonard.automatalearning.gui.util.AncestorAdapter;
-import ganz.leonard.automatalearning.gui.util.GuiUtil;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.AncestorEvent;
 import net.miginfocom.swing.MigLayout;
 
-class SimulationControls extends JPanel {
+class SimulationControls<T> extends JPanel implements PropertyChangeListener {
 
   private static final int PADDING = 15;
   private static final int FEW_COLONIES_AMOUNT = 10;
   private static final int MANY_COLONIES_AMOUNT = 100;
+  private final RenderManager<T> renderManager;
+  private final JCheckBox showBest;
 
-  public SimulationControls(GuiController controller) {
+  public SimulationControls(GuiController controller, RenderManager<T> renderManager) {
+    this.renderManager = renderManager;
+    renderManager.addPropertyChangeListener(this);
     setLayout(new MigLayout("insets " + PADDING));
 
     add(Box.createHorizontalGlue(), "pushx");
@@ -34,7 +41,12 @@ class SimulationControls extends JPanel {
     add(manyColonies, "pushx");
     JButton backToOptions = new JButton("Back");
     backToOptions.addActionListener(e -> controller.optionsScreenRequested());
-    add(backToOptions);
+    add(backToOptions, "wrap");
+
+    showBest = new JCheckBox("Show best automaton so far", renderManager.isShowBestAutomatonOnly());
+    showBest.addActionListener(e -> controller.showBestAutomaton(showBest.isSelected()));
+    add(showBest, "span, center");
+
     addAncestorListener(
         new AncestorAdapter() {
           @Override
@@ -42,5 +54,12 @@ class SimulationControls extends JPanel {
             next.requestFocusInWindow();
           }
         });
+  }
+
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    if (RenderManager.SHOW_BEST_UPDATE_KEY.equals(evt.getPropertyName())) {
+      showBest.setSelected((boolean) evt.getNewValue());
+    }
   }
 }

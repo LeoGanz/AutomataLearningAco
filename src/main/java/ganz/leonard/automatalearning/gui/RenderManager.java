@@ -1,9 +1,11 @@
 package ganz.leonard.automatalearning.gui;
 
-import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
+import ganz.leonard.automatalearning.automata.general.Automaton;
+import ganz.leonard.automatalearning.automata.general.State;
 import ganz.leonard.automatalearning.gui.alscreen.graph.GraphRenderer;
 import ganz.leonard.automatalearning.gui.util.LinearColorGradient;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
+import ganz.leonard.automatalearning.learning.IntermediateResult;
 import ganz.leonard.automatalearning.learning.UpdateImportance;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.GraphvizV8Engine;
@@ -31,6 +33,7 @@ public class RenderManager<T> implements PropertyChangeListener {
   public static final String SCORE_UPDATE_KEY = "ScoreUpdate";
   public static final String NEXT_WORD_UPDATE_KEY = "NextWordUpdate";
   public static final String MIN_DFA_PROB_UPDATE = "MinDfaProbUpdate";
+  public static final String SHOW_BEST_UPDATE_KEY = "ShowBestUpdate";
   public static final int IMAGE_HEIGHT = 500;
   public static final int MAX_IMAGE_WIDTH = 650;
   private static final int MAX_QUEUE_SIZE_LOW_IMPORTANCE = 3;
@@ -44,6 +47,8 @@ public class RenderManager<T> implements PropertyChangeListener {
   private final Timer timer;
   private final GraphRenderer graphRenderer;
   private int nextFrameId = 0;
+  private IntermediateResult<T> bestDfa;
+  private Mode mode = Mode.RENDER_CURRENT;
 
   public RenderManager(AutomataLearning<T> model) {
     this.model = model;
@@ -69,13 +74,40 @@ public class RenderManager<T> implements PropertyChangeListener {
       return; // drop frame as queue is too full
     }
 
-    FeedbackAutomaton<T> automaton = model.getUnlinkedAutomaton();
+    System.out.println("update");
+    if (bestDfa == null || model.getBestResult().score() > bestDfa.score()){
+      System.out.println("with better aut.");
+      bestDfa = model.getBestResult();
+      if (mode == Mode.DROP_FRAME_UNLESS_BETTER){
+        System.out.println("redraw chosen");
+        mode = Mode.RENDER_BEST;
+      }
+    }
+    if (mode == Mode.DROP_FRAME_UNLESS_BETTER) {
+      System.out.println("drop (no improvement)");
+      return; // drop frame as no improvement was made
+    }
+
+    Automaton<? extends State<?, T>,T> automaton = mode == Mode.RENDER_CURRENT
+        ? model.getUnlinkedAutomaton()
+        : model.getBestResult().automaton();
+    int nrApplied = mode == Mode.RENDER_CURRENT
+        ? model.getNrAppliedWords()
+        : model.getBestResult().nrAppliedWords();
+    String regex = mode == Mode.RENDER_CURRENT
+        ? model.getLanguageRegex()
+        : model.getLanguageRegex(model.getBestResult().automaton());
+    double score = mode == Mode.RENDER_CURRENT
+        ? model.getIntermediateResult().score()
+        : model.getBestResult().score();
     Map.Entry<List<T>, Boolean> nextWord = model.peekNextInputWord();
-    int nrApplied = model.getNrAppliedWords();
     int nrTotal = model.getNrInputWords();
-    String regex = model.getLanguageRegex();
-    double score = model.getIntermediateResult().score();
     double minDfaProb = model.getMinDfaProb();
+
+    if (mode == Mode.RENDER_BEST){
+      mode = Mode.DROP_FRAME_UNLESS_BETTER;
+      // best dfa does not need to be rerendered on model changes if no better one is found
+    }
 
     CompletableFuture<BufferedImage> futureImg =
         CompletableFuture.supplyAsync(
@@ -131,6 +163,16 @@ public class RenderManager<T> implements PropertyChangeListener {
     }
   }
 
+  public void setShowBestAutomatonOnly(boolean selected) {
+    mode = selected ? Mode.RENDER_BEST : Mode.RENDER_CURRENT;
+    pcs.firePropertyChange(SHOW_BEST_UPDATE_KEY, null, isShowBestAutomatonOnly());
+    constructNewFrame(UpdateImportance.HIGH);
+  }
+
+  public boolean isShowBestAutomatonOnly() {
+    return mode == Mode.RENDER_BEST || mode == Mode.DROP_FRAME_UNLESS_BETTER;
+  }
+
   private void clearQueue() {
     renderingQueue.forEach(frame -> frame.future.cancel(true));
     renderingQueue.clear();
@@ -169,6 +211,12 @@ public class RenderManager<T> implements PropertyChangeListener {
     pcs.firePropertyChange(REGEX_UPDATE_KEY, null, regex);
     pcs.firePropertyChange(SCORE_UPDATE_KEY, null, score);
     pcs.firePropertyChange(MIN_DFA_PROB_UPDATE, null, minDfaProb);
+  }
+
+  private enum Mode {
+    RENDER_CURRENT,
+    RENDER_BEST,
+    DROP_FRAME_UNLESS_BETTER,
   }
 
   private static record Frame(

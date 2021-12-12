@@ -167,7 +167,7 @@ public class AutomataLearning<T> {
 
   public IntermediateResult<T> getIntermediateResult() {
     if (intermediateDfa == null || intermediateDfa.nrAppliedWords() != nrAppliedWords) {
-      DeterministicFiniteAutomaton<T> dfa = this.automaton.buildMostLikelyDfa();
+      DeterministicFiniteAutomaton<T> dfa = automaton.buildMostLikelyDfa();
       intermediateDfa = new IntermediateResult<>(nrAppliedWords, dfa, calcMatchingInputScore(dfa));
     }
     return intermediateDfa;
@@ -178,10 +178,16 @@ public class AutomataLearning<T> {
   }
 
   public String getLanguageRegex() {
-    try {
-      return DfaToRegexConverter.convert(getIntermediateResult().automaton());
-    } catch (IOException | InterruptedException e) {
-      // fall through to default return
+    return getLanguageRegex(getIntermediateResult().automaton());
+  }
+
+  public String getLanguageRegex(DeterministicFiniteAutomaton<T> dfa) {
+    if (dfa != null) {
+      try {
+        return DfaToRegexConverter.convert(dfa);
+      } catch (IOException | InterruptedException e) {
+        // fall through to default return
+      }
     }
     return "N/A";
   }

@@ -25,7 +25,7 @@ public class AutomataLearningScreen extends JPanel {
     setLayout(new BorderLayout());
 
     JComponent north = Box.createVerticalBox();
-    north.add(new SimulationControls(controller));
+    north.add(new SimulationControls<>(controller, renderManager));
     north.add(new JSeparator());
     add(north, BorderLayout.NORTH);
 

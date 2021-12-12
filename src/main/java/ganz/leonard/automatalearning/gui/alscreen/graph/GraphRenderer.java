@@ -46,6 +46,17 @@ public record GraphRenderer(LinearColorGradient gradient) {
     return prob;
   }
 
+  public <T> BufferedImage automatonToImg(Automaton<? extends State<?,T>,T> automaton, int height) {
+    if (automaton instanceof DeterministicFiniteAutomaton dfa) {
+      return automatonToImg(dfa, height);
+    } else if (automaton instanceof FeedbackAutomaton feedbackAutomaton){
+      return automatonToImg(feedbackAutomaton, height);
+    } else {
+      throw new UnsupportedOperationException(
+          "No rendering strategy known for provided automaton type");
+    }
+  }
+
   public <T> BufferedImage automatonToImg(
       DeterministicFiniteAutomaton<T> automaton, int height) {
     Map<Integer, Node> nodes = constructNodes(automaton);
@@ -58,7 +69,7 @@ public record GraphRenderer(LinearColorGradient gradient) {
                     .getOutgoingTransitions()
                     .forEach(
                         (letter, target) ->
-                            buildLink(nodes, state, target, letter, 1, false)));
+                            buildLink(nodes, state, target, letter, 1, true)));
     return constructGraph(nodes, "dfa", height);
   }
 
@@ -154,4 +165,5 @@ public record GraphRenderer(LinearColorGradient gradient) {
     Graph graph = graph(name).directed().with(nodes.values().stream().toList());
     return Graphviz.fromGraph(graph).height(height).render(Format.PNG).toImage();
   }
+
 }

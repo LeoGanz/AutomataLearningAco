@@ -61,6 +61,10 @@ public class GuiController {
         });
   }
 
+  public void showBestAutomaton(boolean selected) {
+    renderManager.setShowBestAutomatonOnly(selected);
+  }
+
   private void stopRendering() {
     if (renderManager != null) {
       renderManager.stop();
