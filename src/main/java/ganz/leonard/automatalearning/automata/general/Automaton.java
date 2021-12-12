@@ -62,7 +62,11 @@ public class Automaton<S extends State<S, T>, T> {
 
   public boolean accepts(List<T> word) {
     goToStart();
-    word.forEach(this::takeLetter);
+    for (T letter : word) {
+      if (!takeLetter(letter)) {
+        return false;
+      }
+    }
     return canHold();
   }
 
