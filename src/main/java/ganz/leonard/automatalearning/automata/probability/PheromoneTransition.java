@@ -133,9 +133,9 @@ public class PheromoneTransition<T> {
 
   @Override
   public int hashCode() {
-    int result = uuid.hashCode();
-    result = 31 * result + pheromones.hashCode();
-    result = 31 * result + probs.hashCode();
+    int result = (uuid != null ? uuid.hashCode() : 0);
+    result = 31 * result + (pheromones != null ? pheromones.hashCode() : 0);
+    result = 31 * result + (probs != null ? probs.hashCode() : 0);
     result = 31 * result + (options != null ? options.hashCode() : 0);
     return result;
   }
