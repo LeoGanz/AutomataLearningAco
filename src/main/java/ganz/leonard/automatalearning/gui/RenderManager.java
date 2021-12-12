@@ -74,21 +74,17 @@ public class RenderManager<T> implements PropertyChangeListener {
       return; // drop frame as queue is too full
     }
 
-    System.out.println("update");
-    if (bestDfa == null || model.getBestResult().score() > bestDfa.score()){
-      System.out.println("with better aut.");
+    if (bestDfa == null || model.getBestResult().score() > bestDfa.score()) {
       bestDfa = model.getBestResult();
-      if (mode == Mode.DROP_FRAME_UNLESS_BETTER){
-        System.out.println("redraw chosen");
+      if (mode == Mode.DROP_FRAME_UNLESS_BETTER) {
         mode = Mode.RENDER_BEST;
       }
     }
     if (mode == Mode.DROP_FRAME_UNLESS_BETTER) {
-      System.out.println("drop (no improvement)");
       return; // drop frame as no improvement was made
     }
 
-    Automaton<? extends State<?, T>,T> automaton = mode == Mode.RENDER_CURRENT
+    Automaton<? extends State<?, T>, T> automaton = mode == Mode.RENDER_CURRENT
         ? model.getUnlinkedAutomaton()
         : model.getBestResult().automaton();
     int nrApplied = mode == Mode.RENDER_CURRENT
@@ -104,7 +100,7 @@ public class RenderManager<T> implements PropertyChangeListener {
     int nrTotal = model.getNrInputWords();
     double minDfaProb = model.getMinDfaProb();
 
-    if (mode == Mode.RENDER_BEST){
+    if (mode == Mode.RENDER_BEST) {
       mode = Mode.DROP_FRAME_UNLESS_BETTER;
       // best dfa does not need to be rerendered on model changes if no better one is found
     }
@@ -163,14 +159,14 @@ public class RenderManager<T> implements PropertyChangeListener {
     }
   }
 
+  public boolean isShowBestAutomatonOnly() {
+    return mode == Mode.RENDER_BEST || mode == Mode.DROP_FRAME_UNLESS_BETTER;
+  }
+
   public void setShowBestAutomatonOnly(boolean selected) {
     mode = selected ? Mode.RENDER_BEST : Mode.RENDER_CURRENT;
     pcs.firePropertyChange(SHOW_BEST_UPDATE_KEY, null, isShowBestAutomatonOnly());
     constructNewFrame(UpdateImportance.HIGH);
-  }
-
-  public boolean isShowBestAutomatonOnly() {
-    return mode == Mode.RENDER_BEST || mode == Mode.DROP_FRAME_UNLESS_BETTER;
   }
 
   private void clearQueue() {

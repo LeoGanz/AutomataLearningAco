@@ -46,10 +46,11 @@ public record GraphRenderer(LinearColorGradient gradient) {
     return prob;
   }
 
-  public <T> BufferedImage automatonToImg(Automaton<? extends State<?,T>,T> automaton, int height) {
+  public <T> BufferedImage automatonToImg(
+      Automaton<? extends State<?, T>, T> automaton, int height) {
     if (automaton instanceof DeterministicFiniteAutomaton dfa) {
       return automatonToImg(dfa, height);
-    } else if (automaton instanceof FeedbackAutomaton feedbackAutomaton){
+    } else if (automaton instanceof FeedbackAutomaton feedbackAutomaton) {
       return automatonToImg(feedbackAutomaton, height);
     } else {
       throw new UnsupportedOperationException(

@@ -18,7 +18,7 @@ public class ProbToDetConverterTest {
   @Test
   void testWithKnownAutomaton() {
     AutomataLearningOptions options =
-        AutomataLearningOptionsBuilder.builder().colonySize(1).build();
+        AutomataLearningOptionsBuilder.builder().feedback(1).build();
     ProbabilityState<Character> fst = new ProbabilityState<>(0, false, options);
     ProbabilityState<Character> snd = new ProbabilityState<>(1, false, options);
     ProbabilityState<Character> third = new ProbabilityState<>(2, true, options);
@@ -27,13 +27,17 @@ public class ProbToDetConverterTest {
     fst.addTransitionsTo(states);
     snd.addTransitionsTo(states);
 
-    IntStream.range(0, 5)
+    IntStream.range(0, 10)
         .forEach(
             __ -> {
               fst.getTransitionTo(snd).pheromoneFeedback('a', true);
               fst.getTransitionTo(third).pheromoneFeedback('b', true);
               snd.getTransitionTo(fst).pheromoneFeedback('a', true);
               snd.getTransitionTo(third).pheromoneFeedback('b', true);
+              fst.updateProbabilities('a');
+              fst.updateProbabilities('b');
+              snd.updateProbabilities('a');
+              snd.updateProbabilities('b');
             });
 
     FeedbackAutomaton<Character> feedbackAutomaton = new FeedbackAutomaton<>(states, fst, options);

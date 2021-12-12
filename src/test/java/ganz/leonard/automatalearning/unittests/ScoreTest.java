@@ -8,7 +8,6 @@ import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.sql.SQLOutput;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,11 +39,7 @@ public class ScoreTest {
   @Test
   void testAutomatonAcceptance() throws URISyntaxException, IOException {
     Map<List<Object>, Boolean> input = getInput();
-    input.forEach(
-        (word, inLang) -> {
-//          System.out.println(word + " is inLang: " + inLang + " automaton accepts: " + dfa.accepts(word));
-          Assertions.assertEquals(inLang, dfa.accepts(word));
-        });
+    input.forEach((word, inLang) -> Assertions.assertEquals(inLang, dfa.accepts(word)));
   }
 
   @Test

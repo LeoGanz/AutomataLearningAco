@@ -20,7 +20,7 @@ public class DeterministicFiniteAutomaton<T> extends Automaton<DeterministicStat
   public boolean hasTransition(int fromId, int toId, T letter) {
     DeterministicState<T> from = getAllStates().get(fromId);
     DeterministicState<T> to = getAllStates().get(toId);
-    return from != null && to != null && from.transit(letter) == to;
+    return from != null && to != null && Objects.equals(from.transit(letter), to);
   }
 
   @Override
