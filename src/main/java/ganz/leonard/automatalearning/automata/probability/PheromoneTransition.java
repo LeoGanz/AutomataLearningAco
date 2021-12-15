@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
  * @param <T> type used as alphabet
  */
 public class PheromoneTransition<T> {
-  public static final Function<Double, Double> SIGMOID = val -> val / (1 + Math.abs(val));
   // transitions with same values in pheromones and probs are not necessarily the same transitions
   private final UUID uuid;
   private final Map<T, Double> pheromones;
@@ -43,10 +41,7 @@ public class PheromoneTransition<T> {
     ensureInit(letter);
     double pheromoneVal = pheromones.get(letter);
     double prevProb = probs.get(letter);
-    double factor = SIGMOID.apply(pheromoneVal); // in [-1 ;1  ]
-    factor /= 10; // in [-.1; .1]
-    factor += 1; // in [0.9;1.1]
-    return Math.max(0.01, factor * prevProb);
+    return options.pheromoneFunction().apply(pheromoneVal, prevProb);
   }
 
   public double getTransitionProbability(T letter) {

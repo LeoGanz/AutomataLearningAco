@@ -2,9 +2,15 @@ package ganz.leonard.automatalearning.paramtests;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.InputWord;
+import ganz.leonard.automatalearning.paramtests.conversion.DfaConverter;
+import ganz.leonard.automatalearning.paramtests.conversion.PheromoneFunctionSerializer;
+import ganz.leonard.automatalearning.paramtests.conversion.PlainIntegerConverter;
+import ganz.leonard.automatalearning.paramtests.conversion.StringifyableFunctionSerializer;
 import ganz.leonard.automatalearning.util.PairStream;
+import ganz.leonard.automatalearning.util.StringifyableFunction;
 import ganz.leonard.automatalearning.util.Util;
 import java.io.Closeable;
 import java.io.IOException;
@@ -34,7 +40,14 @@ public class TestDataSaver implements Closeable {
   public TestDataSaver(String testName) {
     this.testName = testName;
     subtests = new HashSet<>();
-    gson = new GsonBuilder().setPrettyPrinting().create();
+    gson =
+        new GsonBuilder()
+            .setPrettyPrinting()
+            .disableHtmlEscaping()
+            .registerTypeAdapter(
+                StringifyableFunction.class, new StringifyableFunctionSerializer<>())
+            .registerTypeAdapter(PheromoneFunction.class, new PheromoneFunctionSerializer())
+            .create();
   }
 
   public <T> DataSaverSubtest beginOnlySubtest(

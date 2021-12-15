@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning.paramtests;
+package ganz.leonard.automatalearning.paramtests.conversion;
 
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.tools.GreeneryNotationConverter;

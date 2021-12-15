@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning.paramtests;
+package ganz.leonard.automatalearning.paramtests.conversion;
 
 import org.csveed.bean.conversion.AbstractConverter;
 

@@ -1,5 +1,7 @@
 package ganz.leonard.automatalearning.learning;
 
+import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
+import ganz.leonard.automatalearning.util.StringifyableFunction;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 // execute 'gradle run' to generate class AutomataLearningOptionsBuilder
@@ -10,7 +12,8 @@ public record AutomataLearningOptions(int acceptingStates,
                                       double feedback,
                                       double decayFactor,
                                       int inputSamples,
-                                      int colonySize)
+                                      int colonySize,
+                                      PheromoneFunction pheromoneFunction)
     implements AutomataLearningOptionsBuilder.With {
 
   public static final int DEF_ACCEPTING_STATES = 2;
@@ -36,5 +39,19 @@ public record AutomataLearningOptions(int acceptingStates,
       inputSamples = DEF_INPUT_SAMPLES;
     }
     // colony size == -1 indicates automatic size
+    if (pheromoneFunction == null) {
+      StringifyableFunction<Double, Double> sigmoid = new StringifyableFunction<>() {
+        @Override
+        public Double apply(Double x) {
+          return x / (1 + Math.abs(x));
+        }
+
+        @Override
+        public String stringRep() {
+          return "x -> x / (1 + |x|)";
+        }
+      };
+      pheromoneFunction = new PheromoneFunction(sigmoid, 0.1, 0.01);
+    }
   }
 }
