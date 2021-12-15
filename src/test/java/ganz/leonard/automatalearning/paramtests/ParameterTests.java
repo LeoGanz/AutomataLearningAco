@@ -39,7 +39,7 @@ public class ParameterTests {
     TestDataSaver dataSaver = new TestDataSaver("DefaultOptions");
     AutomataLearningOptions options = DEFAULT_OPTIONS_BUILDER.build();
     CompletableFuture<OptionalDouble> stats =
-        Statistics.calculate(options, input, dataSaver.beginOnlySubtest(options));
+        Statistics.calculate(options, input, dataSaver.beginOnlySubtest(options, input));
     stats.thenAccept(ignored -> dataSaver.close()).join();
   }
 
@@ -57,6 +57,7 @@ public class ParameterTests {
         TestDataSaver.DataSaverSubtest dataSaverSubtest =
             dataSaver.beginSubtest(
                 options,
+                input,
                 Map.of(
                     "accepting",
                     String.valueOf(acceptingStates),
