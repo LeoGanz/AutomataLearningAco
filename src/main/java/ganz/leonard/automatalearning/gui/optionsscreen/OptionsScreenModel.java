@@ -1,13 +1,13 @@
 package ganz.leonard.automatalearning.gui.optionsscreen;
 
 import ganz.leonard.automatalearning.language.Language;
+import ganz.leonard.automatalearning.learning.InputWord;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class OptionsScreenModel {
@@ -75,7 +75,7 @@ public class OptionsScreenModel {
     return InputProvider.getAvailableGeneratingLanguages();
   }
 
-  public Map<List<Object>, Boolean> getChosenInput(int sampleNoForGeneration)
+  public List<InputWord<Object>> getChosenInput(int sampleNoForGeneration)
       throws IOException, URISyntaxException {
     if (generateSamples) {
       if (selectedGeneratingLanguage == null) {

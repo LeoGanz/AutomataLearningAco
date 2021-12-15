@@ -2,12 +2,12 @@ package ganz.leonard.automatalearning.paramtests;
 
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
+import ganz.leonard.automatalearning.learning.InputWord;
 import ganz.leonard.automatalearning.learning.IntermediateResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -21,14 +21,14 @@ public class Statistics {
   /** @return average Score */
   public static CompletableFuture<OptionalDouble> calculate(
       AutomataLearningOptions options,
-      Map<List<Object>, Boolean> input,
+      List<InputWord<Object>> input,
       TestDataSaver.DataSaverSubtest dataSaver) {
     return CompletableFuture.supplyAsync(() -> execTest(options, input, dataSaver));
   }
 
   private static OptionalDouble execTest(
       AutomataLearningOptions options,
-      Map<List<Object>, Boolean> input,
+      List<InputWord<Object>> input,
       TestDataSaver.DataSaverSubtest dataSaver) {
     System.out.println(
         "Starting statistics for test language " + input + " with options: " + options + "' ...");

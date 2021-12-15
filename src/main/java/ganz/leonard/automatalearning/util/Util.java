@@ -3,6 +3,7 @@ package ganz.leonard.automatalearning.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Comparator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
@@ -91,5 +92,17 @@ public class Util {
         .limit(x)
         .reduce((fst, snd) -> snd)
         .orElseThrow(() -> new NoSuchElementException("No xth highest element in empty stream"));
+  }
+
+  /**
+   * Same functionality as {@link List#indexOf} but with reference equality.
+   */
+  public static <T> int indexOfReferenceEquality(List<T> list, T elem) {
+    for (int i = 0; i < list.size(); i++) {
+      if (list.get(i) == elem) { // reference equality
+        return i;
+      }
+    }
+    return -1;
   }
 }

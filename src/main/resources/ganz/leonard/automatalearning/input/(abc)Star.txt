@@ -1,0 +1,16 @@
++abc
++abc
++abcabcabc
++abcabcabcabc
++abcabcabcabcabc
+-acb
+-bca
+-cba
+-bac
+-abcb
+-abcc
+-abca
+-abcabbacb
+-bcaaa
+-cccaabbb
+-cbbaa

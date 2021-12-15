@@ -7,17 +7,16 @@ import ganz.leonard.automatalearning.language.Symbol;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
+import ganz.leonard.automatalearning.learning.InputWord;
 import java.io.IOException;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 
 public class AutomataLearningTest {
 
-  private static void runLearning(Map<List<Character>, Boolean> input)
+  private static void runLearning(List<InputWord<Character>> input)
       throws IOException, InterruptedException {
     AutomataLearningOptions options =
         AutomataLearningOptionsBuilder.builder().acceptingStates(1).notAcceptingStates(2).build();
@@ -39,17 +38,17 @@ public class AutomataLearningTest {
 
   @Test
   void learnWithSpecifiedInput() throws IOException, InterruptedException {
-    Map<List<Character>, Boolean> input = new LinkedHashMap<>();
-    input.put(List.of('b'), true);
-    input.put(List.of('a', 'a', 'a', 'b'), true);
-    input.put(List.of('a', 'a', 'a', 'a', 'b'), true);
-    input.put(List.of('a', 'a', 'a', 'a', 'a', 'b'), true);
-    input.put(List.of('a', 'a', 'a', 'a', 'a', 'a', 'b'), true);
-    input.put(List.of('a'), false);
-    input.put(List.of('a', 'a'), false);
-    input.put(List.of('a', 'a', 'a'), false);
-    input.put(List.of('a', 'a', 'a', 'a'), false);
-    input.put(List.of('b', 'b'), false);
+    List<InputWord<Character>> input = new ArrayList<>();
+    input.add(new InputWord<>(List.of('b'), true));
+    input.add(new InputWord<>(List.of('a', 'a', 'a', 'b'), true));
+    input.add(new InputWord<>(List.of('a', 'a', 'a', 'a', 'b'), true));
+    input.add(new InputWord<>(List.of('a', 'a', 'a', 'a', 'a', 'b'), true));
+    input.add(new InputWord<>(List.of('a', 'a', 'a', 'a', 'a', 'a', 'b'), true));
+    input.add(new InputWord<>(List.of('a'), false));
+    input.add(new InputWord<>(List.of('a', 'a'), false));
+    input.add(new InputWord<>(List.of('a', 'a', 'a'), false));
+    input.add(new InputWord<>(List.of('a', 'a', 'a', 'a'), false));
+    input.add(new InputWord<>(List.of('b', 'b'), false));
     runLearning(input);
   }
 
@@ -59,16 +58,17 @@ public class AutomataLearningTest {
     Language<Character> testLang =
         new Language<>(new Symbol<>('a').rep().seq(new Symbol<>('b'))); // a*b
     int samples = 10;
-    Map<List<Character>, Boolean> input =
+    List<InputWord<Character>> input =
         IntStream.range(0, samples)
             .boxed()
-            .collect(Collectors.toMap(__ -> testLang.generateSample(), __ -> true, (k1, k2) -> k1));
+            .map(__ -> new InputWord<>(testLang.generateSample(), true))
+            .toList();
 
-    input.put(List.of('a'), false);
-    input.put(List.of('a', 'a'), false);
-    input.put(List.of('a', 'a', 'a'), false);
-    input.put(List.of('a', 'a', 'a', 'a'), false);
-    input.put(List.of('b', 'b'), false);
+    input.add(new InputWord<>(List.of('a'), false));
+    input.add(new InputWord<>(List.of('a', 'a'), false));
+    input.add(new InputWord<>(List.of('a', 'a', 'a'), false));
+    input.add(new InputWord<>(List.of('a', 'a', 'a', 'a'), false));
+    input.add(new InputWord<>(List.of('b', 'b'), false));
 
     runLearning(input);
   }

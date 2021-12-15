@@ -3,13 +3,12 @@ package ganz.leonard.automatalearning.gui.alscreen.inputwords;
 import ganz.leonard.automatalearning.gui.GuiController;
 import ganz.leonard.automatalearning.gui.RenderManager;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
+import ganz.leonard.automatalearning.learning.InputWord;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
-import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -19,7 +18,7 @@ public class WordList<T> extends JPanel implements PropertyChangeListener {
   private static final int LINE_HEIGHT = 20;
   private final GuiController controller;
   private final AutomataLearning<T> automataLearning;
-  private Map.Entry<List<T>, Boolean> nextWord;
+  private int indexOfNextWord;
   private int minWidth;
   private int minHeight;
 
@@ -37,8 +36,9 @@ public class WordList<T> extends JPanel implements PropertyChangeListener {
     super.paintComponent(g);
     Graphics2D g2 = (Graphics2D) g;
     int y = g.getFontMetrics().getHeight();
-    for (Map.Entry<List<T>, Boolean> elem : automataLearning.getInput()) {
-      if (elem.equals(nextWord)) {
+    for (int i = 0; i < automataLearning.getInput().size(); i++) {
+      InputWord<T> elem = automataLearning.getInput().get(i);
+      if (i == indexOfNextWord) {
         g2.drawString("\u27A4", 0, y); // arrow right
       }
       String word = stringifyEntry(elem);
@@ -59,9 +59,9 @@ public class WordList<T> extends JPanel implements PropertyChangeListener {
     }
   }
 
-  private String stringifyEntry(Map.Entry<List<T>, Boolean> elem) {
-    StringBuilder sb = new StringBuilder(elem.getValue() ? "+" : "-");
-    elem.getKey().forEach(sb::append);
+  private String stringifyEntry(InputWord<T> elem) {
+    StringBuilder sb = new StringBuilder(elem.inLang() ? "+" : "-");
+    elem.word().forEach(sb::append);
     return sb.toString();
   }
 
@@ -73,7 +73,7 @@ public class WordList<T> extends JPanel implements PropertyChangeListener {
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
     if (RenderManager.NEXT_WORD_UPDATE_KEY.equals(evt.getPropertyName())) {
-      nextWord = (Map.Entry<List<T>, Boolean>) evt.getNewValue();
+      indexOfNextWord = (int) evt.getNewValue();
       SwingUtilities.invokeLater(this::repaint);
     }
   }

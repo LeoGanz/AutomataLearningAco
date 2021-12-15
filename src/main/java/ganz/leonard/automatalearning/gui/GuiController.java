@@ -5,12 +5,12 @@ import ganz.leonard.automatalearning.gui.util.GuiUtil;
 import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
+import ganz.leonard.automatalearning.learning.InputWord;
 import ganz.leonard.automatalearning.learning.UpdateImportance;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import javax.swing.SwingUtilities;
 
 public class GuiController {
@@ -38,7 +38,7 @@ public class GuiController {
   public void simulationScreenRequested(AutomataLearningOptions options) {
     GuiUtil.executeOnSwingWorker(
         () -> {
-          Map<List<Object>, Boolean> input = null;
+          List<InputWord<Object>> input = null;
           try {
             input = optionsScreenModel.getChosenInput(options.inputSamples());
           } catch (IOException | URISyntaxException e) {

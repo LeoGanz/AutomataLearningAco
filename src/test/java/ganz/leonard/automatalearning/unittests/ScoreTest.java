@@ -5,6 +5,7 @@ import ganz.leonard.automatalearning.automata.general.DeterministicState;
 import ganz.leonard.automatalearning.gui.optionsscreen.InputProvider;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
+import ganz.leonard.automatalearning.learning.InputWord;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -38,13 +39,13 @@ public class ScoreTest {
 
   @Test
   void testAutomatonAcceptance() throws URISyntaxException, IOException {
-    Map<List<Object>, Boolean> input = getInput();
-    input.forEach((word, inLang) -> Assertions.assertEquals(inLang, dfa.accepts(word)));
+    List<InputWord<Object>> input = getInput();
+    input.forEach(word -> Assertions.assertEquals(word.inLang(), dfa.accepts(word.word())));
   }
 
   @Test
   void testFullScore() throws URISyntaxException, IOException {
-    Map<List<Object>, Boolean> input = getInput();
+    List<InputWord<Object>> input = getInput();
     double expectedScore = 1;
 
     testScore(input, expectedScore);
@@ -52,15 +53,15 @@ public class ScoreTest {
 
   @Test
   void testPartialScore() throws URISyntaxException, IOException {
-    Map<List<Object>, Boolean> input = getInput();
+    List<InputWord<Object>> input = getInput();
     long nrCorrect = input.size();
-    input.put(List.of('a', 'a'), true);
+    input.add(new InputWord<>(List.of('a', 'a'), true));
     double expectedScore = (double) nrCorrect / input.size();
 
     testScore(input, expectedScore);
   }
 
-  void testScore(Map<List<Object>, Boolean> input, double expectedScore) {
+  void testScore(List<InputWord<Object>> input, double expectedScore) {
     AutomataLearning<Object> al =
         new AutomataLearning<>(AutomataLearningOptionsBuilder.builder().build(), input);
 
@@ -68,7 +69,7 @@ public class ScoreTest {
     Assertions.assertEquals(expectedScore, actualScore);
   }
 
-  private Map<List<Object>, Boolean> getInput() throws IOException, URISyntaxException {
+  private List<InputWord<Object>> getInput() throws IOException, URISyntaxException {
     return InputProvider.readFromFile(Paths.get(ClassLoader.getSystemResource(INPUT_FILE).toURI()));
   }
 }

@@ -5,6 +5,7 @@ import ganz.leonard.automatalearning.automata.general.State;
 import ganz.leonard.automatalearning.gui.alscreen.graph.GraphRenderer;
 import ganz.leonard.automatalearning.gui.util.LinearColorGradient;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
+import ganz.leonard.automatalearning.learning.InputWord;
 import ganz.leonard.automatalearning.learning.IntermediateResult;
 import ganz.leonard.automatalearning.learning.UpdateImportance;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -13,8 +14,6 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -96,7 +95,7 @@ public class RenderManager<T> implements PropertyChangeListener {
     double score = mode == Mode.RENDER_CURRENT
         ? model.getIntermediateResult().score()
         : model.getBestResult().score();
-    Map.Entry<List<T>, Boolean> nextWord = model.peekNextInputWord();
+    int indexOfNextWord = model.indexOfNextInputWord();
     int nrTotal = model.getNrInputWords();
     double minDfaProb = model.getMinDfaProb();
 
@@ -126,7 +125,7 @@ public class RenderManager<T> implements PropertyChangeListener {
               }
             }
             renderingQueue.poll();
-            notifyListeners(img, nextWord, nrApplied, nrTotal, regex, score, minDfaProb);
+            notifyListeners(img, indexOfNextWord, nrApplied, nrTotal, regex, score, minDfaProb);
             renderingQueue.notifyAll();
           }
         });
@@ -197,11 +196,11 @@ public class RenderManager<T> implements PropertyChangeListener {
   }
 
   private void notifyListeners(BufferedImage img,
-                               Map.Entry<List<T>, Boolean> nextWord,
+                               int indexOfNextWord,
                                int nrApplied, int nrTotal,
                                String regex, double score, double minDfaProb) {
     pcs.firePropertyChange(IMAGE_UPDATE_KEY, null, img);
-    pcs.firePropertyChange(NEXT_WORD_UPDATE_KEY, null, nextWord);
+    pcs.firePropertyChange(NEXT_WORD_UPDATE_KEY, null, indexOfNextWord);
     pcs.firePropertyChange(APPLIED_WORDS_UPDATE_KEY, null, nrApplied);
     pcs.firePropertyChange(INPUT_WORDS_UPDATE_KEY, null, nrTotal);
     pcs.firePropertyChange(REGEX_UPDATE_KEY, null, regex);

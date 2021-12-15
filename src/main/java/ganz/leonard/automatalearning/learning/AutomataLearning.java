@@ -4,16 +4,15 @@ import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomat
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
 import ganz.leonard.automatalearning.automata.tools.DfaToRegexConverter;
+import ganz.leonard.automatalearning.util.Util;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -24,10 +23,10 @@ public class AutomataLearning<T> {
   public static final int NR_MEDIUM_IMPORTANCE_UPDATES = 3;
   private final FeedbackAutomaton<T> automaton;
   private final PropertyChangeSupport pcs;
-  private final LinkedHashMap<List<T>, Boolean> inputWords;
+  private final List<InputWord<T>> inputWords;
   private final AutomataLearningOptions options;
   private final Set<Ant<T>> antsInCurrentRun;
-  private PeekingIterator<Map.Entry<List<T>, Boolean>> it;
+  private PeekingIterator<InputWord<T>> it;
   private int nrAppliedColonies = 0;
   private int nrAppliedWords = 0;
   private IntermediateResult<T> intermediateDfa;
@@ -42,13 +41,13 @@ public class AutomataLearning<T> {
    *     marked as being part of the language or not. At least one word is required.
    * @throws IllegalArgumentException if inputWords is empty
    */
-  public AutomataLearning(AutomataLearningOptions options, Map<List<T>, Boolean> inputWords) {
+  public AutomataLearning(AutomataLearningOptions options, List<InputWord<T>> inputWords) {
     if (inputWords.isEmpty()) {
       throw new IllegalArgumentException("At least one word has to be provided as input");
     }
     this.options = options;
     automaton = constructAutomaton(options);
-    this.inputWords = new LinkedHashMap<>(inputWords);
+    this.inputWords = new LinkedList<>(inputWords);
     antsInCurrentRun = new HashSet<>();
     pcs = new PropertyChangeSupport(this);
   }
@@ -105,8 +104,8 @@ public class AutomataLearning<T> {
 
   private void createAnt() {
     refillIteratorIfNeeded();
-    Map.Entry<List<T>, Boolean> pair = it.next();
-    Ant<T> ant = new Ant<>(pair.getKey(), pair.getValue(), automaton);
+    InputWord<T> next = it.next();
+    Ant<T> ant = new Ant<>(next.word(), next.inLang(), automaton);
     antsInCurrentRun.add(ant);
     ant.buildSolution();
     nrAppliedWords++;
@@ -114,7 +113,7 @@ public class AutomataLearning<T> {
 
   private void refillIteratorIfNeeded() {
     if (it == null || !it.hasNext()) {
-      it = PeekingIterator.peekingIterator(inputWords.entrySet().iterator());
+      it = PeekingIterator.peekingIterator(inputWords.iterator());
     }
   }
 
@@ -138,13 +137,13 @@ public class AutomataLearning<T> {
     return FeedbackAutomaton.copyFeedbackAutomaton(automaton);
   }
 
-  public List<Map.Entry<List<T>, Boolean>> getInput() {
-    return new LinkedList<>(inputWords.entrySet()); // immutable copy
+  public List<InputWord<T>> getInput() {
+    return new LinkedList<>(inputWords); // immutable copy
   }
 
-  public Map.Entry<List<T>, Boolean> peekNextInputWord() {
+  public int indexOfNextInputWord() {
     refillIteratorIfNeeded();
-    return it.peek();
+    return Util.indexOfReferenceEquality(inputWords, it.peek());
   }
 
   public void updateMinDfaProb(double newProb) {
@@ -199,8 +198,8 @@ public class AutomataLearning<T> {
 
   public double calcMatchingInputScore(DeterministicFiniteAutomaton<T> dfa) {
     double correctlyMatched =
-        inputWords.entrySet().stream()
-            .map(entry -> entry.getValue().equals(dfa.accepts(entry.getKey())))
+        inputWords.stream()
+            .map(word -> word.inLang() == dfa.accepts(word.word()))
             .filter(b -> b)
             .count();
     return correctlyMatched / inputWords.size();

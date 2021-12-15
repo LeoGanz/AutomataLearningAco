@@ -3,6 +3,7 @@ package ganz.leonard.automatalearning.paramtests;
 import ganz.leonard.automatalearning.gui.optionsscreen.InputProvider;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
+import ganz.leonard.automatalearning.learning.InputWord;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -25,7 +26,7 @@ public class ParameterTests {
           .colonySize(50)
           .acceptingStates(2)
           .notAcceptingStates(2);
-  private static Map<List<Object>, Boolean> input;
+  private static List<InputWord<Object>> input;
 
   @BeforeAll
   static void setUp() throws IOException, URISyntaxException {
