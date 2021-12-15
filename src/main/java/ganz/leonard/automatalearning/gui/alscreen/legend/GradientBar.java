@@ -1,6 +1,6 @@
 package ganz.leonard.automatalearning.gui.alscreen.legend;
 
-import ganz.leonard.automatalearning.Util;
+import ganz.leonard.automatalearning.util.Util;
 import ganz.leonard.automatalearning.gui.util.LinearColorGradient;
 import java.awt.Color;
 import java.awt.Font;

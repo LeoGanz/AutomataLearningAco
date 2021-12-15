@@ -1,6 +1,6 @@
 package ganz.leonard.automatalearning.automata.probability;
 
-import ganz.leonard.automatalearning.Util;
+import ganz.leonard.automatalearning.util.Util;
 import ganz.leonard.automatalearning.automata.general.BasicState;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import java.util.Collection;

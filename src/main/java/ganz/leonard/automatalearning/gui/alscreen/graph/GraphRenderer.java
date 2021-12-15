@@ -4,7 +4,7 @@ import static guru.nidi.graphviz.model.Factory.graph;
 import static guru.nidi.graphviz.model.Factory.node;
 import static guru.nidi.graphviz.model.Factory.to;
 
-import ganz.leonard.automatalearning.Util;
+import ganz.leonard.automatalearning.util.Util;
 import ganz.leonard.automatalearning.automata.general.Automaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.general.State;

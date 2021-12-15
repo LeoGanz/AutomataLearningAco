@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning;
+package ganz.leonard.automatalearning.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

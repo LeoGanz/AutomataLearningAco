@@ -28,6 +28,7 @@ public class AutomataLearning<T> {
   private final AutomataLearningOptions options;
   private final Set<Ant<T>> antsInCurrentRun;
   private PeekingIterator<Map.Entry<List<T>, Boolean>> it;
+  private int nrAppliedColonies = 0;
   private int nrAppliedWords = 0;
   private IntermediateResult<T> intermediateDfa;
   private IntermediateResult<T> bestDfa = new IntermediateResult<>(0, null, -1);
@@ -80,7 +81,7 @@ public class AutomataLearning<T> {
     antsInCurrentRun.clear();
 
     updateBestDfa();
-
+    nrAppliedColonies++;
     notifyListeners(importance);
   }
 
@@ -155,6 +156,10 @@ public class AutomataLearning<T> {
 
   public double getMinDfaProb() {
     return automaton.getMinDfaProb();
+  }
+
+  public int getNrAppliedColonies() {
+    return nrAppliedColonies;
   }
 
   public int getNrAppliedWords() {

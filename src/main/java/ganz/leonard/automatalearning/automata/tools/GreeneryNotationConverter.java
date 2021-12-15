@@ -1,6 +1,6 @@
 package ganz.leonard.automatalearning.automata.tools;
 
-import ganz.leonard.automatalearning.Util;
+import ganz.leonard.automatalearning.util.Util;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicState;
 import ganz.leonard.automatalearning.automata.general.State;
