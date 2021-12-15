@@ -4,7 +4,6 @@ import static guru.nidi.graphviz.model.Factory.graph;
 import static guru.nidi.graphviz.model.Factory.node;
 import static guru.nidi.graphviz.model.Factory.to;
 
-import ganz.leonard.automatalearning.util.Util;
 import ganz.leonard.automatalearning.automata.general.Automaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.general.State;
@@ -12,6 +11,8 @@ import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.automata.probability.PheromoneTransition;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
 import ganz.leonard.automatalearning.gui.util.LinearColorGradient;
+import ganz.leonard.automatalearning.util.PairStream;
+import ganz.leonard.automatalearning.util.Util;
 import guru.nidi.graphviz.attribute.Color;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
@@ -98,28 +99,21 @@ public record GraphRenderer(LinearColorGradient gradient) {
             letter -> {
               Map<ProbabilityState<T>, Double> probabilities =
                   fromState.collectTransitionProbabilities(letter);
-              fromState.getOutgoingTransitions().entrySet().stream()
-                  .sorted(
-                      Comparator.comparingDouble(
-                              (Map.Entry<ProbabilityState<T>, PheromoneTransition<T>>
-                                   targetTrans) ->
-                                  targetTrans.getValue().getPheromoneFor(letter))
-                          .reversed())
+              PairStream.from(fromState.getOutgoingTransitions())
+                  .sortedByValue(Comparator.comparingDouble(
+                      (PheromoneTransition<T> transition) -> transition.getPheromoneFor(letter))
+                      .reversed())
                   .limit(TRANS_TO_DRAW_PER_LETTER_AND_STATE)
-                  .filter(
-                      targetTrans ->
-                          probabilities.get(targetTrans.getKey())
-                              > (minProbToRender - Util.DOUBLE_COMPARISON_PRECISION))
-                  .forEach(
-                      targetTrans ->
-                          buildLink(
-                              nodes,
-                              fromState,
-                              targetTrans.getKey(),
-                              letter,
-                              probabilities.get(targetTrans.getKey()),
-                              dfa.hasTransition(
-                                  fromState.getId(), targetTrans.getKey().getId(), letter)));
+                  .filterKey(target -> probabilities.get(target) >
+                      (minProbToRender - Util.DOUBLE_COMPARISON_PRECISION))
+                  .forEach((target, transition) ->
+                      buildLink(
+                          nodes,
+                          fromState,
+                          target,
+                          letter,
+                          probabilities.get(target),
+                          dfa.hasTransition(fromState.getId(), target.getId(), letter)));
             });
   }
 

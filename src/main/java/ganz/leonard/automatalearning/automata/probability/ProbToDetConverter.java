@@ -2,10 +2,10 @@ package ganz.leonard.automatalearning.automata.probability;
 
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicState;
+import ganz.leonard.automatalearning.util.PairStream;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ProbToDetConverter<T> {
   private static final double DEF_MIN_PROBABILITY = 0.5;
@@ -50,13 +50,10 @@ public class ProbToDetConverter<T> {
 
   private void buildAutomatonSkeleton() {
     Map<Integer, DeterministicState<T>> newStates =
-        automaton.getAllStates().entrySet().stream()
-            .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey,
-                    entry ->
-                        new DeterministicState<>(
-                            entry.getValue().getId(), entry.getValue().isAccepting())));
+        PairStream.from(automaton.getAllStates())
+            .mapValue(
+                probState -> new DeterministicState<T>(probState.getId(), probState.isAccepting()))
+            .toMap();
     DeterministicState<T> start = newStates.get(automaton.getStartState().getId());
     dfa = new DeterministicFiniteAutomaton<>(newStates, start);
   }

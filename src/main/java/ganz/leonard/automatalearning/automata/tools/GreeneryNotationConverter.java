@@ -1,9 +1,10 @@
 package ganz.leonard.automatalearning.automata.tools;
 
-import ganz.leonard.automatalearning.util.Util;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicState;
 import ganz.leonard.automatalearning.automata.general.State;
+import ganz.leonard.automatalearning.util.PairStream;
+import ganz.leonard.automatalearning.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,14 +46,14 @@ public class GreeneryNotationConverter<T> {
                 Collectors.toMap(
                     DeterministicState::getId,
                     detState ->
-                        detState.getOutgoingTransitions().entrySet().stream()
-                            .collect(
-                                Collectors.toMap(
-                                    entry ->
-                                        useHashcodes
-                                            ? entry.getKey().hashCode()
-                                            : new ToStringWrapper<>(entry.getKey()),
-                                    entry -> entry.getValue().getId()))));
+                        PairStream.from(detState.getOutgoingTransitions())
+                            .mapKey(
+                                letter ->
+                                    useHashcodes
+                                        ? letter.hashCode()
+                                        : new ToStringWrapper<>(letter))
+                            .mapValue(DeterministicState::getId)
+                            .toMap()));
 
     if (useHashcodes) {
       result.add(letterSaver.keySet().toString());

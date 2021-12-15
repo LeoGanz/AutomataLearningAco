@@ -1,8 +1,9 @@
 package ganz.leonard.automatalearning.automata.probability;
 
-import ganz.leonard.automatalearning.util.Util;
 import ganz.leonard.automatalearning.automata.general.BasicState;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
+import ganz.leonard.automatalearning.util.PairStream;
+import ganz.leonard.automatalearning.util.Util;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,10 +57,9 @@ public class ProbabilityState<T> extends BasicState<ProbabilityState<T>, T> {
   }
 
   public Map<ProbabilityState<T>, Double> collectTransitionProbabilities(T letter) {
-    return outgoingTransitions.entrySet().stream()
-        .collect(
-            Collectors.toMap(
-                Map.Entry::getKey, entry -> entry.getValue().getTransitionProbability(letter)));
+    return PairStream.from(outgoingTransitions)
+        .mapValue(transition -> transition.getTransitionProbability(letter))
+        .toMap();
   }
 
   public void updateProbabilities(T letter) {
