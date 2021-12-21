@@ -21,6 +21,11 @@ public class GreeneryNotationConverter<T> {
 
   public List<String> toGreeneryNotation(
       DeterministicFiniteAutomaton<T> dfa, boolean useHashcodes) {
+    return toGreeneryNotation(dfa, useHashcodes, true);
+  }
+
+  public List<String> toGreeneryNotation(
+      DeterministicFiniteAutomaton<T> dfa, boolean useHashcodes, boolean escapeQuotes) {
     List<String> result = new ArrayList<>(5);
     final Set<T> alphabet =
         dfa.getAllStates().values().stream()
@@ -51,7 +56,7 @@ public class GreeneryNotationConverter<T> {
                                 letter ->
                                     useHashcodes
                                         ? letter.hashCode()
-                                        : new ToStringWrapper<>(letter))
+                                        : wrapLetter(letter, escapeQuotes))
                             .mapValue(DeterministicState::getId)
                             .toMap()));
 
@@ -59,7 +64,9 @@ public class GreeneryNotationConverter<T> {
       result.add(letterSaver.keySet().toString());
     } else {
       Set<ToStringWrapper<T>> wrappedAlphabet =
-          alphabet.stream().map(ToStringWrapper::new).collect(Collectors.toSet());
+          alphabet.stream()
+              .map(letter -> wrapLetter(letter, escapeQuotes))
+              .collect(Collectors.toSet());
       result.add(wrappedAlphabet.toString());
     }
     result.add(states.toString());
@@ -67,6 +74,14 @@ public class GreeneryNotationConverter<T> {
     result.add(finals.toString());
     result.add(transitions.toString().replace('=', ':'));
     return result;
+  }
+
+  private ToStringWrapper<T> wrapLetter(T letter, boolean escapeQuotes) {
+    if (escapeQuotes) {
+      return new ToStringWrapper<>(letter, "\\\"");
+    } else {
+      return new ToStringWrapper<>(letter, "\"");
+    }
   }
 
   public DeterministicFiniteAutomaton<T> fromGreeneryNotation(String line) {

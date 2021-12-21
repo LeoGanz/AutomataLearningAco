@@ -15,21 +15,31 @@ import java.util.stream.Collectors;
 
 public class Statistics {
 
-  private static final int ITERATIONS = 10;
+  private static final int ITERATIONS = 5;
   private static final int MAX_COLONIES = 2000;
 
   /** @return average Score */
   public static CompletableFuture<OptionalDouble> calculate(
       AutomataLearningOptions options,
       List<InputWord<Object>> input,
-      TestDataSaver.DataSaverSubtest dataSaver) {
-    return CompletableFuture.supplyAsync(() -> execTest(options, input, dataSaver));
+      TestDataSaver.DataSaverSubtest dataSaver, boolean ignoreDfa) {
+    return calculate(options, input, dataSaver, MAX_COLONIES, ignoreDfa);
+  }
+
+  /** @return average Score */
+  public static CompletableFuture<OptionalDouble> calculate(
+      AutomataLearningOptions options,
+      List<InputWord<Object>> input,
+      TestDataSaver.DataSaverSubtest dataSaver,
+      int colonies, boolean ignoreDfa) {
+    return CompletableFuture.supplyAsync(() -> execTest(options, input, dataSaver, colonies, ignoreDfa));
   }
 
   private static OptionalDouble execTest(
       AutomataLearningOptions options,
       List<InputWord<Object>> input,
-      TestDataSaver.DataSaverSubtest dataSaver) {
+      TestDataSaver.DataSaverSubtest dataSaver,
+      int colonies, boolean ignoreDfa) {
     System.out.println(
         "Starting statistics for test language " + input + " with options: " + options + "' ...");
     Set<CompletableFuture<IntermediateResult<Object>>> learners = new HashSet<>(ITERATIONS);
@@ -40,9 +50,12 @@ public class Statistics {
               () -> {
                 try {
                   TestDataSaver.DataSaverIteration dataSaverIteration =
-                      dataSaver.beginIteration(finalI);
+                      dataSaver.beginIteration(finalI, ignoreDfa);
                   AutomataLearning<Object> al = new AutomataLearning<>(options, input);
-                  for (int colony = 0; colony < MAX_COLONIES; colony++) {
+                    dataSaverIteration.writeRow(
+                        DataRow.fromIntermediateResult(
+                            al.getIntermediateResult(), al.getNrAppliedColonies()));
+                  for (int colony = 0; colony < colonies; colony++) {
                     al.runColonies(1);
                     dataSaverIteration.writeRow(
                         DataRow.fromIntermediateResult(

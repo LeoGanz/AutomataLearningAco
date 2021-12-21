@@ -32,13 +32,15 @@ public record AutomataLearningOptions(int acceptingStates,
       // zero is allowed. for simple languages like a* one accepting state is enough
       notAcceptingStates = DEF_NOT_ACCEPTING_STATES;
     }
-    if (decayFactor <= 0) {
+    if (decayFactor < 0) {
       decayFactor = DEF_DECAY_FACTOR;
     }
     if (inputSamples <= 0) {
       inputSamples = DEF_INPUT_SAMPLES;
     }
+
     // colony size == -1 indicates automatic size
+
     if (pheromoneFunction == null) {
       StringifyableFunction<Double, Double> sigmoid = new StringifyableFunction<>() {
         @Override

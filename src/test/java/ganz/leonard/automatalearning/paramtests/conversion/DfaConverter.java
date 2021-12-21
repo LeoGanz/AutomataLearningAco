@@ -24,6 +24,6 @@ public class DfaConverter extends AbstractConverter<DeterministicFiniteAutomaton
 
   @Override
   public String toString(DeterministicFiniteAutomaton value) {
-    return greeneryNotationConverter.toGreeneryNotation(value, false).toString();
+    return greeneryNotationConverter.toGreeneryNotation(value, false, false).toString();
   }
 }

@@ -109,9 +109,11 @@ public class Util {
   }
 
   public static void deleteDirectoryRecursively(Path pathToBeDeleted) throws IOException {
-    Files.walk(pathToBeDeleted)
-        .sorted(Comparator.reverseOrder())
-        .map(Path::toFile)
-        .forEach(File::delete);
+    if (Files.exists(pathToBeDeleted)) {
+      Files.walk(pathToBeDeleted)
+          .sorted(Comparator.reverseOrder())
+          .map(Path::toFile)
+          .forEach(File::delete);
+    }
   }
 }

@@ -92,13 +92,16 @@ public class TestDataSaver implements Closeable {
     private final CsvClient<DataRow> csvClient;
     private final Writer writer;
 
-    private DataSaverIteration(Path csvFile) throws IOException {
+    private DataSaverIteration(Path csvFile, boolean ignoreDfa) throws IOException {
       Files.createDirectories(csvFile.getParent());
       writer = Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8);
       csvClient =
           new CsvClientImpl<>(writer, DataRow.class)
               .setConverter("dfa", new DfaConverter())
               .setConverter("colony", new PlainIntegerConverter());
+      if (ignoreDfa) {
+        csvClient.ignoreProperty("dfa");
+      }
       csvClient.writeHeader();
     }
 
@@ -145,9 +148,9 @@ public class TestDataSaver implements Closeable {
       }
     }
 
-    public DataSaverIteration beginIteration(int iteration) throws IOException {
+    public DataSaverIteration beginIteration(int iteration, boolean ignoreDfa) throws IOException {
       Path csvFile = folder.resolve(iteration + ".csv");
-      DataSaverIteration dataSaverIteration = new DataSaverIteration(csvFile);
+      DataSaverIteration dataSaverIteration = new DataSaverIteration(csvFile, ignoreDfa);
       iterations.add(dataSaverIteration);
       return dataSaverIteration;
     }
