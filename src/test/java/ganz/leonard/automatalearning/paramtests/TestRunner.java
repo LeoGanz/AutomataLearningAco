@@ -71,8 +71,8 @@ public class TestRunner {
                 }
               }));
     }
-    Set<IntermediateResult<Object>> results =
-        learners.stream().map(CompletableFuture::join).collect(Collectors.toSet());
+    List<IntermediateResult<Object>> results =
+        learners.stream().map(CompletableFuture::join).toList();
 
     List<Double> bestScores = results.stream().map(IntermediateResult::score).toList();
     double worstScore = bestScores.stream().mapToDouble(Double::doubleValue).min().orElse(-1);
