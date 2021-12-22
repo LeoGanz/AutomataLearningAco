@@ -74,9 +74,10 @@ public class TestRunner {
     Set<IntermediateResult<Object>> results =
         learners.stream().map(CompletableFuture::join).collect(Collectors.toSet());
 
-    double worstScore = results.stream().mapToDouble(IntermediateResult::score).min().orElse(-1);
-    double avgScore = results.stream().mapToDouble(IntermediateResult::score).average().orElse(-1);
-    double bestScore = results.stream().mapToDouble(IntermediateResult::score).max().orElse(-1);
+    List<Double> bestScores = results.stream().map(IntermediateResult::score).toList();
+    double worstScore = bestScores.stream().mapToDouble(Double::doubleValue).min().orElse(-1);
+    double avgScore = bestScores.stream().mapToDouble(Double::doubleValue).average().orElse(-1);
+    double bestScore = bestScores.stream().mapToDouble(Double::doubleValue).max().orElse(-1);
     double avgColonies =
         results.stream().mapToDouble(IntermediateResult::nrAppliedColonies).average().orElse(-1);
     // words can be calculated with nrColonies and colonySize only if these values are constant
@@ -88,7 +89,7 @@ public class TestRunner {
     System.out.println("Average Words applied: " + avgWords);
     try {
       dataSaver.writeStatistics(
-          new Statistics(worstScore, avgScore, bestScore, avgColonies, avgWords));
+          new Statistics(worstScore, avgScore, bestScore, bestScores, avgColonies, avgWords));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

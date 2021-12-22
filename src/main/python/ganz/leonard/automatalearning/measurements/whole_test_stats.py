@@ -1,12 +1,14 @@
 import os
 import json
 import csv
+import numbers
 import matplotlib.pyplot as plt
 import common
 
 
 def stats_for_whole_test(path_to_test, property):
     test_name = path_to_test.split('\\')[-1]
+    is_single_value_property = False
     low_log = []
     x_label_global = ""
     x_ticks = []
@@ -39,7 +41,10 @@ def stats_for_whole_test(path_to_test, property):
 
         with open(stats_path) as f:
             subtest_stats = json.load(f)
-            if subtest_stats[property] < 1:
+            if property not in subtest_stats:
+                return
+            is_single_value_property = isinstance(subtest_stats[property], numbers.Number)
+            if is_single_value_property and subtest_stats[property] < 1:
                 low_log.append((X[-1], subtest_stats[property]))
             Y.append(subtest_stats[property])
 
@@ -61,7 +66,8 @@ def stats_for_whole_test(path_to_test, property):
     print("writing plot to: " + plot_path)
     fig.savefig(plot_path)
 
-    write_low_log(low_log, path_to_test, property)
+    if is_single_value_property:
+        write_low_log(low_log, path_to_test, property)
 
 
 def write_low_log(low_log, path_to_test, property):
@@ -80,3 +86,4 @@ for entry in os.scandir(common.get_measurements_dir()):
         print("Begin processing test: " + entry.path)
         stats_for_whole_test(entry.path, 'avgBestScore')
         stats_for_whole_test(entry.path, 'highestBestScore')
+        stats_for_whole_test(entry.path, 'bestScores')
