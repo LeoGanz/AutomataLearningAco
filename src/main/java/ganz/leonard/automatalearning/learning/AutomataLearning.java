@@ -30,7 +30,7 @@ public class AutomataLearning<T> {
   private int nrAppliedColonies = 0;
   private int nrAppliedWords = 0;
   private IntermediateResult<T> intermediateDfa;
-  private IntermediateResult<T> bestDfa = new IntermediateResult<>(0, null, -1);
+  private IntermediateResult<T> bestDfa = new IntermediateResult<>(0, 0, null, -1);
 
   /**
    * Initialize a new automata learning setup. A graph of accepting and not accepting states will be
@@ -170,9 +170,13 @@ public class AutomataLearning<T> {
   }
 
   public IntermediateResult<T> getIntermediateResult() {
-    if (intermediateDfa == null || intermediateDfa.nrAppliedWords() != nrAppliedWords) {
+    if (intermediateDfa == null
+        || intermediateDfa.nrAppliedColonies() != nrAppliedColonies
+        || intermediateDfa.nrAppliedWords() != nrAppliedWords) {
       DeterministicFiniteAutomaton<T> dfa = automaton.buildMostLikelyDfa();
-      intermediateDfa = new IntermediateResult<>(nrAppliedWords, dfa, calcMatchingInputScore(dfa));
+      intermediateDfa =
+          new IntermediateResult<>(
+              nrAppliedColonies, nrAppliedWords, dfa, calcMatchingInputScore(dfa));
     }
     return intermediateDfa;
   }

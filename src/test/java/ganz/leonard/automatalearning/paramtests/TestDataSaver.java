@@ -123,6 +123,7 @@ public class TestDataSaver implements Closeable {
 
   public class DataSaverSubtest implements Closeable {
     private static final String OPTIONS_FILE_NAME = "options.json";
+    private static final String STATISTICS_FILE_NAME = "stats.json";
     private static final String INPUT_FILE_NAME = "input.txt";
     private final Set<DataSaverIteration> iterations;
     private Path folder;
@@ -132,7 +133,7 @@ public class TestDataSaver implements Closeable {
         throws IOException {
       iterations = new HashSet<>();
       folder = Paths.get("measurements", testName);
-      subTestName.ifPresent(s -> folder = folder.resolve(s));
+      subTestName.ifPresent(s -> folder = folder.resolve(s.strip()));
       Util.deleteDirectoryRecursively(folder);
       Files.createDirectories(folder);
       String optionsJson = gson.toJson(options);
@@ -158,6 +159,11 @@ public class TestDataSaver implements Closeable {
     @Override
     public void close() {
       iterations.forEach(DataSaverIteration::close);
+    }
+
+    public void writeStatistics(Statistics stats) throws IOException {
+      String statsJson = gson.toJson(stats);
+      Files.writeString(folder.resolve(STATISTICS_FILE_NAME), statsJson, StandardCharsets.UTF_8);
     }
   }
 }

@@ -1,16 +1,18 @@
 package ganz.leonard.automatalearning.paramtests;
 
+import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
 import ganz.leonard.automatalearning.gui.optionsscreen.InputProvider;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
 import ganz.leonard.automatalearning.learning.InputWord;
+import ganz.leonard.automatalearning.util.StringifyableFunction;
+import ganz.leonard.automatalearning.util.Util;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalDouble;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -42,12 +44,26 @@ public class ParameterTests {
         .notAcceptingStates(2);
   }
 
+  private static StringifyableFunction<Double, Double> getDefaultSigmoid() {
+    return new StringifyableFunction<>() {
+      @Override
+      public Double apply(Double x) {
+        return x / (1 + Math.abs(x));
+      }
+
+      @Override
+      public String stringRep() {
+        return "x -> x / (1 + |x|)";
+      }
+    };
+  }
+
   @Test
   void testDefaultOptions() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("DefaultOptions");
     AutomataLearningOptions options = getDefaultOptionsBuilder().build();
-    CompletableFuture<OptionalDouble> stats =
-        Statistics.calculate(
+    CompletableFuture<Double> stats =
+        TestRunner.test(
             options, input, dataSaver.beginOnlySubtest(options, input), NR_COLONIES_LARGE, false);
     stats.thenAccept(ignored -> dataSaver.close()).join();
   }
@@ -72,8 +88,8 @@ public class ParameterTests {
                     String.valueOf(acceptingStates),
                     "notAccepting",
                     String.valueOf(notAccStates)));
-        CompletableFuture<OptionalDouble> stats =
-            Statistics.calculate(options, input, dataSaverSubtest, NR_COLONIES_LARGE, false);
+        CompletableFuture<Double> stats =
+            TestRunner.test(options, input, dataSaverSubtest, NR_COLONIES_LARGE, false);
         int finalAcceptingStates = acceptingStates;
         int finalNotAccStates = notAccStates;
         stats
@@ -83,7 +99,7 @@ public class ParameterTests {
                         .append(" acc., ")
                         .append(finalNotAccStates)
                         .append(" not acc. -> score: ")
-                        .append(avgScore.orElse(-1))
+                        .append(avgScore)
                         .append("\n"))
             .join();
       }
@@ -99,7 +115,7 @@ public class ParameterTests {
       AutomataLearningOptions options = getDefaultOptionsBuilder().colonySize(colonySize).build();
       TestDataSaver.DataSaverSubtest dataSaverSubtest =
           dataSaver.beginSubtest(options, input, Map.of("ColonySize", String.valueOf(colonySize)));
-      Statistics.calculate(options, input, dataSaverSubtest, NR_COLONIES_SMALL, false).join();
+      TestRunner.test(options, input, dataSaverSubtest, NR_COLONIES_SMALL, false).join();
     }
     dataSaver.close();
   }
@@ -110,8 +126,9 @@ public class ParameterTests {
     for (double feedback = 0.1; feedback < MAX_FEEDBACK; feedback += .1) {
       AutomataLearningOptions options = getDefaultOptionsBuilder().feedback(feedback).build();
       TestDataSaver.DataSaverSubtest dataSaverSubtest =
-          dataSaver.beginSubtest(options, input, Map.of("Feedback", String.valueOf(feedback)));
-      Statistics.calculate(options, input, dataSaverSubtest, NR_COLONIES_MEDIUM, true).join();
+          dataSaver.beginSubtest(
+              options, input, Map.of("Feedback", Util.formatDouble(feedback, 2)));
+      TestRunner.test(options, input, dataSaverSubtest, NR_COLONIES_MEDIUM, true).join();
     }
     dataSaver.close();
   }
@@ -119,12 +136,27 @@ public class ParameterTests {
   @Test
   void testDecay() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("DecayFactor");
-    for (double decayFactor = 0; decayFactor <= 1; decayFactor += .05) {
+    for (double decayFactor = 0; decayFactor < 1.01; decayFactor += .05) {
       AutomataLearningOptions options = getDefaultOptionsBuilder().decayFactor(decayFactor).build();
       TestDataSaver.DataSaverSubtest dataSaverSubtest =
           dataSaver.beginSubtest(
-              options, input, Map.of("decayFactor", String.valueOf(decayFactor)));
-      Statistics.calculate(options, input, dataSaverSubtest, NR_COLONIES_MEDIUM, true).join();
+              options, input, Map.of("decayFactor", Util.formatDouble(decayFactor, 2)));
+      TestRunner.test(options, input, dataSaverSubtest, NR_COLONIES_MEDIUM, true).join();
+    }
+    dataSaver.close();
+  }
+
+  @Test
+  void testSpreadOfLearnFunctionFactor() throws IOException {
+    TestDataSaver dataSaver = new TestDataSaver("SpreadOfLearnFunctionFactor");
+    for (double spread = 0; spread < 1.01; spread += spread < .3 ? .02 : .05) {
+      PheromoneFunction pheromoneFunction =
+          new PheromoneFunction(getDefaultSigmoid(), spread, 0.01);
+      AutomataLearningOptions options =
+          getDefaultOptionsBuilder().pheromoneFunction(pheromoneFunction).build();
+      TestDataSaver.DataSaverSubtest dataSaverSubtest =
+          dataSaver.beginSubtest(options, input, Map.of("spread", Util.formatDouble(spread, 2)));
+      TestRunner.test(options, input, dataSaverSubtest, NR_COLONIES_MEDIUM, true).join();
     }
     dataSaver.close();
   }
