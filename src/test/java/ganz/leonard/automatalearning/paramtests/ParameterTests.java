@@ -164,13 +164,16 @@ public class ParameterTests {
   @Test
   void testMinRemainingProbability() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("MinRemainingProbability");
-    for (double minRemainingProb = 0.0001; minRemainingProb < 0.10000001; minRemainingProb *= 2) {
+    for (double minRemainingProb = 0;
+        minRemainingProb < 0.10000001;
+        minRemainingProb += minRemainingProb < .05 ? .002 : .01) {
       PheromoneFunction pheromoneFunction =
           new PheromoneFunction(getDefaultSigmoid(), .1, minRemainingProb);
       AutomataLearningOptions options =
           getDefaultOptionsBuilder().pheromoneFunction(pheromoneFunction).build();
       TestDataSaver.DataSaverSubtest dataSaverSubtest =
-          dataSaver.beginSubtest(options, input, Map.of("minRemainingProb", Util.formatDouble(minRemainingProb, 2)));
+          dataSaver.beginSubtest(
+              options, input, Map.of("minRemainingProb", Util.formatDouble(minRemainingProb, 4)));
       TestRunner.test(options, input, dataSaverSubtest, NR_COLONIES_MEDIUM, false).join();
     }
     dataSaver.close();
