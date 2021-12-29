@@ -23,8 +23,8 @@ public class ParameterTests {
   private static final int NR_COLONIES_MEDIUM = 1000;
   private static final int NR_COLONIES_LARGE = 2000;
   private static final int MAX_STATES = 4;
-  private static final int MAX_COLONY_SIZE = 200;
-  private static final double MAX_FEEDBACK = 10;
+  private static final int MAX_COLONY_SIZE = 100;
+  private static final double MAX_FEEDBACK = 3;
   private static final String FILE_PREFIX = "ganz/leonard/automatalearning/input/";
   private static final String FILENAME = "AstarB.txt";
 
@@ -38,10 +38,12 @@ public class ParameterTests {
 
   private static AutomataLearningOptionsBuilder getDefaultOptionsBuilder() {
     return AutomataLearningOptionsBuilder.builder()
-        .feedback(1)
-        .colonySize(50)
         .acceptingStates(2)
-        .notAcceptingStates(2);
+        .notAcceptingStates(2)
+        .colonySize(20)
+        .decayFactor(0.8)
+        .feedback(0.1)
+        .pheromoneFunction(new PheromoneFunction(getDefaultSigmoid(), 0.06, 0.005));
   }
 
   private static StringifyableFunction<Double, Double> getDefaultSigmoid() {
@@ -150,8 +152,12 @@ public class ParameterTests {
   void testSpreadOfLearnFunctionFactor() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("SpreadOfLearnFunctionFactor");
     for (double spread = 0; spread < 1.01; spread += spread < .3 ? .02 : .05) {
+      PheromoneFunction prevPheromoneFunction = getDefaultOptionsBuilder().pheromoneFunction();
       PheromoneFunction pheromoneFunction =
-          new PheromoneFunction(getDefaultSigmoid(), spread, 0.01);
+          new PheromoneFunction(
+              prevPheromoneFunction.sigmoid(),
+              spread,
+              prevPheromoneFunction.minRemainingProbability());
       AutomataLearningOptions options =
           getDefaultOptionsBuilder().pheromoneFunction(pheromoneFunction).build();
       TestDataSaver.DataSaverSubtest dataSaverSubtest =
@@ -167,8 +173,10 @@ public class ParameterTests {
     for (double minRemainingProb = 0;
         minRemainingProb < 0.10000001;
         minRemainingProb += minRemainingProb < .05 ? .002 : .01) {
+      PheromoneFunction prevPheromoneFunction = getDefaultOptionsBuilder().pheromoneFunction();
       PheromoneFunction pheromoneFunction =
-          new PheromoneFunction(getDefaultSigmoid(), .1, minRemainingProb);
+          new PheromoneFunction(
+              prevPheromoneFunction.sigmoid(), prevPheromoneFunction.spread(), minRemainingProb);
       AutomataLearningOptions options =
           getDefaultOptionsBuilder().pheromoneFunction(pheromoneFunction).build();
       TestDataSaver.DataSaverSubtest dataSaverSubtest =
