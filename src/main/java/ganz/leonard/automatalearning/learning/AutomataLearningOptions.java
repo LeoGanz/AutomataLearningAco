@@ -13,7 +13,8 @@ public record AutomataLearningOptions(int acceptingStates,
                                       double decayFactor,
                                       int inputSamples,
                                       int colonySize,
-                                      PheromoneFunction pheromoneFunction)
+                                      PheromoneFunction pheromoneFunction,
+                                      boolean balanceInput)
     implements AutomataLearningOptionsBuilder.With {
 
   public static final int DEF_ACCEPTING_STATES = 2;
@@ -23,6 +24,20 @@ public record AutomataLearningOptions(int acceptingStates,
   public static final double DEF_DECAY_FACTOR = .8;
   public static final int DEF_INPUT_SAMPLES = 20;
   public static final int DEF_COLONY_SIZE = 1;
+  public static final double DEF_SPREAD = 0.15;
+  public static final double DEF_MIN_REM_PROB = 0.015;
+  public static final StringifyableFunction<Double, Double> DEF_SIGMOID =
+      new StringifyableFunction<>() {
+        @Override
+        public Double apply(Double x) {
+          return x / (1 + Math.abs(x));
+        }
+
+        @Override
+        public String stringRep() {
+          return "x -> x / (1 + |x|)";
+        }
+      };
 
   public AutomataLearningOptions {
     if (acceptingStates <= 0) {
@@ -42,18 +57,7 @@ public record AutomataLearningOptions(int acceptingStates,
     // colony size == -1 indicates automatic size
 
     if (pheromoneFunction == null) {
-      StringifyableFunction<Double, Double> sigmoid = new StringifyableFunction<>() {
-        @Override
-        public Double apply(Double x) {
-          return x / (1 + Math.abs(x));
-        }
-
-        @Override
-        public String stringRep() {
-          return "x -> x / (1 + |x|)";
-        }
-      };
-      pheromoneFunction = new PheromoneFunction(sigmoid, 0.1, 0.01);
+      pheromoneFunction = new PheromoneFunction(DEF_SIGMOID, 0.1, 0.01);
     }
   }
 }

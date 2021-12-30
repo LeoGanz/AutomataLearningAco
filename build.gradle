@@ -32,6 +32,7 @@ dependencies {
     implementation 'org.csveed:csveed:0.7.2'
     implementation 'org.slf4j:slf4j-simple:2.0.0-alpha5'
     implementation 'com.google.code.gson:gson:2.8.9'
+    implementation("com.google.guava:guava:31.0.1-jre")
     annotationProcessor 'io.soabase.record-builder:record-builder-processor:29'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.8.1'

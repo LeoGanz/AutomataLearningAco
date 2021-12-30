@@ -1,5 +1,6 @@
 package ganz.leonard.automatalearning.learning;
 
+import ganz.leonard.automatalearning.InputProvider;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
@@ -47,7 +48,10 @@ public class AutomataLearning<T> {
     }
     this.options = options;
     automaton = constructAutomaton(options);
-    this.inputWords = new LinkedList<>(inputWords);
+    this.inputWords =
+        options.balanceInput()
+            ? InputProvider.balancePositiveAndNegative(inputWords)
+            : new LinkedList<>(inputWords);
     antsInCurrentRun = new HashSet<>();
     pcs = new PropertyChangeSupport(this);
   }

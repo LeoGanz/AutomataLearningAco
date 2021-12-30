@@ -1,5 +1,6 @@
 package ganz.leonard.automatalearning.gui.optionsscreen;
 
+import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
 import ganz.leonard.automatalearning.gui.GuiController;
 import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
@@ -28,6 +29,7 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
   private final OptionsScreenModel optionsScreenModel;
   private final JCheckBox generateSamples;
   private final JCheckBox automaticColonySize;
+  private final JCheckBox balanceInput;
   private final List<JComponent> componentsOfGenerate;
   private final List<JComponent> componentsOfFiles;
   private final List<JComponent> componentsOfColony;
@@ -58,8 +60,14 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
         new SpinnerNumberModel(AutomataLearningOptions.DEF_FEEDBACK, 0, 100, 0.1);
     addOption("Feedback:", feedback, false, false);
     SpinnerNumberModel decay =
-        new SpinnerNumberModel(AutomataLearningOptions.DEF_DECAY_FACTOR, 0.000001, 1, 0.1);
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_DECAY_FACTOR, 0, 1, 0.1);
     addOption("Decay Factor:", decay, false, true);
+    SpinnerNumberModel spread =
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_SPREAD, 0, 1, 0.1);
+    addOption("Spread of pheromone function:", spread, true, false);
+    SpinnerNumberModel minRemProb =
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_MIN_REM_PROB, 0, 1, 0.01);
+    addOption("Minimum remaining probability:", minRemProb, false, true);
     addSeparator();
 
     automaticColonySize =
@@ -72,6 +80,10 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
     componentsOfColony = addOption("Colony Size:", colonySize, false, true);
     addSeparator();
 
+    balanceInput = new JCheckBox("Balance Input", optionsScreenModel.isBalanceInput());
+    balanceInput.addActionListener(
+        e -> controller.requestedBalanceInput(balanceInput.isSelected()));
+    add(balanceInput, "span 2, wrap");
     generateSamples = new JCheckBox("Generate Input Words", optionsScreenModel.isGenerateSamples());
     generateSamples.addActionListener(
         e -> controller.requestedGenerateSamples(generateSamples.isSelected()));
@@ -100,6 +112,7 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
         e -> controller.requestedSelectedInputFile(((PathWrapper) e.getItem()).path()));
     componentsOfFiles =
         addOption("instead use input file:", availableInputFiles, false, 2, true, true);
+
     updateInputComponents();
 
     JButton reset = new JButton("Reset to Defaults");
@@ -110,6 +123,8 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
           initialPheromones.setValue(AutomataLearningOptions.DEF_INITIAL_PHEROMONES);
           feedback.setValue(AutomataLearningOptions.DEF_FEEDBACK);
           decay.setValue(AutomataLearningOptions.DEF_DECAY_FACTOR);
+          spread.setValue(AutomataLearningOptions.DEF_SPREAD);
+          minRemProb.setValue(AutomataLearningOptions.DEF_MIN_REM_PROB);
           samples.setValue(AutomataLearningOptions.DEF_INPUT_SAMPLES);
           colonySize.setValue(AutomataLearningOptions.DEF_COLONY_SIZE);
           optionsScreenModel.resetToDefaults();
@@ -124,11 +139,17 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
                     .initialPheromones(initialPheromones.getNumber().intValue())
                     .feedback(feedback.getNumber().doubleValue())
                     .decayFactor(decay.getNumber().doubleValue())
+                    .pheromoneFunction(
+                        new PheromoneFunction(
+                            AutomataLearningOptions.DEF_SIGMOID,
+                            spread.getNumber().doubleValue(),
+                            minRemProb.getNumber().doubleValue()))
                     .inputSamples(samples.getNumber().intValue())
                     .colonySize(
                         optionsScreenModel.isAutomaticColonySize()
                             ? -1
                             : colonySize.getNumber().intValue())
+                    .balanceInput(optionsScreenModel.isBalanceInput())
                     .build()));
 
     add(go, "tag ok, span, split 2, sizegroup button");
@@ -142,6 +163,7 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
   private void updateInputComponents() {
     generateSamples.setSelected(optionsScreenModel.isGenerateSamples());
     automaticColonySize.setSelected(optionsScreenModel.isAutomaticColonySize());
+    balanceInput.setSelected(optionsScreenModel.isBalanceInput());
     availableGeneratingLanguages.setSelectedItem(
         optionsScreenModel.getSelectedGeneratingLanguage());
     availableInputFiles.setSelectedItem(new PathWrapper(optionsScreenModel.getSelectedInputFile()));

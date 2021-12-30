@@ -25,7 +25,7 @@ public class SimulationInfo<T> extends JPanel implements PropertyChangeListener 
     add(appliedWordsInfo);
     appliedWordsNr = new JLabel();
     add(appliedWordsNr);
-    JLabel inputWordsInfo = new JLabel("Unique input words: ");
+    JLabel inputWordsInfo = new JLabel("Input words: ");
     inputWordsInfo.setHorizontalAlignment(SwingConstants.RIGHT);
     add(inputWordsInfo);
     inputWordsNr = new JLabel();

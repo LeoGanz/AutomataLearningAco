@@ -2,7 +2,7 @@ package ganz.leonard.automatalearning.unittests;
 
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicState;
-import ganz.leonard.automatalearning.gui.optionsscreen.InputProvider;
+import ganz.leonard.automatalearning.InputProvider;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
 import ganz.leonard.automatalearning.learning.InputWord;

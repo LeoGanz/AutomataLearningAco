@@ -1,5 +1,6 @@
 package ganz.leonard.automatalearning.gui.optionsscreen;
 
+import ganz.leonard.automatalearning.InputProvider;
 import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.learning.InputWord;
 import java.beans.PropertyChangeListener;
@@ -14,6 +15,7 @@ public class OptionsScreenModel {
   private final PropertyChangeSupport pcs;
   private boolean generateSamples;
   private boolean automaticColonySize;
+  private boolean balanceInput;
   private Path selectedInputFile;
   private Language<?> selectedGeneratingLanguage;
 
@@ -25,6 +27,7 @@ public class OptionsScreenModel {
   public void resetToDefaults() {
     generateSamples = true;
     automaticColonySize = true;
+    balanceInput = true;
     selectedInputFile = InputProvider.getAvailableInputFiles().stream().findFirst().orElse(null);
     selectedGeneratingLanguage =
         InputProvider.getAvailableGeneratingLanguages().stream().findFirst().orElse(null);
@@ -64,6 +67,15 @@ public class OptionsScreenModel {
 
   public void setAutomaticColonySize(boolean automaticColonySize) {
     this.automaticColonySize = automaticColonySize;
+    notifyListeners();
+  }
+
+  public boolean isBalanceInput() {
+    return balanceInput;
+  }
+
+  public void setBalanceInput(boolean balanceInput) {
+    this.balanceInput = balanceInput;
     notifyListeners();
   }
 

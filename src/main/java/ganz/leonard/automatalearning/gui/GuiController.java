@@ -101,4 +101,8 @@ public class GuiController {
   public void requestedAutomaticColonySize(boolean automaticSize) {
     GuiUtil.executeOnSwingWorker(() -> optionsScreenModel.setAutomaticColonySize(automaticSize));
   }
+
+  public void requestedBalanceInput(boolean balanceInput) {
+    GuiUtil.executeOnSwingWorker(() -> optionsScreenModel.setBalanceInput(balanceInput));
+  }
 }

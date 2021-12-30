@@ -1,7 +1,7 @@
 package ganz.leonard.automatalearning.paramtests;
 
+import ganz.leonard.automatalearning.InputProvider;
 import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
-import ganz.leonard.automatalearning.gui.optionsscreen.InputProvider;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
 import ganz.leonard.automatalearning.learning.InputWord;
@@ -36,34 +36,34 @@ public class ParameterTests {
     input = InputProvider.readFromFile(path);
   }
 
-  private static AutomataLearningOptionsBuilder getDefaultOptionsBuilder() {
+  private static AutomataLearningOptionsBuilder getOptionsBuilder() {
     return AutomataLearningOptionsBuilder.builder()
         .acceptingStates(2)
-        .notAcceptingStates(2)
-        .colonySize(20)
-        .decayFactor(0.8)
-        .feedback(0.1)
-        .pheromoneFunction(new PheromoneFunction(getDefaultSigmoid(), 0.06, 0.005));
+        .notAcceptingStates(1)
+        .colonySize(16)
+        .decayFactor(0.75)
+        .feedback(0.7)
+        .pheromoneFunction(new PheromoneFunction(getSigmoid(), 0.16, 0.016));
   }
 
-  private static StringifyableFunction<Double, Double> getDefaultSigmoid() {
-    return new StringifyableFunction<>() {
-      @Override
-      public Double apply(Double x) {
-        return x / (1 + Math.abs(x));
-      }
-
-      @Override
-      public String stringRep() {
-        return "x -> x / (1 + |x|)";
-      }
-    };
+  private static StringifyableFunction<Double, Double> getSigmoid() {
+    return AutomataLearningOptions.DEF_SIGMOID;
   }
 
   @Test
   void testDefaultOptions() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("DefaultOptions");
-    AutomataLearningOptions options = getDefaultOptionsBuilder().build();
+    AutomataLearningOptions options = getOptionsBuilder().build();
+    CompletableFuture<Double> stats =
+        TestRunner.test(
+            options, input, dataSaver.beginOnlySubtest(options, input), NR_COLONIES_LARGE, false);
+    stats.thenAccept(ignored -> dataSaver.close()).join();
+  }
+
+  @Test
+  void testInputBalancer() throws IOException {
+    TestDataSaver dataSaver = new TestDataSaver("InputBalanced");
+    AutomataLearningOptions options = getOptionsBuilder().balanceInput(true).build();
     CompletableFuture<Double> stats =
         TestRunner.test(
             options, input, dataSaver.beginOnlySubtest(options, input), NR_COLONIES_LARGE, false);
@@ -77,7 +77,7 @@ public class ParameterTests {
     for (int acceptingStates = 1; acceptingStates < MAX_STATES; acceptingStates++) {
       for (int notAccStates = 0; notAccStates < MAX_STATES; notAccStates++) {
         AutomataLearningOptions options =
-            getDefaultOptionsBuilder()
+            getOptionsBuilder()
                 .acceptingStates(acceptingStates)
                 .notAcceptingStates(notAccStates)
                 .build();
@@ -114,7 +114,7 @@ public class ParameterTests {
   void testColonySize() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("ColonySize");
     for (int colonySize = 1; colonySize < MAX_COLONY_SIZE; colonySize++) {
-      AutomataLearningOptions options = getDefaultOptionsBuilder().colonySize(colonySize).build();
+      AutomataLearningOptions options = getOptionsBuilder().colonySize(colonySize).build();
       TestDataSaver.DataSaverSubtest dataSaverSubtest =
           dataSaver.beginSubtest(options, input, Map.of("ColonySize", String.valueOf(colonySize)));
       TestRunner.test(options, input, dataSaverSubtest, NR_COLONIES_SMALL, false).join();
@@ -126,7 +126,7 @@ public class ParameterTests {
   void testFeedback() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("FeedbackAmount");
     for (double feedback = 0.1; feedback < MAX_FEEDBACK; feedback += .1) {
-      AutomataLearningOptions options = getDefaultOptionsBuilder().feedback(feedback).build();
+      AutomataLearningOptions options = getOptionsBuilder().feedback(feedback).build();
       TestDataSaver.DataSaverSubtest dataSaverSubtest =
           dataSaver.beginSubtest(
               options, input, Map.of("Feedback", Util.formatDouble(feedback, 2)));
@@ -139,7 +139,7 @@ public class ParameterTests {
   void testDecay() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("DecayFactor");
     for (double decayFactor = 0; decayFactor < 1.01; decayFactor += .05) {
-      AutomataLearningOptions options = getDefaultOptionsBuilder().decayFactor(decayFactor).build();
+      AutomataLearningOptions options = getOptionsBuilder().decayFactor(decayFactor).build();
       TestDataSaver.DataSaverSubtest dataSaverSubtest =
           dataSaver.beginSubtest(
               options, input, Map.of("decayFactor", Util.formatDouble(decayFactor, 2)));
@@ -152,14 +152,14 @@ public class ParameterTests {
   void testSpreadOfLearnFunctionFactor() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("SpreadOfLearnFunctionFactor");
     for (double spread = 0; spread < 1.01; spread += spread < .3 ? .02 : .05) {
-      PheromoneFunction prevPheromoneFunction = getDefaultOptionsBuilder().pheromoneFunction();
+      PheromoneFunction prevPheromoneFunction = getOptionsBuilder().pheromoneFunction();
       PheromoneFunction pheromoneFunction =
           new PheromoneFunction(
               prevPheromoneFunction.sigmoid(),
               spread,
               prevPheromoneFunction.minRemainingProbability());
       AutomataLearningOptions options =
-          getDefaultOptionsBuilder().pheromoneFunction(pheromoneFunction).build();
+          getOptionsBuilder().pheromoneFunction(pheromoneFunction).build();
       TestDataSaver.DataSaverSubtest dataSaverSubtest =
           dataSaver.beginSubtest(options, input, Map.of("spread", Util.formatDouble(spread, 2)));
       TestRunner.test(options, input, dataSaverSubtest, NR_COLONIES_MEDIUM, true).join();
@@ -173,12 +173,12 @@ public class ParameterTests {
     for (double minRemainingProb = 0;
         minRemainingProb < 0.10000001;
         minRemainingProb += minRemainingProb < .05 ? .002 : .01) {
-      PheromoneFunction prevPheromoneFunction = getDefaultOptionsBuilder().pheromoneFunction();
+      PheromoneFunction prevPheromoneFunction = getOptionsBuilder().pheromoneFunction();
       PheromoneFunction pheromoneFunction =
           new PheromoneFunction(
               prevPheromoneFunction.sigmoid(), prevPheromoneFunction.spread(), minRemainingProb);
       AutomataLearningOptions options =
-          getDefaultOptionsBuilder().pheromoneFunction(pheromoneFunction).build();
+          getOptionsBuilder().pheromoneFunction(pheromoneFunction).build();
       TestDataSaver.DataSaverSubtest dataSaverSubtest =
           dataSaver.beginSubtest(
               options, input, Map.of("minRemainingProb", Util.formatDouble(minRemainingProb, 4)));
