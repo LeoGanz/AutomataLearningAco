@@ -25,7 +25,7 @@ dependencies {
     implementation 'guru.nidi:graphviz-java:0.18.1'
     implementation 'com.eclipsesource.j2v8:j2v8_win32_x86_64:4.6.0'
     implementation 'com.eclipsesource.j2v8:j2v8_linux_x86_64:4.8.0'
-    implementation 'ch.qos.logback:logback-classic:1.2.8'
+    implementation 'ch.qos.logback:logback-classic:1.2.10'
     implementation 'org.imgscalr:imgscalr-lib:4.2'
     implementation 'com.miglayout:miglayout-swing:5.3'
     implementation 'io.soabase.record-builder:record-builder-core:29'
@@ -34,7 +34,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
     annotationProcessor 'io.soabase.record-builder:record-builder-processor:29'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
-    testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.8'
+    testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.8.1'
 }
 
 System.setProperty("org.checkstyle.google.suppressionfilter.config", "$rootProject.projectDir/config/checkstyle/checkstyle-suppressions.xml")
