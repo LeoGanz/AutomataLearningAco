@@ -1,6 +1,6 @@
 package ganz.leonard.automatalearning.learning;
 
-import ganz.leonard.automatalearning.InputProvider;
+import ganz.leonard.automatalearning.InputPreprocessor;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.automata.probability.FeedbackAutomaton;
 import ganz.leonard.automatalearning.automata.probability.ProbabilityState;
@@ -47,20 +47,23 @@ public class AutomataLearning<T> {
       throw new IllegalArgumentException("At least one word has to be provided as input");
     }
     this.options = options;
-    automaton = constructAutomaton(options);
+    automaton = constructAutomaton(options, InputPreprocessor.isEmptyWordAccepted(inputWords));
+    inputWords = InputPreprocessor.withoutEmptyWord(inputWords);
     this.inputWords =
         options.balanceInput()
-            ? InputProvider.balancePositiveAndNegative(inputWords)
+            ? InputPreprocessor.balancePositiveAndNegative(inputWords)
             : new LinkedList<>(inputWords);
     antsInCurrentRun = new HashSet<>();
     pcs = new PropertyChangeSupport(this);
   }
 
-  private FeedbackAutomaton<T> constructAutomaton(AutomataLearningOptions options) {
+  private FeedbackAutomaton<T> constructAutomaton(
+      AutomataLearningOptions options, boolean acceptEmptyWord) {
     Collection<ProbabilityState<T>> states =
         new ArrayList<>(options.notAcceptingStates() + options.notAcceptingStates());
     AtomicInteger id = new AtomicInteger();
-    ProbabilityState<T> start = new ProbabilityState<>(id.getAndIncrement(), false, options);
+    ProbabilityState<T> start =
+        new ProbabilityState<>(id.getAndIncrement(), acceptEmptyWord, options);
     IntStream.range(0, options.acceptingStates())
         .forEach(__ -> states.add(new ProbabilityState<>(id.getAndIncrement(), true, options)));
     IntStream.range(0, options.notAcceptingStates())
