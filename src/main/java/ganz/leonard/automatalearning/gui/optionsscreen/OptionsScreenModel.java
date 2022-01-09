@@ -26,7 +26,7 @@ public class OptionsScreenModel {
 
   public void resetToDefaults() {
     generateSamples = true;
-    automaticColonySize = true;
+    automaticColonySize = false;
     balanceInput = true;
     selectedInputFile = InputProvider.getAvailableInputFiles().stream().findFirst().orElse(null);
     selectedGeneratingLanguage =

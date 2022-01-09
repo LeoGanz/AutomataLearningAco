@@ -57,6 +57,16 @@ public class AutomataLearning<T> {
     pcs = new PropertyChangeSupport(this);
   }
 
+  public static <T> double calcMatchingInputScore(
+      DeterministicFiniteAutomaton<T> dfa, List<InputWord<T>> inputWords) {
+    double correctlyMatched =
+        inputWords.stream()
+            .map(word -> word.inLang() == dfa.accepts(word.word()))
+            .filter(b -> b)
+            .count();
+    return correctlyMatched / inputWords.size();
+  }
+
   private FeedbackAutomaton<T> constructAutomaton(
       AutomataLearningOptions options, boolean acceptEmptyWord) {
     Collection<ProbabilityState<T>> states =
@@ -208,12 +218,7 @@ public class AutomataLearning<T> {
   }
 
   public double calcMatchingInputScore(DeterministicFiniteAutomaton<T> dfa) {
-    double correctlyMatched =
-        inputWords.stream()
-            .map(word -> word.inLang() == dfa.accepts(word.word()))
-            .filter(b -> b)
-            .count();
-    return correctlyMatched / inputWords.size();
+    return calcMatchingInputScore(dfa, inputWords);
   }
 
   public void addPropertyChangeListener(PropertyChangeListener changeListener) {

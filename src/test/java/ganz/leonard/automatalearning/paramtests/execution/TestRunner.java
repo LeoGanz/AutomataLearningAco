@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning.paramtests;
+package ganz.leonard.automatalearning.paramtests.execution;
 
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
@@ -10,59 +10,72 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class TestRunner {
 
-  private static final int ITERATIONS = 5;
-  private static final int MAX_COLONIES = 2000;
+  private static final int DEF_ITERATIONS = 5;
 
   /** @return average Score */
-  public static CompletableFuture<Double> test(
+  public static CompletableFuture<List<IntermediateResult<Object>>> test(
       AutomataLearningOptions options,
       List<InputWord<Object>> input,
       TestDataSaver.DataSaverSubtest dataSaver,
-      boolean ignoreDfa) {
-    return test(options, input, dataSaver, MAX_COLONIES, ignoreDfa);
+      int colonies) {
+    return test(options, input, dataSaver, colonies, true, true);
   }
 
   /** @return average Score */
-  public static CompletableFuture<Double> test(
+  public static CompletableFuture<List<IntermediateResult<Object>>> test(
       AutomataLearningOptions options,
       List<InputWord<Object>> input,
       TestDataSaver.DataSaverSubtest dataSaver,
       int colonies,
-      boolean ignoreDfa) {
+      boolean ignoreDfa,
+      boolean ignoreRegex) {
+    return test(options, input, dataSaver, DEF_ITERATIONS, colonies, ignoreDfa, ignoreRegex);
+  }
+
+  /** @return average Score */
+  public static CompletableFuture<List<IntermediateResult<Object>>> test(
+      AutomataLearningOptions options,
+      List<InputWord<Object>> input,
+      TestDataSaver.DataSaverSubtest dataSaver,
+      int iterations,
+      int colonies,
+      boolean ignoreDfa,
+      boolean ignoreRegex) {
     return CompletableFuture.supplyAsync(
-        () -> execTest(options, input, dataSaver, colonies, ignoreDfa));
+        () -> execTest(options, input, dataSaver, iterations, colonies, ignoreDfa, ignoreRegex));
   }
 
-  private static double execTest(
+  private static List<IntermediateResult<Object>> execTest(
       AutomataLearningOptions options,
       List<InputWord<Object>> input,
       TestDataSaver.DataSaverSubtest dataSaver,
+      int iterations,
       int colonies,
-      boolean ignoreDfa) {
+      boolean ignoreDfa,
+      boolean ignoreRegex) {
     System.out.println(
         "Starting statistics for test language " + input + " with options: " + options + "' ...");
-    Set<CompletableFuture<IntermediateResult<Object>>> learners = new HashSet<>(ITERATIONS);
-    for (int i = 0; i < ITERATIONS; i++) {
+    Set<CompletableFuture<IntermediateResult<Object>>> learners = new HashSet<>(iterations);
+    for (int i = 0; i < iterations; i++) {
       int finalI = i;
       learners.add(
           CompletableFuture.supplyAsync(
               () -> {
                 try {
                   TestDataSaver.DataSaverIteration dataSaverIteration =
-                      dataSaver.beginIteration(finalI, ignoreDfa);
+                      dataSaver.beginIteration(finalI, ignoreDfa, ignoreRegex);
                   AutomataLearning<Object> al = new AutomataLearning<>(options, input);
                   dataSaverIteration.writeRow(
                       DataRow.fromIntermediateResult(
-                          al.getIntermediateResult(), al.getNrAppliedColonies()));
+                          al.getIntermediateResult(), al.getNrAppliedColonies(), ignoreRegex));
                   for (int colony = 0; colony < colonies; colony++) {
                     al.runColonies(1);
                     dataSaverIteration.writeRow(
                         DataRow.fromIntermediateResult(
-                            al.getIntermediateResult(), al.getNrAppliedColonies()));
+                            al.getIntermediateResult(), al.getNrAppliedColonies(), ignoreRegex));
                   }
                   dataSaverIteration.close();
                   return al.getBestResult();
@@ -93,6 +106,6 @@ public class TestRunner {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
-    return avgScore;
+    return results;
   }
 }

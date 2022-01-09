@@ -19,10 +19,6 @@
 +aaaaaaaab
 +aaaaaaaaab
 -a
--aa
--aaa
--aaaa
--aaaaa
 -ba
 -baa
 -baaa

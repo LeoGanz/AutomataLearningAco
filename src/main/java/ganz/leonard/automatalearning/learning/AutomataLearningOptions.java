@@ -18,14 +18,14 @@ public record AutomataLearningOptions(int acceptingStates,
     implements AutomataLearningOptionsBuilder.With {
 
   public static final int DEF_ACCEPTING_STATES = 2;
-  public static final int DEF_NOT_ACCEPTING_STATES = 2;
+  public static final int DEF_NOT_ACCEPTING_STATES = 1;
   public static final int DEF_INITIAL_PHEROMONES = 0;
-  public static final double DEF_FEEDBACK = 1;
+  public static final double DEF_FEEDBACK = .5;
   public static final double DEF_DECAY_FACTOR = .8;
   public static final int DEF_INPUT_SAMPLES = 20;
-  public static final int DEF_COLONY_SIZE = 1;
-  public static final double DEF_SPREAD = 0.15;
-  public static final double DEF_MIN_REM_PROB = 0.015;
+  public static final int DEF_COLONY_SIZE = 16;
+  public static final double DEF_SPREAD = 0.14;
+  public static final double DEF_MIN_REM_PROB = 0.016;
   public static final StringifyableFunction<Double, Double> DEF_SIGMOID =
       new StringifyableFunction<>() {
         @Override

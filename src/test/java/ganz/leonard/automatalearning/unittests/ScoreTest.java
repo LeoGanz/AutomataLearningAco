@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 public class ScoreTest {
 
   private static final String INPUT_FILE =
-      "ganz/leonard/automatalearning/input/AstarB_ScoreTest.txt";
+      "ganz/leonard/automatalearning/input/Test-AstarB-ParamOptim.txt";
   private static DeterministicFiniteAutomaton<Object> dfa;
 
   @BeforeAll

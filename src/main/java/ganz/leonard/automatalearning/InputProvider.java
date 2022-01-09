@@ -43,6 +43,7 @@ public class InputProvider {
     LANGUAGES_WITH_DEFAULTS.put(asThenB, input);
 
     // aa*b
+    input = new ArrayList<>(input);
     input.remove(new InputWord<>(new ArrayList<Object>(List.of('b')), true));
     input.add(new InputWord<>(List.of('b'), false)); // only difference to samples above
     Language<Character> leadingaThenAsThenB =

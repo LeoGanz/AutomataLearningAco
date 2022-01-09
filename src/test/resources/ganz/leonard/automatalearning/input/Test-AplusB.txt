@@ -1,0 +1,16 @@
++ab
++aab
++aaab
++aaaab
++aaaaab
+-b
+-bb
+-bbb
+-aba
+-abba
+-abaa
+-abab
+-bab
+-baba
+-aabb
+-aaaba

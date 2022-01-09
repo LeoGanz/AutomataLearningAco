@@ -84,16 +84,15 @@ public class PheromoneTransition<T> {
   public void pheromoneFeedback(T letter, boolean positive) {
     Objects.requireNonNull(letter);
     ensureInit(letter);
-    // update pheromones according to some formula
-    double newVal =
+    double newPheromoneValue =
         positive
             ? pheromones.get(letter) + options.feedback()
             : pheromones.get(letter) - options.feedback();
-    pheromones.put(letter, newVal);
+    pheromones.put(letter, newPheromoneValue);
   }
 
   public void decay() {
-    // negative feedback / pheromone decay for all transitions
+    // pheromone decay is applied to all sub transitions
     pheromones
         .keySet()
         .forEach(letter -> pheromones.put(letter, pheromones.get(letter) * options.decayFactor()));

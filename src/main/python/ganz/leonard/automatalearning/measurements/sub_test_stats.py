@@ -75,7 +75,7 @@ def process_subtest(path_to_folder):
     # Finalize calculations and plotting
     calc_avg_stability(path_to_folder)
     fig = plt.gcf()
-    # plt.show()
+    plt.show()
     plot_path = os.path.join(path_to_folder, "plot.png")
     print("writing plot to: " + plot_path)
     fig.savefig(plot_path)
@@ -93,4 +93,5 @@ for test in os.scandir(get_measurements_dir()):
                 process_subtest(subtest.path)
     else:
         # no subtests
-        process_subtest(test.path)
+        if os.path.isdir(test.path):
+            process_subtest(test.path)

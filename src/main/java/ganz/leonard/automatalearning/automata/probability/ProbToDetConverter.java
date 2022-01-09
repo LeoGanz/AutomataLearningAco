@@ -33,7 +33,6 @@ public class ProbToDetConverter<T> {
         dfa.getAllStates().get(probState.getId()).addTransitions(Map.of(letter, successorDfa));
       }
     }
-    // what about low probabilities and ~ zero prob? is no transition be better?
   }
 
   /**

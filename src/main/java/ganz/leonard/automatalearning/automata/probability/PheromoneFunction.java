@@ -36,9 +36,8 @@ public record PheromoneFunction(
   }
 
   public String stringRep() {
-    return "pheromones, prevProb -> "
-        +
-        "max(minRemainingProbability, sigmoid(pheromones) * spread + 1)";
+    return "pheromones, prevProb -> " +
+        "max(minRemainingProbability, (sigmoid(pheromones) * spread + 1) * prevProb)";
   }
 
   @Override

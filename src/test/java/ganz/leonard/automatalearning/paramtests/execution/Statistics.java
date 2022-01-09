@@ -1,4 +1,4 @@
-package ganz.leonard.automatalearning.paramtests;
+package ganz.leonard.automatalearning.paramtests.execution;
 
 import java.util.List;
 

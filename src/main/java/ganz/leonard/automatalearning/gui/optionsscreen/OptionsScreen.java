@@ -54,19 +54,19 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
     addSeparator();
 
     SpinnerNumberModel initialPheromones =
-        new SpinnerNumberModel(AutomataLearningOptions.DEF_INITIAL_PHEROMONES, 0, 100, 1);
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_INITIAL_PHEROMONES, 0, 100, .1);
     addOption("Initial Pheromones:", initialPheromones, true, false);
     SpinnerNumberModel feedback =
         new SpinnerNumberModel(AutomataLearningOptions.DEF_FEEDBACK, 0, 100, 0.1);
     addOption("Feedback:", feedback, false, false);
     SpinnerNumberModel decay =
-        new SpinnerNumberModel(AutomataLearningOptions.DEF_DECAY_FACTOR, 0, 1, 0.1);
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_DECAY_FACTOR, 0, 1, 0.05);
     addOption("Decay Factor:", decay, false, true);
     SpinnerNumberModel spread =
-        new SpinnerNumberModel(AutomataLearningOptions.DEF_SPREAD, 0, 1, 0.1);
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_SPREAD, 0, 1, 0.01);
     addOption("Spread of pheromone function:", spread, true, false);
     SpinnerNumberModel minRemProb =
-        new SpinnerNumberModel(AutomataLearningOptions.DEF_MIN_REM_PROB, 0, 1, 0.01);
+        new SpinnerNumberModel(AutomataLearningOptions.DEF_MIN_REM_PROB, 0, 1, 0.001);
     addOption("Minimum remaining probability:", minRemProb, false, true);
     addSeparator();
 

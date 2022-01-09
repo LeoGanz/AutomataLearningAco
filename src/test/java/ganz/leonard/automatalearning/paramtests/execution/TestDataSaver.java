@@ -1,10 +1,11 @@
-package ganz.leonard.automatalearning.paramtests;
+package ganz.leonard.automatalearning.paramtests.execution;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.InputWord;
+import ganz.leonard.automatalearning.paramtests.TestingUtil;
 import ganz.leonard.automatalearning.paramtests.conversion.DfaConverter;
 import ganz.leonard.automatalearning.paramtests.conversion.PheromoneFunctionSerializer;
 import ganz.leonard.automatalearning.paramtests.conversion.PlainIntegerConverter;
@@ -32,6 +33,7 @@ import org.csveed.api.CsvClientImpl;
 
 public class TestDataSaver implements Closeable {
 
+  public static final String SUBTEST_PREFIX = "subtest-";
   private final String testName;
   private final Gson gson;
   private final Set<DataSaverSubtest> subtests;
@@ -67,7 +69,7 @@ public class TestDataSaver implements Closeable {
       Map<String, String> testParamName_valueName)
       throws IOException {
 
-    StringBuilder sb = new StringBuilder("subtest-");
+    StringBuilder sb = new StringBuilder(SUBTEST_PREFIX);
     sb.append(subTestId++);
     PairStream.from(testParamName_valueName)
         .sortedByKey(Comparator.naturalOrder())
@@ -92,7 +94,8 @@ public class TestDataSaver implements Closeable {
     private final CsvClient<DataRow> csvClient;
     private final Writer writer;
 
-    private DataSaverIteration(Path csvFile, boolean ignoreDfa) throws IOException {
+    private DataSaverIteration(Path csvFile, boolean ignoreDfa, boolean ignoreRegex)
+        throws IOException {
       Files.createDirectories(csvFile.getParent());
       writer = Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8);
       csvClient =
@@ -101,6 +104,9 @@ public class TestDataSaver implements Closeable {
               .setConverter("colony", new PlainIntegerConverter());
       if (ignoreDfa) {
         csvClient.ignoreProperty("dfa");
+      }
+      if (ignoreRegex) {
+        csvClient.ignoreProperty("regex");
       }
       csvClient.writeHeader();
     }
@@ -132,7 +138,7 @@ public class TestDataSaver implements Closeable {
         Optional<String> subTestName, AutomataLearningOptions options, List<InputWord<T>> input)
         throws IOException {
       iterations = new HashSet<>();
-      folder = Paths.get("measurements", testName);
+      folder = Paths.get(TestingUtil.MEASUREMENTS_DIR, testName);
       subTestName.ifPresent(s -> folder = folder.resolve(s.strip()));
       Util.deleteDirectoryRecursively(folder);
       Files.createDirectories(folder);
@@ -149,9 +155,11 @@ public class TestDataSaver implements Closeable {
       }
     }
 
-    public DataSaverIteration beginIteration(int iteration, boolean ignoreDfa) throws IOException {
+    public DataSaverIteration beginIteration(int iteration, boolean ignoreDfa, boolean ignoreRegex)
+        throws IOException {
       Path csvFile = folder.resolve(iteration + ".csv");
-      DataSaverIteration dataSaverIteration = new DataSaverIteration(csvFile, ignoreDfa);
+      DataSaverIteration dataSaverIteration =
+          new DataSaverIteration(csvFile, ignoreDfa, ignoreRegex);
       iterations.add(dataSaverIteration);
       return dataSaverIteration;
     }
