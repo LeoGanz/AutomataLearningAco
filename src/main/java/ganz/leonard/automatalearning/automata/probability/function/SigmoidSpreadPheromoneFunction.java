@@ -1,18 +1,14 @@
-package ganz.leonard.automatalearning.automata.probability;
+package ganz.leonard.automatalearning.automata.probability.function;
 
 import ganz.leonard.automatalearning.util.StringifyableFunction;
-import java.util.function.BiFunction;
 
-public record PheromoneFunction(
+public record SigmoidSpreadPheromoneFunction(
     StringifyableFunction<Double, Double> sigmoid,
     double spread,
     double minRemainingProbability)
-    implements BiFunction<Double, Double, Double> {
+    implements PheromoneFunction {
 
-  // For completely custom pheromone functions:
-  // create a subclass and overwrite apply(Double, Double) and stringRep() possibly ignoring fields
-
-  public PheromoneFunction(
+  public SigmoidSpreadPheromoneFunction(
       StringifyableFunction<Double, Double> sigmoid,
       double spread,
       double minRemainingProbability) {

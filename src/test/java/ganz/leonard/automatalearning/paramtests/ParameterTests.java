@@ -1,7 +1,8 @@
 package ganz.leonard.automatalearning.paramtests;
 
-import ganz.leonard.automatalearning.InputProvider;
-import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
+import ganz.leonard.automatalearning.automata.probability.function.PheromoneFunction;
+import ganz.leonard.automatalearning.automata.probability.function.SigmoidSpreadPheromoneFunction;
+import ganz.leonard.automatalearning.automata.probability.function.SqrtPheromoneFunction;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
 import ganz.leonard.automatalearning.learning.InputWord;
@@ -12,8 +13,7 @@ import ganz.leonard.automatalearning.util.StringifyableFunction;
 import ganz.leonard.automatalearning.util.Util;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -35,8 +35,7 @@ public class ParameterTests {
 
   @BeforeAll
   static void setUp() throws IOException, URISyntaxException {
-    Path path = Paths.get(ClassLoader.getSystemResource(TestingUtil.INPUT_PACKAGE + "/" + FILENAME).toURI());
-    input = InputProvider.readFromFile(path);
+    input = TestingUtil.loadInput(FILENAME);
   }
 
   private static AutomataLearningOptionsBuilder getOptionsBuilder() {
@@ -47,7 +46,7 @@ public class ParameterTests {
         .decayFactor(0.8)
         .feedback(0.5)
         .balanceInput(true)
-        .pheromoneFunction(new PheromoneFunction(getSigmoid(), 0.16, 0.016));
+        .pheromoneFunction(new SigmoidSpreadPheromoneFunction(getSigmoid(), 0.16, 0.016));
   }
 
   private static StringifyableFunction<Double, Double> getSigmoid() {
@@ -67,6 +66,31 @@ public class ParameterTests {
             false,
             false);
     stats.thenAccept(ignored -> dataSaver.close()).join();
+  }
+
+  @Test
+  void testPheromoneFunctions() throws IOException, URISyntaxException {
+    TestDataSaver dataSaver = new TestDataSaver("PheromoneFunctions");
+    List<AutomataLearningOptions> optionsList = new ArrayList<>();
+    optionsList.add(getOptionsBuilder().build());
+    optionsList.add(getOptionsBuilder().feedback(1).pheromoneFunction(new SqrtPheromoneFunction()).build());
+    List<List<IntermediateResult<Object>>> results = new ArrayList<>();
+    for (AutomataLearningOptions options : optionsList){
+      TestRunner.test(
+          options,
+          input,
+          dataSaver.beginSubtest(options, input, Map.of("Function",
+              options.pheromoneFunction().getClass().getSimpleName().
+                  replace("PheromoneFunction", ""))),
+          10,
+          NR_COLONIES_LARGE,
+          false,
+          true).thenAccept(results::add).join();
+    }
+    List<InputWord<Object>> referenceInput = TestingUtil.loadInput("Test-AstarB_reference.txt");
+    results.forEach(resultList -> System.out.println("Reached a reference match of: " +
+        TestingUtil.calcAverageMatch(resultList, referenceInput)));
+    dataSaver.close();
   }
 
   @Test
@@ -165,9 +189,13 @@ public class ParameterTests {
   void testSpreadOfLearnFunctionFactor() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("SpreadOfLearnFunctionFactor");
     for (double spread = 0; spread < 1.01; spread += spread < .3 ? .02 : .05) {
-      PheromoneFunction prevPheromoneFunction = getOptionsBuilder().pheromoneFunction();
-      PheromoneFunction pheromoneFunction =
-          new PheromoneFunction(
+      PheromoneFunction prevPheromoneFunctionRaw = getOptionsBuilder().pheromoneFunction();
+      if (!(prevPheromoneFunctionRaw instanceof
+          SigmoidSpreadPheromoneFunction prevPheromoneFunction)) {
+        throw new IllegalStateException("Expected SigmoidSpread kind of pheromone function");
+      }
+      SigmoidSpreadPheromoneFunction pheromoneFunction =
+          new SigmoidSpreadPheromoneFunction(
               prevPheromoneFunction.sigmoid(),
               spread,
               prevPheromoneFunction.minRemainingProbability());
@@ -186,9 +214,13 @@ public class ParameterTests {
     for (double minRemainingProb = 0;
         minRemainingProb < 0.10000001;
         minRemainingProb += minRemainingProb < .05 ? .002 : .01) {
-      PheromoneFunction prevPheromoneFunction = getOptionsBuilder().pheromoneFunction();
+      PheromoneFunction prevPheromoneFunctionRaw = getOptionsBuilder().pheromoneFunction();
+      if (!(prevPheromoneFunctionRaw instanceof
+          SigmoidSpreadPheromoneFunction prevPheromoneFunction)) {
+        throw new IllegalStateException("Expected SigmoidSpread kind of pheromone function");
+      }
       PheromoneFunction pheromoneFunction =
-          new PheromoneFunction(
+          new SigmoidSpreadPheromoneFunction(
               prevPheromoneFunction.sigmoid(), prevPheromoneFunction.spread(), minRemainingProb);
       AutomataLearningOptions options =
           getOptionsBuilder().pheromoneFunction(pheromoneFunction).build();

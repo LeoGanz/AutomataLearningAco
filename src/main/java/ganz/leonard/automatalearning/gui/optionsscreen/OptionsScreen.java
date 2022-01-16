@@ -1,6 +1,6 @@
 package ganz.leonard.automatalearning.gui.optionsscreen;
 
-import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
+import ganz.leonard.automatalearning.automata.probability.function.SigmoidSpreadPheromoneFunction;
 import ganz.leonard.automatalearning.gui.GuiController;
 import ganz.leonard.automatalearning.language.Language;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
@@ -140,7 +140,7 @@ public class OptionsScreen extends JPanel implements PropertyChangeListener {
                     .feedback(feedback.getNumber().doubleValue())
                     .decayFactor(decay.getNumber().doubleValue())
                     .pheromoneFunction(
-                        new PheromoneFunction(
+                        new SigmoidSpreadPheromoneFunction(
                             AutomataLearningOptions.DEF_SIGMOID,
                             spread.getNumber().doubleValue(),
                             minRemProb.getNumber().doubleValue()))

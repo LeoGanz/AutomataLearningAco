@@ -1,7 +1,7 @@
 package ganz.leonard.automatalearning.paramtests;
 
 import ganz.leonard.automatalearning.InputProvider;
-import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
+import ganz.leonard.automatalearning.automata.probability.function.SigmoidSpreadPheromoneFunction;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptionsBuilder;
@@ -37,7 +37,8 @@ public class TestingUtil {
         .decayFactor(0.8)
         .feedback(0.5)
         .balanceInput(true)
-        .pheromoneFunction(new PheromoneFunction(AutomataLearningOptions.DEF_SIGMOID, 0.14, 0.016));
+        .pheromoneFunction(
+            new SigmoidSpreadPheromoneFunction(AutomataLearningOptions.DEF_SIGMOID, 0.14, 0.016));
   }
 
   public static double calcAverageMatch(

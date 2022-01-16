@@ -35,7 +35,7 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
     annotationProcessor 'io.soabase.record-builder:record-builder-processor:29'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
-    testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.8.1'
+    testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.8.2'
 }
 
 System.setProperty("org.checkstyle.google.suppressionfilter.config", "$rootProject.projectDir/config/checkstyle/checkstyle-suppressions.xml")

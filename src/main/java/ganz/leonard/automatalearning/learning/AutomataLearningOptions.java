@@ -1,6 +1,7 @@
 package ganz.leonard.automatalearning.learning;
 
-import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
+import ganz.leonard.automatalearning.automata.probability.function.PheromoneFunction;
+import ganz.leonard.automatalearning.automata.probability.function.SigmoidSpreadPheromoneFunction;
 import ganz.leonard.automatalearning.util.StringifyableFunction;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
@@ -57,7 +58,7 @@ public record AutomataLearningOptions(int acceptingStates,
     // colony size == -1 indicates automatic size
 
     if (pheromoneFunction == null) {
-      pheromoneFunction = new PheromoneFunction(DEF_SIGMOID, 0.1, 0.01);
+      pheromoneFunction = new SigmoidSpreadPheromoneFunction(DEF_SIGMOID, 0.1, 0.01);
     }
   }
 }

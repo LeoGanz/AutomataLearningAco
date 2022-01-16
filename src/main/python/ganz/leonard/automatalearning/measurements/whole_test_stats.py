@@ -5,6 +5,10 @@ import numbers
 import matplotlib.pyplot as plt
 from common import *
 import numpy as np
+from collections import Counter
+
+
+plot_as_discrete_values = True
 
 
 def stats_for_whole_test(path_to_test, property):
@@ -73,14 +77,42 @@ def stats_for_whole_test(path_to_test, property):
         labels = property
     else:
         labels = [f"Best score in iter. {x}" for x in range(len(Y[0]))]
-    ax1.plot(X, Y, label=labels)
-    ax1.legend(loc="lower left")
+
+    if plot_as_discrete_values:
+        if isinstance(Y[0], list):
+            all_points = []
+            for x in range(len(X)):
+                for iteration in range(len(Y[0])):
+                    all_points.append((x, Y[x][iteration]))
+            ctr = Counter(all_points)
+
+            for iteration in range(len(Y[0])):
+                Y_ = []  # collect ys for one iteration
+                for x in range(len(X)):
+                    Y_.append(Y[x][iteration])
+                sizes = [20 * ctr[point] for point in zip(X, Y_)]
+                ax1.scatter(X, Y_, alpha=0.7, s=sizes, label=labels[iteration])
+            # https://stackoverflow.com/a/45220580
+            ax1.plot([], [], ' ', label="Size => # of points")
+        else:
+            ax1.scatter(X, Y, label=labels)
+        lgnd = ax1.legend(loc="lower left", fontsize=7 if not is_single_value_property and len(labels) > 6 else 10)
+        # https://stackoverflow.com/a/43578952
+        for handle in lgnd.legendHandles:
+            if hasattr(handle, "set_sizes"):
+                handle.set_sizes([40.0])
+    else:  # no discrete values
+        ax1.plot(X, Y, label=labels)
+        ax1.legend(loc="lower left")
 
     # Plot stability
     ax2 = ax1.twinx()
     ax2.set_ylim(NORMALIZED_Y_LIMIT)
     ax2.set_ylabel("Average Stability")
-    ax2.plot(X, Y2, color="red", label="Stability")
+    if plot_as_discrete_values:
+        ax2.scatter(X, Y2, color="red", marker='x', label="Stability")
+    else:
+        ax2.plot(X, Y2, color="red", label="Stability")
     ax2.legend(loc="lower right")
 
     # Finalize plot

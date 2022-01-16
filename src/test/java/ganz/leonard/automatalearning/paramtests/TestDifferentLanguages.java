@@ -4,7 +4,7 @@ import static ganz.leonard.automatalearning.paramtests.TestingUtil.getOptionsBui
 import static ganz.leonard.automatalearning.paramtests.TestingUtil.loadInput;
 import static ganz.leonard.automatalearning.paramtests.TestingUtil.runTest;
 
-import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
+import ganz.leonard.automatalearning.automata.probability.function.SigmoidSpreadPheromoneFunction;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -68,7 +68,7 @@ public class TestDifferentLanguages {
             .acceptingStates(1)
             .notAcceptingStates(2)
             .pheromoneFunction(
-                new PheromoneFunction(AutomataLearningOptions.DEF_SIGMOID, 0.08, 0.016))
+                new SigmoidSpreadPheromoneFunction(AutomataLearningOptions.DEF_SIGMOID, 0.08, 0.016))
             .build(),
         true);
   }

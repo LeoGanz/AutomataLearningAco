@@ -2,12 +2,14 @@ package ganz.leonard.automatalearning.paramtests.execution;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ganz.leonard.automatalearning.automata.probability.PheromoneFunction;
+import ganz.leonard.automatalearning.automata.probability.function.PheromoneFunction;
+import ganz.leonard.automatalearning.automata.probability.function.SigmoidSpreadPheromoneFunction;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
 import ganz.leonard.automatalearning.learning.InputWord;
 import ganz.leonard.automatalearning.paramtests.TestingUtil;
 import ganz.leonard.automatalearning.paramtests.conversion.DfaConverter;
 import ganz.leonard.automatalearning.paramtests.conversion.PheromoneFunctionSerializer;
+import ganz.leonard.automatalearning.paramtests.conversion.SigmoidSpreadPheromoneFunctionSerializer;
 import ganz.leonard.automatalearning.paramtests.conversion.PlainIntegerConverter;
 import ganz.leonard.automatalearning.paramtests.conversion.StringifyableFunctionSerializer;
 import ganz.leonard.automatalearning.util.PairStream;
@@ -48,6 +50,7 @@ public class TestDataSaver implements Closeable {
             .disableHtmlEscaping()
             .registerTypeAdapter(
                 StringifyableFunction.class, new StringifyableFunctionSerializer<>())
+            .registerTypeAdapter(SigmoidSpreadPheromoneFunction.class, new SigmoidSpreadPheromoneFunctionSerializer())
             .registerTypeAdapter(PheromoneFunction.class, new PheromoneFunctionSerializer())
             .create();
   }

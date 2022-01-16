@@ -21,6 +21,8 @@ public class Ant<T> {
   public void buildSolution() {
     automaton.goToStart();
     // possibility to add online step-by-step pheromone update (after each step)
+    // ignoring the result from takeLetter is not neat, but does not matter as feedback automatons
+    // always have transitions for all letters.
     word.forEach(automaton::takeLetter);
     solutionPath = automaton.getCurrentPath();
     solutionCorrect = automaton.canHold() == inLanguage;
