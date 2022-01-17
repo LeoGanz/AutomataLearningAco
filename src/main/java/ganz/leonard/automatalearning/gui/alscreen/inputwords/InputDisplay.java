@@ -23,7 +23,9 @@ public class InputDisplay<T> extends JPanel {
     title.setFont(title.getFont().deriveFont(AutomataLearningScreen.HEADING_FONT_SIZE));
     title.setHorizontalAlignment(SwingConstants.CENTER);
     add(title, BorderLayout.NORTH);
-    add(new WordList<>(controller, renderManager, automataLearning), BorderLayout.CENTER);
+    add(
+        new ScrollableWordList<>(new WordList<>(controller, renderManager, automataLearning)),
+        BorderLayout.CENTER);
     GuiUtil.pad(this);
   }
 }
