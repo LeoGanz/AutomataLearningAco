@@ -1,3 +1,4 @@
++
 +aabb
 +baba
 +bbbbaaaa
@@ -10,3 +11,17 @@
 -bbaabba
 -ababab
 -baaab
++b
++bb
++bbb
+-ab
+-ba
+-bbabbb
+-ababa
+-bbabbabba
++aaaa
++aaaaaa
++aaaaaaaa
++abaaaaaaa
++baaaaaabaabb
++aaababbaaaa

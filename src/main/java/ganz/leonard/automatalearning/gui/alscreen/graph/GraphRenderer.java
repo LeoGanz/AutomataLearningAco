@@ -101,7 +101,7 @@ public record GraphRenderer(LinearColorGradient gradient) {
                   fromState.collectTransitionProbabilities(letter);
               PairStream.from(fromState.getOutgoingTransitions())
                   .sortedByValue(Comparator.comparingDouble(
-                      (PheromoneTransition<T> transition) -> transition.getPheromoneFor(letter))
+                      (PheromoneTransition<T> transition) -> transition.getTransitionProbability(letter))
                       .reversed())
                   .limit(TRANS_TO_DRAW_PER_LETTER_AND_STATE)
                   .filterKey(target -> probabilities.get(target) >

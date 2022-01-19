@@ -11,7 +11,13 @@
 -abcb
 -abcc
 -abca
--abcabbacb
--bcaaa
--cccaabbb
--cbbaa
+-a
+-ab
+-ac
+-b
+-ab
+-ba
+-c
+-ca
+-cb
+-cab

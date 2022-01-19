@@ -8,10 +8,7 @@ import numpy as np
 from collections import Counter
 
 
-plot_as_discrete_values = True
-
-
-def stats_for_whole_test(path_to_test, property):
+def stats_for_whole_test(path_to_test, property, plot_as_discrete_values):
     test_name = path_to_test.split('\\')[-1]
     is_single_value_property = False
     low_log = []
@@ -79,28 +76,7 @@ def stats_for_whole_test(path_to_test, property):
         labels = [f"Best score in iter. {x}" for x in range(len(Y[0]))]
 
     if plot_as_discrete_values:
-        if isinstance(Y[0], list):
-            all_points = []
-            for x in range(len(X)):
-                for iteration in range(len(Y[0])):
-                    all_points.append((x, Y[x][iteration]))
-            ctr = Counter(all_points)
-
-            for iteration in range(len(Y[0])):
-                Y_ = []  # collect ys for one iteration
-                for x in range(len(X)):
-                    Y_.append(Y[x][iteration])
-                sizes = [20 * ctr[point] for point in zip(X, Y_)]
-                ax1.scatter(X, Y_, alpha=0.7, s=sizes, label=labels[iteration])
-            # https://stackoverflow.com/a/45220580
-            ax1.plot([], [], ' ', label="Size => # of points")
-        else:
-            ax1.scatter(X, Y, label=labels)
-        lgnd = ax1.legend(loc="lower left", fontsize=7 if not is_single_value_property and len(labels) > 6 else 10)
-        # https://stackoverflow.com/a/43578952
-        for handle in lgnd.legendHandles:
-            if hasattr(handle, "set_sizes"):
-                handle.set_sizes([40.0])
+        scatter_multival(X, Y, labels, ax1, is_single_value_property)
     else:  # no discrete values
         ax1.plot(X, Y, label=labels)
         ax1.legend(loc="lower left")
@@ -117,7 +93,8 @@ def stats_for_whole_test(path_to_test, property):
 
     # Finalize plot
     plt.show()
-    plot_path = os.path.join(path_to_test, f"stats_{property}.png")
+    suffix = "-scatter" if plot_as_discrete_values else "-line"
+    plot_path = os.path.join(path_to_test, f"stats_{property}{suffix}.png")
     print("writing plot to: " + plot_path)
     fig.savefig(plot_path)
 
@@ -136,9 +113,17 @@ def write_low_log(low_log, path_to_test, property):
             writer.writerow(indScore)
 
 
+def run_three_test_kinds(path, plot_as_discrete):
+    stats_for_whole_test(path, 'avgBestScore', plot_as_discrete)
+    stats_for_whole_test(path, 'highestBestScore', plot_as_discrete)
+    stats_for_whole_test(path, 'bestScores', plot_as_discrete)
+
+
 for entry in os.scandir(get_measurements_dir()):
+    # used to execute only for specific subtest
+    # if "Feedback" not in entry.path:
+    #     continue
     if contains_dirs(entry.path):
         print("Begin processing test: " + entry.path)
-        stats_for_whole_test(entry.path, 'avgBestScore')
-        stats_for_whole_test(entry.path, 'highestBestScore')
-        stats_for_whole_test(entry.path, 'bestScores')
+        run_three_test_kinds(entry.path, True)
+        run_three_test_kinds(entry.path, False)

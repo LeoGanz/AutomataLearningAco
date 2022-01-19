@@ -15,7 +15,8 @@ public record AutomataLearningOptions(int acceptingStates,
                                       int inputSamples,
                                       int colonySize,
                                       PheromoneFunction pheromoneFunction,
-                                      boolean balanceInput)
+                                      boolean balanceInput,
+                                      boolean chainedProbUpdate)
     implements AutomataLearningOptionsBuilder.With {
 
   public static final int DEF_ACCEPTING_STATES = 2;

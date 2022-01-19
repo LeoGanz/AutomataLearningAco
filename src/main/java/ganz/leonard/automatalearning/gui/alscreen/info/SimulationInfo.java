@@ -12,14 +12,20 @@ import javax.swing.SwingUtilities;
 
 public class SimulationInfo<T> extends JPanel implements PropertyChangeListener {
 
+  private final JLabel appliedColoniesNr;
   private final JLabel appliedWordsNr;
   private final JLabel inputWordsNr;
 
   public SimulationInfo(RenderManager<T> renderManager) {
     renderManager.addPropertyChangeListener(this);
     GuiUtil.pad(this);
-    setLayout(new GridLayout(2, 2));
+    setLayout(new GridLayout(3, 2));
 
+    JLabel appliedColoniesInfo = new JLabel("Applied Colonies: ");
+    appliedColoniesInfo.setHorizontalAlignment(SwingConstants.RIGHT);
+    add(appliedColoniesInfo);
+    appliedColoniesNr = new JLabel();
+    add(appliedColoniesNr);
     JLabel appliedWordsInfo = new JLabel("Applied Words: ");
     appliedWordsInfo.setHorizontalAlignment(SwingConstants.RIGHT);
     add(appliedWordsInfo);
@@ -35,8 +41,10 @@ public class SimulationInfo<T> extends JPanel implements PropertyChangeListener 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
     switch (evt.getPropertyName()) {
+      case RenderManager.APPLIED_COLONIES_UPDATE_KEY -> SwingUtilities.invokeLater(() ->
+          updateColoniesApplied((int) evt.getNewValue()));
       case RenderManager.APPLIED_WORDS_UPDATE_KEY -> SwingUtilities.invokeLater(() ->
-          updateNrApplied((int) evt.getNewValue()));
+          updateWordsApplied((int) evt.getNewValue()));
       case RenderManager.INPUT_WORDS_UPDATE_KEY -> SwingUtilities.invokeLater(() ->
           updateNrInput((int) evt.getNewValue()));
       case RenderManager.REBUILD_GUI_KEY -> SwingUtilities.invokeLater(this::repaint);
@@ -44,7 +52,11 @@ public class SimulationInfo<T> extends JPanel implements PropertyChangeListener 
     }
   }
 
-  private void updateNrApplied(int nrApplied) {
+  private void updateColoniesApplied(int nrApplied) {
+    appliedColoniesNr.setText(String.valueOf(nrApplied));
+  }
+
+  private void updateWordsApplied(int nrApplied) {
     appliedWordsNr.setText(String.valueOf(nrApplied));
   }
 

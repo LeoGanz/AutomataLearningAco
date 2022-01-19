@@ -17,7 +17,7 @@ public class ProbabilityControl extends JPanel {
     JLabel title = new JLabel("Probability Controls");
     title.setFont(title.getFont().deriveFont(AutomataLearningScreen.HEADING_FONT_SIZE));
     add(title, "center, span, wrap " + PADDING);
-    add(new JLabel("<html>Percentage of Ants<br>choosing a transition"), "span, wrap");
+    add(new JLabel("<html>Probability of<br>a transition"), "span, wrap");
     add(new JLabel("\u25BC"), "align 0.1al, wrap"); // arrow down
     GradientBar gradientBar = new GradientBar(renderManager.getGradient());
     add(gradientBar, "center, grow, push");

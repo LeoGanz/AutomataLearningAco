@@ -29,7 +29,9 @@ public class ParameterTests {
   private static final int MAX_COLONY_SIZE = 100;
   private static final double MAX_FEEDBACK = 3;
   private static final double MAX_INITIAL_PHEROMONE = 10;
-  private static final String FILENAME = "Test-AstarB-ParamOptim.txt";
+//  private static final String FILENAME = "Test-AstarB_reference.txt";
+//  private static final String FILENAME = "Test-AstarB-ParamOptim.txt";
+  private static final String FILENAME = "Test-EvenAs.txt";
 
   private static List<InputWord<Object>> input;
 
@@ -39,15 +41,34 @@ public class ParameterTests {
   }
 
   private static AutomataLearningOptionsBuilder getOptionsBuilder() {
+    return getChainedOptionsBuilder();
+//    return getNotChainedOptionsBuilder();
+  }
+
+  private static AutomataLearningOptionsBuilder getChainedOptionsBuilder() {
     return AutomataLearningOptionsBuilder.builder()
         .acceptingStates(2)
         .notAcceptingStates(1)
-        .colonySize(16)
+        .colonySize(18)
         .decayFactor(0.8)
         .feedback(0.5)
         .balanceInput(true)
+        .chainedProbUpdate(true)
         .pheromoneFunction(new SigmoidSpreadPheromoneFunction(getSigmoid(), 0.16, 0.016));
   }
+
+  private static AutomataLearningOptionsBuilder getNotChainedOptionsBuilder() {
+    return AutomataLearningOptionsBuilder.builder()
+        .acceptingStates(2)
+        .notAcceptingStates(1)
+        .colonySize(11)
+        .decayFactor(0.75)
+        .feedback(0.5)
+        .balanceInput(true)
+        .chainedProbUpdate(false)
+        .pheromoneFunction(new SigmoidSpreadPheromoneFunction(getSigmoid(), 0.14, 0.04));
+  }
+
 
   private static StringifyableFunction<Double, Double> getSigmoid() {
     return AutomataLearningOptions.DEF_SIGMOID;
@@ -62,9 +83,10 @@ public class ParameterTests {
             options,
             input,
             dataSaver.beginOnlySubtest(options, input),
+            100,
             NR_COLONIES_LARGE,
             false,
-            false);
+            true);
     stats.thenAccept(ignored -> dataSaver.close()).join();
   }
 
@@ -93,6 +115,7 @@ public class ParameterTests {
     dataSaver.close();
   }
 
+//  @Disabled
   @Test
   void testInputBalancer() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("NoInputBalancing");
@@ -160,6 +183,7 @@ public class ParameterTests {
     dataSaver.close();
   }
 
+//  @Disabled
   @Test
   void testInitialPheromone() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("InitialPheromone");
@@ -212,7 +236,7 @@ public class ParameterTests {
   void testMinRemainingProbability() throws IOException {
     TestDataSaver dataSaver = new TestDataSaver("MinRemainingProbability");
     for (double minRemainingProb = 0;
-        minRemainingProb < 0.10000001;
+        minRemainingProb < 0.20000001;
         minRemainingProb += minRemainingProb < .05 ? .002 : .01) {
       PheromoneFunction prevPheromoneFunctionRaw = getOptionsBuilder().pheromoneFunction();
       if (!(prevPheromoneFunctionRaw instanceof

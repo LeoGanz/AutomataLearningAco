@@ -9,6 +9,7 @@ public class Ant<T> {
   private final boolean inLanguage;
   private final FeedbackAutomaton<T> automaton;
   private final List<T> word;
+
   private List<Pair<PheromoneTransition<T>, T>> solutionPath;
   private boolean solutionCorrect;
 
@@ -20,12 +21,17 @@ public class Ant<T> {
 
   public void buildSolution() {
     automaton.goToStart();
-    // possibility to add online step-by-step pheromone update (after each step)
-    // ignoring the result from takeLetter is not neat, but does not matter as feedback automatons
-    // always have transitions for all letters.
-    word.forEach(automaton::takeLetter);
+    boolean stepPossible = true;
+    for (T letter : word) {
+      stepPossible = automaton.takeLetter(letter);
+      // possibility to add online step-by-step pheromone update
+      if (!stepPossible) {
+        System.out.println("An ant could not proceed");
+        break;
+      }
+    }
     solutionPath = automaton.getCurrentPath();
-    solutionCorrect = automaton.canHold() == inLanguage;
+    solutionCorrect = stepPossible && (automaton.canHold() == inLanguage);
   }
 
   public void distributePheromones() {
@@ -35,5 +41,19 @@ public class Ant<T> {
     }
     // apply online delayed pheromone update
     automaton.feedback(solutionPath, solutionCorrect);
+  }
+
+  public List<Pair<PheromoneTransition<T>, T>> getSolutionPath() {
+    if (solutionPath == null) {
+      throw new IllegalStateException("Ant has to construct solution before calling this method");
+    }
+    return solutionPath;
+  }
+
+  public boolean isSolutionCorrect() {
+    if (solutionPath == null) {
+      throw new IllegalStateException("Ant has to construct solution before calling this method");
+    }
+    return solutionCorrect;
   }
 }

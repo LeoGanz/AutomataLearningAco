@@ -3,6 +3,7 @@ package ganz.leonard.automatalearning.automata.probability;
 import ganz.leonard.automatalearning.automata.general.Automaton;
 import ganz.leonard.automatalearning.automata.general.DeterministicFiniteAutomaton;
 import ganz.leonard.automatalearning.learning.AutomataLearningOptions;
+import ganz.leonard.automatalearning.util.PairStream;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -83,6 +84,9 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
 
   public void feedback(List<Pair<PheromoneTransition<T>, T>> path, boolean positive) {
     path.forEach(pair -> pair.getKey().pheromoneFeedback(pair.getValue(), positive));
+  }
+
+  public void recalculateProbabilities() {
     getKnownAlphabet()
         .forEach(
             letter -> getAllStates().values().forEach(state -> state.updateProbabilities(letter)));
@@ -119,6 +123,18 @@ public class FeedbackAutomaton<T> extends Automaton<ProbabilityState<T>, T> {
 
   public List<Pair<PheromoneTransition<T>, T>> getCurrentPath() {
     return currentPath;
+  }
+
+  public Pair<ProbabilityState<T>, ProbabilityState<T>> getEndpointsOf(
+      PheromoneTransition<T> trans) {
+    return getAllStates().values().stream()
+        .flatMap(
+            start ->
+                PairStream.from(start.getOutgoingTransitions())
+                    .filterValue(aTrans -> aTrans.equals(trans))
+                    .map((target, aTrans) -> new Pair<>(start, target)))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("Provided Transition not found"));
   }
 
   @Override

@@ -39,6 +39,7 @@ public class ProbabilityUtil {
    * @return sample from the map chosen according to the provided probabilities
    * @see #normalizeProbabilities(Map)
    */
+  // inspired by https://stackoverflow.com/a/9330667
   public static <K> K sample(Map<K, Double> elementsWithProbabilities) {
     double prob = Math.random();
     double cumulativeProb = 0;

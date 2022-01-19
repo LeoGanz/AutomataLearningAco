@@ -75,7 +75,7 @@ def process_subtest(path_to_folder):
     # Finalize calculations and plotting
     calc_avg_stability(path_to_folder)
     fig = plt.gcf()
-    plt.show()
+    # plt.show()
     plot_path = os.path.join(path_to_folder, "plot.png")
     print("writing plot to: " + plot_path)
     fig.savefig(plot_path)
@@ -85,7 +85,7 @@ def process_subtest(path_to_folder):
 for test in os.scandir(get_measurements_dir()):
     print("Begin processing test: " + test.path)
     # used to execute only for specific subtest
-    # if "Default" not in entry.path:
+    # if "Feedback" not in test.path:
     #     continue
     if contains_dirs(test.path):
         for subtest in os.scandir(test.path):

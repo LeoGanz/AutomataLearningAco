@@ -5,7 +5,6 @@ import ganz.leonard.automatalearning.automata.general.State;
 import ganz.leonard.automatalearning.gui.alscreen.graph.GraphRenderer;
 import ganz.leonard.automatalearning.gui.util.LinearColorGradient;
 import ganz.leonard.automatalearning.learning.AutomataLearning;
-import ganz.leonard.automatalearning.learning.InputWord;
 import ganz.leonard.automatalearning.learning.IntermediateResult;
 import ganz.leonard.automatalearning.learning.UpdateImportance;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -25,6 +24,7 @@ import org.imgscalr.Scalr;
 public class RenderManager<T> implements PropertyChangeListener {
 
   public static final String IMAGE_UPDATE_KEY = "RenderingUpdate";
+  public static final String APPLIED_COLONIES_UPDATE_KEY = "AppliedColoniesUpdate";
   public static final String APPLIED_WORDS_UPDATE_KEY = "AppliedWordsUpdate";
   public static final String INPUT_WORDS_UPDATE_KEY = "InputWordsUpdate";
   public static final String REBUILD_GUI_KEY = "Rebuild";
@@ -64,7 +64,7 @@ public class RenderManager<T> implements PropertyChangeListener {
     graphRenderer = new GraphRenderer(getGradient());
   }
 
-  public void constructNewFrame(UpdateImportance importance) {
+  public  synchronized void constructNewFrame(UpdateImportance importance) {
     if ((importance == UpdateImportance.LOW
         && renderingQueue.size() > MAX_QUEUE_SIZE_LOW_IMPORTANCE
       ) || (importance == UpdateImportance.MEDIUM
@@ -86,7 +86,10 @@ public class RenderManager<T> implements PropertyChangeListener {
     Automaton<? extends State<?, T>, T> automaton = mode == Mode.RENDER_CURRENT
         ? model.getUnlinkedAutomaton()
         : model.getBestResult().automaton();
-    int nrApplied = mode == Mode.RENDER_CURRENT
+    int coloniesApplied = mode == Mode.RENDER_CURRENT
+        ? model.getNrAppliedColonies()
+        : model.getBestResult().nrAppliedColonies();
+    int wordsApplied = mode == Mode.RENDER_CURRENT
         ? model.getNrAppliedWords()
         : model.getBestResult().nrAppliedWords();
     String regex = mode == Mode.RENDER_CURRENT
@@ -125,7 +128,15 @@ public class RenderManager<T> implements PropertyChangeListener {
               }
             }
             renderingQueue.poll();
-            notifyListeners(img, indexOfNextWord, nrApplied, nrTotal, regex, score, minDfaProb);
+            notifyListeners(
+                img,
+                indexOfNextWord,
+                coloniesApplied,
+                wordsApplied,
+                nrTotal,
+                regex,
+                score,
+                minDfaProb);
             renderingQueue.notifyAll();
           }
         });
@@ -197,11 +208,16 @@ public class RenderManager<T> implements PropertyChangeListener {
 
   private void notifyListeners(BufferedImage img,
                                int indexOfNextWord,
-                               int nrApplied, int nrTotal,
-                               String regex, double score, double minDfaProb) {
+                               int coloniesApplied,
+                               int wordsApplied,
+                               int nrTotal,
+                               String regex,
+                               double score,
+                               double minDfaProb) {
     pcs.firePropertyChange(IMAGE_UPDATE_KEY, null, img);
     pcs.firePropertyChange(NEXT_WORD_UPDATE_KEY, null, indexOfNextWord);
-    pcs.firePropertyChange(APPLIED_WORDS_UPDATE_KEY, null, nrApplied);
+    pcs.firePropertyChange(APPLIED_COLONIES_UPDATE_KEY, null, coloniesApplied);
+    pcs.firePropertyChange(APPLIED_WORDS_UPDATE_KEY, null, wordsApplied);
     pcs.firePropertyChange(INPUT_WORDS_UPDATE_KEY, null, nrTotal);
     pcs.firePropertyChange(REGEX_UPDATE_KEY, null, regex);
     pcs.firePropertyChange(SCORE_UPDATE_KEY, null, score);

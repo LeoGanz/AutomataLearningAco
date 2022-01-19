@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from common import *
 import numpy as np
+from collections import Counter
 
 testname = "InputQuality"
 # testname = "BalancingScores"
@@ -19,7 +20,8 @@ ax.set_ylabel("Score (matched words / total words)")
 ax.set_xlabel("Iterations")
 ax.xaxis.get_major_locator().set_params(integer=True)
 ax.set_ylim(NORMALIZED_Y_LIMIT)
-ax.plot(X, Y, label=csv_data.columns)
+labels = csv_data.columns
+scatter_multival(X, Y, labels, ax, False)
 ax.legend(loc="lower left")
 plt.show()
 plot_path = os.path.join(get_measurements_dir(), f"{testname}.png")

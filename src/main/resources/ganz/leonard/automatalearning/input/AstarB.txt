@@ -1,3 +1,4 @@
+-a
 +b
 +b
 +b
@@ -5,6 +6,8 @@
 +ab
 +ab
 +aab
+-aa
+-aaa
 +aab
 +aab
 +aaab
@@ -19,6 +22,8 @@
 +aaaaaaaab
 +aaaaaaaaab
 -a
+-a
+-aa
 -aa
 -aaa
 -aaaa

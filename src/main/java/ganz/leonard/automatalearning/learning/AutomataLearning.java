@@ -87,13 +87,22 @@ public class AutomataLearning<T> {
   }
 
   private synchronized void runSingleColony(UpdateImportance importance) {
+//    System.out.println("Starting Colony No. " + nrAppliedColonies);
     int colonySize = options.colonySize() < 1 ? inputWords.size() : options.colonySize();
     for (int i = 0; i < colonySize; i++) {
       createAnt();
     }
 
     automaton.decay();
-    antsInCurrentRun.forEach(Ant::distributePheromones);
+    for (Ant<T> ant : antsInCurrentRun) {
+      ant.distributePheromones();
+      if (options.chainedProbUpdate()) {
+        automaton.recalculateProbabilities();
+      }
+    }
+    if (!options.chainedProbUpdate()) {
+      automaton.recalculateProbabilities();
+    }
     antsInCurrentRun.clear();
 
     updateBestDfa();
@@ -122,6 +131,7 @@ public class AutomataLearning<T> {
   private void createAnt() {
     refillIteratorIfNeeded();
     InputWord<T> next = it.next();
+    // for more information use TalkingAnt
     Ant<T> ant = new Ant<>(next.word(), next.inLang(), automaton);
     antsInCurrentRun.add(ant);
     ant.buildSolution();
