@@ -5,7 +5,6 @@ import numbers
 import matplotlib.pyplot as plt
 from common import *
 import numpy as np
-from collections import Counter
 
 
 def stats_for_whole_test(path_to_test, property, plot_as_discrete_values):

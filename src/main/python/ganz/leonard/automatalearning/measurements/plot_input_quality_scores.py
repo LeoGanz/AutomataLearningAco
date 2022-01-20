@@ -3,7 +3,6 @@ import pandas as pd
 import os
 from common import *
 import numpy as np
-from collections import Counter
 
 testname = "InputQuality"
 # testname = "BalancingScores"
@@ -28,5 +27,3 @@ plot_path = os.path.join(get_measurements_dir(), f"{testname}.png")
 print("writing plot to: " + plot_path)
 fig.savefig(plot_path)
 plt.close(fig)
-
-

@@ -10,8 +10,7 @@ public class RngUtil {
    * @param upper upper bound (exclusive)
    * @return a pseudo-random number
    */
-  // see
-  // https://gamedev.stackexchange.com/questions/116832/random-number-in-a-range-biased-toward-the-low-end-of-the-range
+  // see https://gamedev.stackexchange.com/a/116837
   public static int sampleLinearDist(int lower, int upper) {
     if (lower < 0 || upper < 0) {
       throw new IllegalArgumentException("Bounds must be >= 0");
@@ -34,8 +33,7 @@ public class RngUtil {
    *
    * @return a pseudo-random number
    */
-  // see
-  // https://stackoverflow.com/questions/2106503/pseudorandom-number-generator-exponential-distribution
+  // see https://stackoverflow.com/a/2106564
   // see https://en.wikipedia.org/wiki/Inverse_transform_sampling
   // see https://de.wikipedia.org/wiki/Exponentialverteilung#Zufallszahlen
   public static int sampleExpDist() {
